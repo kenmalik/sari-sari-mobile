@@ -21,9 +21,11 @@ export default function Index() {
       })
       .then(({ data, errors, extensions }) => {
         console.log(data);
-        const page: ProductCardProps[] = data.products.edges.map(
-          (edge: { node: ProductCardProps }) => edge.node,
-        );
+        const page: any[] = data.products.edges.map((edge: any) => ({
+          ...edge.node,
+          price: edge.node.priceRange.minVariantPrice.amount,
+          currency: edge.node.priceRange.minVariantPrice.currencyCode,
+        }));
         console.log(page);
         setProducts(page);
 
@@ -43,9 +45,9 @@ export default function Index() {
           key={product.id}
           id={product.id}
           title={product.title}
-          handle={product.handle}
           featuredImage={product.featuredImage}
-          priceRange={product.priceRange}
+          price={product.price}
+          currency={product.currency}
         />
       ))}
     </ScrollView>
@@ -59,10 +61,15 @@ const pageQuery = `
         node {
           id
           title
-          handle
           featuredImage {
             id
             url
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
           }
         }
       }

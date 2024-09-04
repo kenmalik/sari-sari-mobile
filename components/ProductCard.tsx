@@ -1,23 +1,26 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 
 export type ProductCardProps = {
   id: string;
   title: string;
-  handle: string;
   featuredImage?: { id: string; url: string };
-  priceRange: { minVariantPrice: number; maxVariantPrice: number };
+  price: number;
+  currency: string;
 };
 
 export default function ProductCard({
   id,
   title,
-  handle,
   featuredImage,
-  priceRange,
+  price,
+  currency,
 }: ProductCardProps) {
   return (
-    <View style={styles.card}>
+    <Pressable
+      style={styles.card}
+      onPress={() => console.log(`Opening item ${id}`)}
+    >
       <Text style={styles.cardTitle}>{title}</Text>
       {featuredImage ? (
         <Image style={styles.cardImage} source={{ uri: featuredImage.url }} />
@@ -26,7 +29,12 @@ export default function ProductCard({
           <AntDesign name="picture" size={64} color="lightgrey" />
         </View>
       )}
-    </View>
+      <Text style={styles.cardPrice}>
+        {currency === "USD" && "$"}
+        {price}
+        {currency !== "USD" && ` ${currency}`}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -45,6 +53,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     textAlign: "center",
     fontWeight: "bold",
+    marginBottom: 2,
   },
   cardImage: {
     width: "100%",
@@ -55,5 +64,9 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+  },
+  cardPrice: {
+    textAlign: "center",
+    marginTop: 2,
   },
 });
