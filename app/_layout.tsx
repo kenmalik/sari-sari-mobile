@@ -13,6 +13,10 @@ export default function RootLayout() {
     <ShopifyContext.Provider value={client}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(pages)/products/[id]"
+          options={{ headerTitle: "", headerBackTitleVisible: false }}
+        />
       </Stack>
     </ShopifyContext.Provider>
   );

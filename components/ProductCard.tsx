@@ -1,5 +1,6 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import { Link } from "expo-router";
 
 export type ProductCardProps = {
   id: string;
@@ -17,24 +18,32 @@ export default function ProductCard({
   currency,
 }: ProductCardProps) {
   return (
-    <Pressable
-      style={styles.card}
-      onPress={() => console.log(`Opening item ${id}`)}
+    <Link
+      href={{
+        pathname: "/(pages)/products/[id]",
+        params: { id: id },
+      }}
+      asChild
     >
-      <Text style={styles.cardTitle}>{title}</Text>
-      {featuredImage ? (
-        <Image style={styles.cardImage} source={{ uri: featuredImage.url }} />
-      ) : (
-        <View style={[styles.cardImage, styles.cardNoImage]}>
-          <AntDesign name="picture" size={64} color="lightgrey" />
-        </View>
-      )}
-      <Text style={styles.cardPrice}>
-        {currency === "USD" && "$"}
-        {price}
-        {currency !== "USD" && ` ${currency}`}
-      </Text>
-    </Pressable>
+      <Pressable
+        style={styles.card}
+        onPress={() => console.log(`Opening item ${id}`)}
+      >
+        <Text style={styles.cardTitle}>{title}</Text>
+        {featuredImage ? (
+          <Image style={styles.cardImage} source={{ uri: featuredImage.url }} />
+        ) : (
+          <View style={[styles.cardImage, styles.cardNoImage]}>
+            <AntDesign name="picture" size={64} color="lightgrey" />
+          </View>
+        )}
+        <Text style={styles.cardPrice}>
+          {currency === "USD" && "$"}
+          {Number(price).toFixed(2)}
+          {currency !== "USD" && ` ${currency}`}
+        </Text>
+      </Pressable>
+    </Link>
   );
 }
 

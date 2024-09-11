@@ -15,7 +15,7 @@ export default function Index() {
     shopifyClient
       .request(pageQuery, {
         variables: {
-          count: 6,
+          count: 20,
           cursor: null,
         },
       })
