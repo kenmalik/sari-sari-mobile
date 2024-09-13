@@ -83,8 +83,6 @@ export default function ProductPage() {
       <ScrollView contentContainerStyle={styles.container}>
         {product && (
           <>
-            <Text style={styles.title}>{product.title}</Text>
-
             <View style={[styles.imageContainer, { height: height * 0.5 }]}>
               {product.imageURL ? (
                 <Image
@@ -99,7 +97,11 @@ export default function ProductPage() {
               )}
             </View>
 
-            <View style={styles.section}>
+            <Text style={[styles.title, styles.wallSpaced]}>
+              {product.title}
+            </Text>
+
+            <View style={[styles.section, styles.wallSpaced]}>
               <Text>
                 {product.stock > 0 ? (
                   <Text>{product.stock} items in stock!</Text>
@@ -110,7 +112,9 @@ export default function ProductPage() {
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.subheading}>Variant</Text>
+              <Text style={[styles.subheading, styles.wallSpaced]}>
+                Variant
+              </Text>
               <ScrollView
                 contentContainerStyle={styles.variantCardContainer}
                 horizontal
@@ -121,7 +125,7 @@ export default function ProductPage() {
               </ScrollView>
             </View>
 
-            <View style={styles.section}>
+            <View style={[styles.section, styles.wallSpaced]}>
               <NumberSelector max={product.stock} min={1} />
               <Pressable
                 style={{
@@ -155,7 +159,7 @@ export default function ProductPage() {
               </Pressable>
             </View>
 
-            <View style={styles.section}>
+            <View style={[styles.section, styles.wallSpaced]}>
               <Text style={styles.subheading}>Description: </Text>
               {product.description ? (
                 <Text>{product.description}</Text>
@@ -339,18 +343,15 @@ const productQuery = `
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    paddingBottom: 16,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 16,
-    marginBottom: 48,
+    marginBottom: 8,
   },
   imageContainer: {
-    marginBottom: 64,
-    backgroundColor: "white",
+    marginBottom: 16,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -358,7 +359,7 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-    objectFit: "contain",
+    objectFit: "cover",
   },
   subheading: {
     fontSize: 16,
@@ -386,5 +387,8 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 32,
+  },
+  wallSpaced: {
+    marginHorizontal: 16,
   },
 });
