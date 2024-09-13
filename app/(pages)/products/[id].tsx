@@ -9,6 +9,7 @@ import {
   Image,
   StyleSheet,
   useWindowDimensions,
+  Pressable,
 } from "react-native";
 
 type Product = {
@@ -17,13 +18,21 @@ type Product = {
   imageURL: string;
   available: boolean;
   stock: number;
-} | null;
+};
+
+type Variant = {
+  id: string;
+  title: string;
+  price: { amount: number; currencyCode: string };
+  stock: number;
+};
 
 export default function ProductPage() {
   const shopifyClient = useContext(ShopifyContext);
   const { id } = useLocalSearchParams();
   const { height } = useWindowDimensions();
-  const [product, setProduct] = useState<Product>(null);
+  const [product, setProduct] = useState<Product>();
+  const [variants, setVariants] = useState<Variant[]>([]);
 
   useEffect(() => {
     if (!shopifyClient) {
@@ -37,6 +46,7 @@ export default function ProductPage() {
         },
       })
       .then(({ data, errors, extensions }) => {
+        console.log(data.product);
         setProduct({
           title: data.product.title,
           description: data.product.description,
@@ -44,6 +54,16 @@ export default function ProductPage() {
           available: data.product.availableForSale,
           stock: data.product.totalInventory,
         });
+        setVariants(
+          data.product.variants.edges.map((variant: any) => {
+            return {
+              id: variant.node.id,
+              title: variant.node.title,
+              price: variant.node.price,
+              stock: variant.node.quantityAvailable,
+            };
+          }),
+        );
 
         if (errors || extensions) {
           console.log(errors);
@@ -54,10 +74,11 @@ export default function ProductPage() {
   }, []);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {product && (
         <>
           <Text style={styles.title}>{product.title}</Text>
+
           <View style={[styles.imageContainer, { height: height * 0.5 }]}>
             {product.imageURL ? (
               <Image style={styles.image} source={{ uri: product.imageURL }} />
@@ -68,13 +89,25 @@ export default function ProductPage() {
               </>
             )}
           </View>
+
           <Text style={styles.paragraph}>
             {product.stock > 0 ? (
-              <Text>{product.stock} items in stock.</Text>
+              <Text>{product.stock} items in stock!</Text>
             ) : (
-              <Text>Item currently out of stock.</Text>
+              <Text>Out of stock</Text>
             )}
           </Text>
+
+          <Text style={styles.subheading}>Variant</Text>
+          <ScrollView
+            contentContainerStyle={styles.variantCardContainer}
+            horizontal
+          >
+            {variants.map((variant) => (
+              <VariantCard key={variant.id} variant={variant} />
+            ))}
+          </ScrollView>
+
           <Text style={styles.subheading}>Description: </Text>
           {product.description ? (
             <Text>{product.description}</Text>
@@ -87,6 +120,41 @@ export default function ProductPage() {
   );
 }
 
+function VariantCard({ variant }: { variant: Variant }) {
+  return (
+    <Pressable
+      style={styles.variantCard}
+      onPress={() => console.log("Selected variant", variant.id)}
+    >
+      <Text
+        style={{
+          fontSize: 16,
+          fontWeight: "bold",
+          marginBottom: 8,
+        }}
+        numberOfLines={2}
+      >
+        {variant.title}
+      </Text>
+      <View>
+        <Text style={{ fontSize: 16, marginBottom: 4 }}>
+          {variant.price.currencyCode === "USD"
+            ? `$${variant.price.amount}`
+            : `${variant.price.amount} ${variant.price.currencyCode}`}
+        </Text>
+        <Text
+          style={[
+            variant.stock > 0 ? { color: "green" } : { color: "red" },
+            { fontSize: 12 },
+          ]}
+        >
+          {variant.stock > 0 ? "In stock" : "Out of stock"}
+        </Text>
+      </View>
+    </Pressable>
+  );
+}
+
 const productQuery = `
   query ProductQuery($id: ID!) {
     product(id: $id) {
@@ -96,6 +164,23 @@ const productQuery = `
       featuredImage {
         url
       }
+      variants(first: 10) {
+        edges {
+          node {
+            id
+            title
+            price {
+              amount
+              currencyCode
+            }
+            quantityAvailable
+          }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
       totalInventory
     }
   }
@@ -104,6 +189,7 @@ const productQuery = `
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    paddingBottom: 64,
   },
   title: {
     fontSize: 24,
@@ -132,5 +218,20 @@ const styles = StyleSheet.create({
   },
   paragraph: {
     marginBottom: 8,
+  },
+  variantCardContainer: {
+    display: "flex",
+    gap: 16,
+  },
+  variantCard: {
+    padding: 16,
+    borderColor: "black",
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderRadius: 8,
+    minWidth: 128,
+    maxWidth: 200,
+    display: "flex",
+    justifyContent: "space-between",
   },
 });
