@@ -10,6 +10,9 @@ import {
   StyleSheet,
   useWindowDimensions,
   Pressable,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 
 type Product = {
@@ -74,49 +77,96 @@ export default function ProductPage() {
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {product && (
-        <>
-          <Text style={styles.title}>{product.title}</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        {product && (
+          <>
+            <Text style={styles.title}>{product.title}</Text>
 
-          <View style={[styles.imageContainer, { height: height * 0.5 }]}>
-            {product.imageURL ? (
-              <Image style={styles.image} source={{ uri: product.imageURL }} />
-            ) : (
-              <>
-                <AntDesign name="picture" size={64} color="lightgrey" />
-                <Text style={{ color: "lightgrey" }}>No image provided.</Text>
-              </>
-            )}
-          </View>
+            <View style={[styles.imageContainer, { height: height * 0.5 }]}>
+              {product.imageURL ? (
+                <Image
+                  style={styles.image}
+                  source={{ uri: product.imageURL }}
+                />
+              ) : (
+                <>
+                  <AntDesign name="picture" size={64} color="lightgrey" />
+                  <Text style={{ color: "lightgrey" }}>No image provided.</Text>
+                </>
+              )}
+            </View>
 
-          <Text style={styles.paragraph}>
-            {product.stock > 0 ? (
-              <Text>{product.stock} items in stock!</Text>
-            ) : (
-              <Text>Out of stock</Text>
-            )}
-          </Text>
+            <View style={styles.section}>
+              <Text>
+                {product.stock > 0 ? (
+                  <Text>{product.stock} items in stock!</Text>
+                ) : (
+                  <Text>Out of stock</Text>
+                )}
+              </Text>
+            </View>
 
-          <Text style={styles.subheading}>Variant</Text>
-          <ScrollView
-            contentContainerStyle={styles.variantCardContainer}
-            horizontal
-          >
-            {variants.map((variant) => (
-              <VariantCard key={variant.id} variant={variant} />
-            ))}
-          </ScrollView>
+            <View style={styles.section}>
+              <Text style={styles.subheading}>Variant</Text>
+              <ScrollView
+                contentContainerStyle={styles.variantCardContainer}
+                horizontal
+              >
+                {variants.map((variant) => (
+                  <VariantCard key={variant.id} variant={variant} />
+                ))}
+              </ScrollView>
+            </View>
 
-          <Text style={styles.subheading}>Description: </Text>
-          {product.description ? (
-            <Text>{product.description}</Text>
-          ) : (
-            <Text>This item has no description.</Text>
-          )}
-        </>
-      )}
-    </ScrollView>
+            <View style={styles.section}>
+              <NumberSelector max={product.stock} min={1} />
+              <Pressable
+                style={{
+                  borderRadius: 64,
+                  overflow: "hidden",
+                  borderColor: "black",
+                  borderWidth: 1,
+                  marginBottom: 8,
+                }}
+              >
+                <Text
+                  style={{
+                    textAlign: "center",
+                    padding: 16,
+                  }}
+                >
+                  Add to Cart
+                </Text>
+              </Pressable>
+              <Pressable style={{ borderRadius: 64, overflow: "hidden" }}>
+                <Text
+                  style={{
+                    textAlign: "center",
+                    padding: 16,
+                    backgroundColor: "rgb(3, 9, 156)",
+                    color: "white",
+                  }}
+                >
+                  Buy Now
+                </Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.subheading}>Description: </Text>
+              {product.description ? (
+                <Text>{product.description}</Text>
+              ) : (
+                <Text>This item has no description.</Text>
+              )}
+            </View>
+          </>
+        )}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -155,6 +205,107 @@ function VariantCard({ variant }: { variant: Variant }) {
   );
 }
 
+function NumberSelector({ max, min }: { max: number; min: number }) {
+  const [displayValue, setDisplayValue] = useState<string>("1");
+  const [amount, setAmount] = useState<number>(1);
+
+  function onIncrement() {
+    if (amount < min) {
+      setAmount(min);
+      setDisplayValue(min.toString());
+      return;
+    }
+    if (amount >= max) {
+      return;
+    }
+    let newAmount = amount + 1;
+    setAmount(newAmount);
+    setDisplayValue(newAmount.toString());
+  }
+
+  function onDecrement() {
+    if (amount > max) {
+      setAmount(max);
+      setDisplayValue(max.toString());
+      return;
+    }
+    if (amount <= min) {
+      return;
+    }
+    let newAmount = amount - 1;
+    setAmount(newAmount);
+    setDisplayValue(newAmount.toString());
+  }
+
+  function onChangeAmount(newAmount: string) {
+    let amount: number = Number.parseInt(newAmount);
+    if (isNaN(amount)) {
+      setAmount(1);
+      setDisplayValue(newAmount);
+      return;
+    }
+    setAmount(amount);
+    setDisplayValue(newAmount.toString());
+  }
+
+  return (
+    <View
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        backgroundColor: "white",
+        borderRadius: 64,
+        marginBottom: 16,
+        overflow: "hidden",
+      }}
+    >
+      <Pressable
+        onPress={onDecrement}
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-start",
+          width: 48,
+        }}
+      >
+        <AntDesign
+          name="minus"
+          size={16}
+          color="black"
+          style={{
+            marginLeft: 16,
+          }}
+        />
+      </Pressable>
+      <TextInput
+        style={{ padding: 16 }}
+        inputMode="numeric"
+        onChangeText={onChangeAmount}
+        value={displayValue}
+      />
+      <Pressable
+        onPress={onIncrement}
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-end",
+          width: 48,
+        }}
+      >
+        <AntDesign
+          name="plus"
+          size={16}
+          color="black"
+          style={{
+            marginRight: 16,
+          }}
+        />
+      </Pressable>
+    </View>
+  );
+}
+
 const productQuery = `
   query ProductQuery($id: ID!) {
     product(id: $id) {
@@ -189,7 +340,6 @@ const productQuery = `
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    paddingBottom: 64,
   },
   title: {
     fontSize: 24,
@@ -233,5 +383,8 @@ const styles = StyleSheet.create({
     maxWidth: 200,
     display: "flex",
     justifyContent: "space-between",
+  },
+  section: {
+    marginBottom: 32,
   },
 });
