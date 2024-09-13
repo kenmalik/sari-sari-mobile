@@ -111,19 +111,21 @@ export default function ProductPage() {
               </Text>
             </View>
 
-            <View style={styles.section}>
-              <Text style={[styles.subheading, styles.wallSpaced]}>
-                Variant
-              </Text>
-              <ScrollView
-                contentContainerStyle={styles.variantCardContainer}
-                horizontal
-              >
-                {variants.map((variant) => (
-                  <VariantCard key={variant.id} variant={variant} />
-                ))}
-              </ScrollView>
-            </View>
+            {variants.length > 1 && (
+              <View style={styles.section}>
+                <Text style={[styles.subheading, styles.wallSpaced]}>
+                  Variant
+                </Text>
+                <ScrollView
+                  contentContainerStyle={styles.variantCardContainer}
+                  horizontal
+                >
+                  {variants.map((variant) => (
+                    <VariantCard key={variant.id} variant={variant} />
+                  ))}
+                </ScrollView>
+              </View>
+            )}
 
             <View style={[styles.section, styles.wallSpaced]}>
               <NumberSelector max={product.stock} min={1} />
@@ -373,6 +375,7 @@ const styles = StyleSheet.create({
   variantCardContainer: {
     display: "flex",
     gap: 16,
+    paddingHorizontal: 16,
   },
   variantCard: {
     padding: 16,
