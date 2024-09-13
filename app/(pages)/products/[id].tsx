@@ -37,6 +37,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product>();
   const [variants, setVariants] = useState<Variant[]>([]);
   const [images, setImages] = useState<{ id: string; uri: string }[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<Variant>();
 
   useEffect(() => {
     if (!shopifyClient) {
@@ -72,6 +73,7 @@ export default function ProductPage() {
             };
           }),
         );
+        setSelectedVariant(variants[0]);
 
         if (errors || extensions) {
           console.log(errors);
@@ -124,14 +126,26 @@ export default function ProductPage() {
             {variants.length > 1 && (
               <View style={styles.section}>
                 <Text style={[styles.subheading, styles.wallSpaced]}>
-                  Variant
+                  Variant:{" "}
+                  <Text style={{ fontWeight: "regular" }}>
+                    {selectedVariant?.title}
+                  </Text>
                 </Text>
                 <ScrollView
                   contentContainerStyle={styles.variantCardContainer}
                   horizontal
                 >
                   {variants.map((variant) => (
-                    <VariantCard key={variant.id} variant={variant} />
+                    <VariantCard
+                      key={variant.id}
+                      variant={variant}
+                      style={
+                        selectedVariant && selectedVariant.id === variant.id
+                          ? { borderColor: "rgb(3, 9, 156)" }
+                          : undefined
+                      }
+                      onSelect={() => setSelectedVariant(variant)}
+                    />
                   ))}
                 </ScrollView>
               </View>
@@ -186,11 +200,25 @@ export default function ProductPage() {
   );
 }
 
-function VariantCard({ variant }: { variant: Variant }) {
+function VariantCard({
+  variant,
+  style,
+  onSelect,
+}: {
+  variant: Variant;
+  style: any;
+  onSelect: () => void;
+}) {
+  const disabled = variant.stock <= 0;
   return (
     <Pressable
-      style={styles.variantCard}
-      onPress={() => console.log("Selected variant", variant.id)}
+      style={[
+        styles.variantCard,
+        disabled ? styles.disabledVariantCard : styles.enabledVariantCard,
+        style,
+      ]}
+      onPress={onSelect}
+      disabled={disabled}
     >
       <Text
         style={{
@@ -396,14 +424,20 @@ const styles = StyleSheet.create({
   },
   variantCard: {
     padding: 16,
-    borderColor: "black",
-    backgroundColor: "white",
     borderWidth: 1,
     borderRadius: 8,
     minWidth: 128,
     maxWidth: 200,
     display: "flex",
     justifyContent: "space-between",
+  },
+  enabledVariantCard: {
+    borderColor: "black",
+    backgroundColor: "white",
+  },
+  disabledVariantCard: {
+    borderColor: "grey",
+    borderStyle: "dashed",
   },
   section: {
     marginBottom: 32,

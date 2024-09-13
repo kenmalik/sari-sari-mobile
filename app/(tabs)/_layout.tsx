@@ -28,7 +28,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="catalog"
         options={{
-          headerShown: false,
+          header: () => <SearchBar />,
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <AntDesign name="appstore-o" size={24} color={color} />

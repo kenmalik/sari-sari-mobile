@@ -6,7 +6,11 @@ export default function SearchBar() {
 
   return (
     <View style={[styles.bar, { paddingTop: insets.top + 4 }]}>
-      <TextInput style={styles.input} placeholder="Search Shop Sari Sari" />
+      <TextInput
+        style={styles.input}
+        placeholder="Search Shop Sari Sari"
+        placeholderTextColor="grey"
+      />
     </View>
   );
 }
@@ -14,7 +18,7 @@ export default function SearchBar() {
 const styles = StyleSheet.create({
   bar: {
     padding: 12,
-    backgroundColor: "#5873f9",
+    backgroundColor: "rgb(3, 9, 156)",
   },
   input: {
     height: 32,
