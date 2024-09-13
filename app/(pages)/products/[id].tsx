@@ -33,9 +33,10 @@ type Variant = {
 export default function ProductPage() {
   const shopifyClient = useContext(ShopifyContext);
   const { id } = useLocalSearchParams();
-  const { height } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const [product, setProduct] = useState<Product>();
   const [variants, setVariants] = useState<Variant[]>([]);
+  const [images, setImages] = useState<{ id: string; uri: string }[]>([]);
 
   useEffect(() => {
     if (!shopifyClient) {
@@ -50,6 +51,10 @@ export default function ProductPage() {
       })
       .then(({ data, errors, extensions }) => {
         console.log(data.product);
+        const image = data.product.images.edges.map((edge: any) => {
+          return { uri: edge.node.url, id: edge.node.id };
+        });
+        setImages(image);
         setProduct({
           title: data.product.title,
           description: data.product.description,
@@ -84,11 +89,16 @@ export default function ProductPage() {
         {product && (
           <>
             <View style={[styles.imageContainer, { height: height * 0.5 }]}>
-              {product.imageURL ? (
-                <Image
-                  style={styles.image}
-                  source={{ uri: product.imageURL }}
-                />
+              {images.length > 0 ? (
+                <ScrollView horizontal pagingEnabled>
+                  {images.map((image) => (
+                    <Image
+                      style={[styles.image, { width: width }]}
+                      source={{ uri: image.uri }}
+                      key={image.id}
+                    />
+                  ))}
+                </ScrollView>
               ) : (
                 <>
                   <AntDesign name="picture" size={64} color="lightgrey" />
@@ -339,6 +349,14 @@ const productQuery = `
         }
       }
       totalInventory
+      images(first: 5) {
+        edges {
+          node {
+            id
+            url
+          }
+        }
+      }
     }
   }
 `;
@@ -359,7 +377,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   image: {
-    width: "100%",
     height: "100%",
     objectFit: "cover",
   },
