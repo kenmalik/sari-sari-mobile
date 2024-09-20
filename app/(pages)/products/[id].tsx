@@ -1,4 +1,5 @@
 import { ShopifyContext } from "@/app/ShopifyContext";
+import { Carousel } from "@/components/Carousel";
 import { NumberSelector } from "@/components/NumberSelector";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useLocalSearchParams } from "expo-router";
@@ -35,8 +36,10 @@ export default function ProductPage() {
   const { id } = useLocalSearchParams();
   const { width, height } = useWindowDimensions();
   const [product, setProduct] = useState<Product>();
-  const [variants, setVariants] = useState<Variant[]>([]);
   const [images, setImages] = useState<{ id: string; uri: string }[]>([]);
+  const [index, setIndex] = useState<number>();
+
+  const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<Variant>();
 
   useEffect(() => {
@@ -97,15 +100,15 @@ export default function ProductPage() {
           <>
             <View style={[styles.imageContainer, { height: height * 0.5 }]}>
               {images.length > 0 ? (
-                <ScrollView horizontal pagingEnabled>
+                <Carousel height={height} width={width} selected={index}>
                   {images.map((image) => (
                     <Image
-                      style={[styles.image, { width: width }]}
+                      style={[styles.image]}
                       source={{ uri: image.uri }}
                       key={image.id}
                     />
                   ))}
-                </ScrollView>
+                </Carousel>
               ) : (
                 <>
                   <AntDesign name="picture" size={64} color="lightgrey" />
@@ -140,7 +143,7 @@ export default function ProductPage() {
                   contentContainerStyle={styles.variantCardContainer}
                   horizontal
                 >
-                  {variants.map((variant) => (
+                  {variants.map((variant, index) => (
                     <VariantCard
                       key={variant.id}
                       variant={variant}
@@ -149,7 +152,10 @@ export default function ProductPage() {
                           ? { borderColor: "rgb(3, 9, 156)" }
                           : undefined
                       }
-                      onSelect={() => setSelectedVariant(variant)}
+                      onSelect={() => {
+                        setSelectedVariant(variant);
+                        setIndex(index);
+                      }}
                     />
                   ))}
                 </ScrollView>
@@ -310,7 +316,7 @@ const styles = StyleSheet.create({
   },
   image: {
     height: "100%",
-    objectFit: "cover",
+    objectFit: "contain",
   },
   subheading: {
     fontSize: 16,
