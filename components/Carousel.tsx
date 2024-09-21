@@ -1,18 +1,26 @@
-import { Children, useRef } from "react";
+import { Children, isValidElement, useRef } from "react";
 import { ScrollView, View } from "react-native";
 
 type CarouselProps = {
   children?: React.ReactNode;
   height: number;
   width: number;
-  selected?: number;
+  selected?: string;
 };
 
 export function Carousel({ children, height, width, selected }: CarouselProps) {
   const ref = useRef<any>(0);
 
   if (selected !== undefined) {
-    ref.current?.scrollTo({ x: width * selected });
+    const index = Children.toArray(children).findIndex((element) => {
+      if (isValidElement(element)) {
+        return element.props?.id === selected;
+      }
+      return false;
+    });
+    if (index >= 0) {
+      ref.current?.scrollTo({ x: width * index });
+    }
   }
 
   return (

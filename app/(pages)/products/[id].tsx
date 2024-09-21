@@ -16,10 +16,15 @@ import {
   Platform,
 } from "react-native";
 
+type ImageObject = {
+  id: string;
+  url: string;
+};
+
 type Product = {
   title: string;
   description: string;
-  imageURL: string;
+  featuredImage?: ImageObject;
   available: boolean;
   stock: number;
 };
@@ -29,16 +34,16 @@ type Variant = {
   title: string;
   price: { amount: number; currencyCode: string };
   stock: number;
+  imageID?: string;
 };
 
 export default function ProductPage() {
   const shopifyClient = useContext(ShopifyContext);
   const { id } = useLocalSearchParams();
   const { width, height } = useWindowDimensions();
-  const [product, setProduct] = useState<Product>();
-  const [images, setImages] = useState<{ id: string; uri: string }[]>([]);
-  const [index, setIndex] = useState<number>();
 
+  const [product, setProduct] = useState<Product>();
+  const [images, setImages] = useState<ImageObject[]>([]);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<Variant>();
 
@@ -54,25 +59,37 @@ export default function ProductPage() {
         },
       })
       .then(({ data, errors, extensions }) => {
-        console.log(data.product);
-        const image = data.product.images.edges.map((edge: any) => {
-          return { uri: edge.node.url, id: edge.node.id };
+        const product = data.product;
+
+        const image = product.images.edges.map((edge: any) => {
+          return { url: edge.node.url, id: edge.node.id };
         });
         setImages(image);
+
         setProduct({
-          title: data.product.title,
-          description: data.product.description,
-          imageURL: data.product.featuredImage?.url ?? null,
-          available: data.product.availableForSale,
-          stock: data.product.totalInventory,
+          title: product.title,
+          description: product.description,
+          featuredImage: product.featuredImage
+            ? {
+                id: product.featuredImage.id,
+                url: product.featuredImage.url,
+              }
+            : undefined,
+          available: product.availableForSale,
+          stock: product.totalInventory,
         });
+
         setVariants(
-          data.product.variants.edges.map((variant: any) => {
+          product.variants.edges.map((variant: any, index: number) => {
             return {
               id: variant.node.id,
               title: variant.node.title,
               price: variant.node.price,
               stock: variant.node.quantityAvailable,
+              imageID:
+                index > 0 && variant.node.image.id === product.featuredImage?.id
+                  ? undefined
+                  : variant.node.image.id,
             };
           }),
         );
@@ -100,12 +117,17 @@ export default function ProductPage() {
           <>
             <View style={[styles.imageContainer, { height: height * 0.5 }]}>
               {images.length > 0 ? (
-                <Carousel height={height} width={width} selected={index}>
+                <Carousel
+                  height={height}
+                  width={width}
+                  selected={selectedVariant?.imageID}
+                >
                   {images.map((image) => (
                     <Image
-                      style={[styles.image]}
-                      source={{ uri: image.uri }}
+                      id={image.id}
                       key={image.id}
+                      style={[styles.image]}
+                      source={{ uri: image.url }}
                     />
                   ))}
                 </Carousel>
@@ -143,18 +165,17 @@ export default function ProductPage() {
                   contentContainerStyle={styles.variantCardContainer}
                   horizontal
                 >
-                  {variants.map((variant, index) => (
+                  {variants.map((variant) => (
                     <VariantCard
                       key={variant.id}
                       variant={variant}
                       style={
-                        selectedVariant && selectedVariant.id === variant.id
+                        selectedVariant?.id === variant.id
                           ? { borderColor: "rgb(3, 9, 156)" }
                           : undefined
                       }
                       onSelect={() => {
                         setSelectedVariant(variant);
-                        setIndex(index);
                       }}
                     />
                   ))}
@@ -267,6 +288,7 @@ const productQuery = `
       availableForSale
       description
       featuredImage {
+        id
         url
       }
       variants(first: 10) {
@@ -279,6 +301,9 @@ const productQuery = `
               currencyCode
             }
             quantityAvailable
+            image {
+              id
+            }
           }
         }
         pageInfo {
