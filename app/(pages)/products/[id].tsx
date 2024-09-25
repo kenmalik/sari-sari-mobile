@@ -53,7 +53,7 @@ export default function ProductPage() {
     }
 
     shopifyClient
-      .request(productQuery, {
+      .request(GET_PRODUCT_INFO, {
         variables: {
           id: id,
         },
@@ -281,7 +281,7 @@ function VariantCard({
   );
 }
 
-const productQuery = `
+const GET_PRODUCT_INFO = `
   query ProductQuery($id: ID!) {
     product(id: $id) {
       title
