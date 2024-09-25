@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ShopifyContext } from "../ShopifyContext";
-import ProductCard, { ProductCardProps } from "@/components/ProductCard";
+import { ProductCard, ProductCardProps } from "@/components/ProductCard";
 
 export default function Index() {
   const shopifyClient = useContext(ShopifyContext);

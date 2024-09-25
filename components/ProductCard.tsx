@@ -10,7 +10,7 @@ export type ProductCardProps = {
   currency: string;
 };
 
-export default function ProductCard({
+export function ProductCard({
   id,
   title,
   featuredImage,
@@ -25,10 +25,7 @@ export default function ProductCard({
       }}
       asChild
     >
-      <Pressable
-        style={styles.card}
-        onPress={() => console.log(`Opening item ${id}`)}
-      >
+      <Pressable style={styles.card}>
         <Text style={styles.cardTitle}>{title}</Text>
         {featuredImage ? (
           <Image style={styles.cardImage} source={{ uri: featuredImage.url }} />
