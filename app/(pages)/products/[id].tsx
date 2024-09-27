@@ -61,6 +61,7 @@ export default function ProductPage() {
       .then(({ data, errors, extensions }) => {
         const product = data.product;
 
+        console.log(product.images.edges);
         const image = product.images.edges.map((edge: any) => {
           return { url: edge.node.url, id: edge.node.id };
         });
@@ -89,7 +90,7 @@ export default function ProductPage() {
               imageID:
                 index > 0 && variant.node.image.id === product.featuredImage?.id
                   ? undefined
-                  : variant.node.image.id,
+                  : variant.node.image?.id,
             };
           }),
         );
