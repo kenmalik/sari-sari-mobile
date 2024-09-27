@@ -30,7 +30,6 @@ export default function Catalog() {
         },
       });
 
-      console.log(res.data.collections.edges);
       setCollections(
         res.data.collections.edges.map(({ node }: any) => {
           return { id: node.id, title: node.title, image: node.image };

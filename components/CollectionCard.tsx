@@ -22,7 +22,6 @@ export function CollectionCard({
   image,
   style,
 }: CollectionCardProps) {
-  console.log(image);
   return (
     <Link
       href={{
