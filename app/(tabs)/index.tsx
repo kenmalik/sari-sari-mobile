@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import { ShopifyContext } from "../ShopifyContext";
-import { ProductCard, ProductCardProps } from "@/components/ProductCard";
+import { ProductCardProps } from "@/components/ProductCard";
 import { ProductView } from "@/components/ProductView";
 
 export default function Index() {
@@ -54,7 +54,7 @@ export default function Index() {
     }
   }
 
-  useEffect(function () {
+  useEffect(() => {
     loadPage();
   }, []);
 

@@ -11,7 +11,7 @@ export default function Catalog() {
 
   const [collections, setCollections] = useState<CollectionCardProps[]>([]);
   const [hasNextPage, setHasNextPage] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const ITEMS_PER_PAGE = 20;
   const pageCursor = useRef<string | null>(null);
@@ -54,18 +54,24 @@ export default function Catalog() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.pageTitle}>Catalog</Text>
-      <View style={styles.cardContainer}>
-        {collections.map((collection) => (
-          <CollectionCard
-            id={collection.id}
-            title={collection.title}
-            image={collection.image}
-            key={collection.id}
-            style={styles.card}
-          />
-        ))}
-      </View>
+      {isLoading ? (
+        <Text style={styles.loadingText}>Loading catalog...</Text>
+      ) : (
+        <>
+          <Text style={styles.pageTitle}>Catalog</Text>
+          <View style={styles.cardContainer}>
+            {collections.map((collection) => (
+              <CollectionCard
+                id={collection.id}
+                title={collection.title}
+                image={collection.image}
+                key={collection.id}
+                style={styles.card}
+              />
+            ))}
+          </View>
+        </>
+      )}
     </ScrollView>
   );
 }
@@ -91,6 +97,12 @@ const styles = StyleSheet.create({
   },
   card: {
     width: "48%",
+  },
+  loadingText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 32,
+    color: "grey",
   },
 });
 

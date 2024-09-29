@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import { ShopifyContext } from "./ShopifyContext";
 import { createStorefrontApiClient } from "@shopify/storefront-api-client";
 import { Cart, CartContext } from "./CartContext";
-import { CREATE_CART, VIEW_CART } from "@/constants/StorefrontQueries";
+import { CREATE_CART } from "@/constants/StorefrontQueries";
 import { useEffect, useState } from "react";
 
 const client = createStorefrontApiClient({
@@ -23,16 +23,6 @@ export default function RootLayout() {
         res.data.cartCreate.cart.id,
       );
       setCart(res.data.cartCreate.cart);
-      // const test = await client.request(VIEW_CART, {
-      //   variables: {
-      //     cartId: res.data.cartCreate.cart.id,
-      //   },
-      // });
-      // if (test.errors) {
-      //   console.error(test.errors.graphQLErrors);
-      //   return;
-      // }
-      // console.log(test.data);
     } catch (error) {
       console.error("Error Getting Cart: ", error);
     }
@@ -42,7 +32,7 @@ export default function RootLayout() {
     if (!cart) {
       createCart();
     }
-  }, []);
+  }, [cart]);
 
   return (
     <ShopifyContext.Provider value={client}>

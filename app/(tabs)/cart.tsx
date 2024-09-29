@@ -1,9 +1,8 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { CartContext } from "../CartContext";
 import { ShopifyContext } from "../ShopifyContext";
 import { VIEW_CART } from "@/constants/StorefrontQueries";
-import { ProductCardProps } from "@/components/ProductCard";
 import { useFocusEffect } from "expo-router";
 import ProductListItem, {
   ProductListItemProps,

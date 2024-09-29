@@ -122,7 +122,7 @@ export default function ProductPage() {
         }
       })
       .catch(console.error);
-  }, []);
+  }, [id, shopifyClient]);
 
   useEffect(() => {
     if (variants.length > 0) {
