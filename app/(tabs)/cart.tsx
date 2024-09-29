@@ -51,7 +51,8 @@ export default function Cart() {
         res.data.cart.lines.edges.map((edge: any) => {
           const item = edge.node.merchandise;
           return {
-            id: item.product.id,
+            variantId: item.id,
+            productId: item.product.id,
             featuredImage: item.image,
             title: item.product.title,
             price: item.price.amount,
@@ -102,8 +103,9 @@ export default function Cart() {
               <View style={styles.itemContainer}>
                 {items.map((item) => (
                   <ProductListItem
-                    id={item.id}
-                    key={item.id}
+                    variantId={item.variantId}
+                    productId={item.productId}
+                    key={item.variantId}
                     title={item.title}
                     featuredImage={item.featuredImage}
                     price={item.price}

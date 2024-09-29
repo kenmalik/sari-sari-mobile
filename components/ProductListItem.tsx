@@ -1,12 +1,19 @@
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
-import { ProductCardProps } from "./ProductCard";
 import { Link } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
-export type ProductListItemProps = ProductCardProps & { quantity: number };
+export type ProductListItemProps = {
+  variantId: string;
+  productId: string;
+  title: string;
+  featuredImage: { id: string; url: string } | null;
+  price: number;
+  currency: string;
+  quantity: number;
+};
 
 export default function ProductListItem({
-  id,
+  productId,
   title,
   featuredImage,
   price,
@@ -17,7 +24,7 @@ export default function ProductListItem({
     <Link
       href={{
         pathname: "/(pages)/products/[id]",
-        params: { id: id },
+        params: { id: productId },
       }}
       asChild
     >
