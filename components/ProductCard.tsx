@@ -5,7 +5,7 @@ import { Link } from "expo-router";
 export type ProductCardProps = {
   id: string;
   title: string;
-  featuredImage?: { id: string; url: string };
+  featuredImage: { id: string; url: string } | null;
   price: number;
   currency: string;
 };

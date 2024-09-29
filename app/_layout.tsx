@@ -1,6 +1,9 @@
 import { Stack } from "expo-router";
 import { ShopifyContext } from "./ShopifyContext";
 import { createStorefrontApiClient } from "@shopify/storefront-api-client";
+import { Cart, CartContext } from "./CartContext";
+import { CREATE_CART, VIEW_CART } from "@/constants/StorefrontQueries";
+import { useEffect, useState } from "react";
 
 const client = createStorefrontApiClient({
   storeDomain: "http://sari-sari-test.myshopify.com",
@@ -9,15 +12,49 @@ const client = createStorefrontApiClient({
 });
 
 export default function RootLayout() {
+  const [cart, setCart] = useState<Cart>(null);
+  const cartContext = { cart, setCart };
+
+  async function createCart() {
+    try {
+      const res = await client.request(CREATE_CART);
+      console.info(
+        "createCart() (app/_layout.tsx): Created cart",
+        res.data.cartCreate.cart.id,
+      );
+      setCart(res.data.cartCreate.cart);
+      // const test = await client.request(VIEW_CART, {
+      //   variables: {
+      //     cartId: res.data.cartCreate.cart.id,
+      //   },
+      // });
+      // if (test.errors) {
+      //   console.error(test.errors.graphQLErrors);
+      //   return;
+      // }
+      // console.log(test.data);
+    } catch (error) {
+      console.error("Error Getting Cart: ", error);
+    }
+  }
+
+  useEffect(() => {
+    if (!cart) {
+      createCart();
+    }
+  }, []);
+
   return (
     <ShopifyContext.Provider value={client}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="(pages)/products/[id]"
-          options={{ headerTitle: "", headerBackTitleVisible: false }}
-        />
-      </Stack>
+      <CartContext.Provider value={cartContext}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="(pages)/products/[id]"
+            options={{ headerTitle: "", headerBackTitleVisible: false }}
+          />
+        </Stack>
+      </CartContext.Provider>
     </ShopifyContext.Provider>
   );
 }

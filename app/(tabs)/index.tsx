@@ -28,7 +28,6 @@ export default function Index() {
         },
       });
 
-      console.log(res.data);
       const page: ProductCardProps[] = res.data.products.edges.map(
         (edge: any) => ({
           ...edge.node,

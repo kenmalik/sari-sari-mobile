@@ -1,6 +1,8 @@
+import { CartContext } from "@/app/CartContext";
 import { ShopifyContext } from "@/app/ShopifyContext";
 import { Carousel } from "@/components/Carousel";
 import { NumberSelector } from "@/components/NumberSelector";
+import { ADD_TO_CART } from "@/constants/StorefrontQueries";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
@@ -46,6 +48,25 @@ export default function ProductPage() {
   const [images, setImages] = useState<ImageObject[]>([]);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<Variant>();
+
+  const { cart, setCart } = useContext(CartContext);
+
+  async function handleAddToCart() {
+    if (!selectedVariant || !shopifyClient || !cart) {
+      return;
+    }
+    console.info(
+      `Adding variant with ID ${selectedVariant.id} to cart with ID ${cart.id}`,
+    );
+    const res = await shopifyClient.request(ADD_TO_CART, {
+      variables: {
+        cartId: cart.id,
+        lines: [{ merchandiseId: selectedVariant.id }],
+      },
+    });
+    console.log("Cart after adding", res.data.cartLinesAdd.cart);
+    setCart(res.data.cartLinesAdd.cart);
+  }
 
   useEffect(() => {
     if (!shopifyClient) {
@@ -194,6 +215,7 @@ export default function ProductPage() {
                   borderWidth: 1,
                   marginBottom: 8,
                 }}
+                onPress={handleAddToCart}
               >
                 <Text
                   style={{
