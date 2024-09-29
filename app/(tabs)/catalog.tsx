@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Text, View, StyleSheet, ScrollView } from "react-native";
+import { Text, View, StyleSheet, ScrollView, Pressable } from "react-native";
 import { ShopifyContext } from "../ShopifyContext";
 import {
   CollectionCard,
@@ -30,16 +30,18 @@ export default function Catalog() {
         },
       });
 
-      setCollections(
-        res.data.collections.edges.map(({ node }: any) => {
-          return { id: node.id, title: node.title, image: node.image };
-        }),
-      );
+      const page = res.data.collections.edges.map(({ node }: any) => {
+        return { id: node.id, title: node.title, image: node.image };
+      });
+      setCollections(collections.concat(page));
 
       const hasNextPage = res.data.collections.pageInfo.hasNextPage;
       setHasNextPage(hasNextPage);
       pageCursor.current = hasNextPage
         ? res.data.collections.pageInfo.hasNextPage
+        : null;
+      pageCursor.current = hasNextPage
+        ? res.data.collections.pageInfo.endCursor
         : null;
     } catch (error) {
       console.error(error);
@@ -48,29 +50,38 @@ export default function Catalog() {
     }
   }
 
-  useEffect(function () {
+  useEffect(() => {
     getCollections();
   }, []);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {isLoading ? (
-        <Text style={styles.loadingText}>Loading catalog...</Text>
-      ) : (
-        <>
-          <Text style={styles.pageTitle}>Catalog</Text>
-          <View style={styles.cardContainer}>
-            {collections.map((collection) => (
-              <CollectionCard
-                id={collection.id}
-                title={collection.title}
-                image={collection.image}
-                key={collection.id}
-                style={styles.card}
-              />
-            ))}
-          </View>
-        </>
+      <Text style={styles.pageTitle}>Catalog</Text>
+      <View style={styles.cardContainer}>
+        {collections.map((collection) => (
+          <CollectionCard
+            id={collection.id}
+            title={collection.title}
+            image={collection.image}
+            key={collection.id}
+            style={styles.card}
+          />
+        ))}
+      </View>
+      {isLoading && <Text style={styles.loadingText}>Loading catalog...</Text>}
+      {hasNextPage && (
+        <Pressable
+          onPress={getCollections}
+          style={({ pressed }) => [
+            {
+              backgroundColor: pressed ? "rgb(33, 39, 186)" : "rgb(3, 9, 156)",
+            },
+            styles.loadMoreButton,
+          ]}
+          disabled={isLoading}
+        >
+          <Text style={styles.buttonText}>Load More</Text>
+        </Pressable>
       )}
     </ScrollView>
   );
@@ -103,6 +114,20 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 32,
     color: "grey",
+  },
+  buttonText: {
+    textAlign: "center",
+    color: "white",
+  },
+  loadMoreButton: {
+    paddingVertical: 16,
+    paddingHorizontal: 64,
+    marginTop: 16,
+    marginBottom: 64,
+    shadowColor: "grey",
+    shadowOpacity: 100,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
 });
 
