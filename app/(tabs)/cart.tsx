@@ -2,14 +2,14 @@ import { useCallback, useContext, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { CartContext } from "../CartContext";
 import { ShopifyContext } from "../ShopifyContext";
-import { VIEW_CART } from "@/constants/StorefrontQueries";
+import { REMOVE_FROM_CART, VIEW_CART } from "@/constants/StorefrontQueries";
 import { useFocusEffect } from "expo-router";
 import ProductListItem, {
   ProductListItemProps,
 } from "@/components/ProductListItem";
 
 export default function Cart() {
-  const shopifyContext = useContext(ShopifyContext);
+  const shopifyClient = useContext(ShopifyContext);
   const { cart, setCart } = useContext(CartContext);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -20,7 +20,7 @@ export default function Cart() {
   }>({ amount: 0, currency: "USD" });
 
   async function getCart() {
-    if (!shopifyContext || !cart) {
+    if (!shopifyClient || !cart) {
       return;
     }
 
@@ -30,7 +30,7 @@ export default function Cart() {
         cart.id,
       );
       setIsLoading(true);
-      const res = await shopifyContext.request(VIEW_CART, {
+      const res = await shopifyClient.request(VIEW_CART, {
         variables: {
           cartId: cart.id,
         },
@@ -51,6 +51,7 @@ export default function Cart() {
         res.data.cart.lines.edges.map((edge: any) => {
           const item = edge.node.merchandise;
           return {
+            lineId: edge.node.id,
             variantId: item.id,
             productId: item.product.id,
             featuredImage: item.image,
@@ -66,6 +67,26 @@ export default function Cart() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  async function handleRemoveFromCart(lineId: string) {
+    if (!shopifyClient || !cart) {
+      return;
+    }
+
+    const res = await shopifyClient.request(REMOVE_FROM_CART, {
+      variables: {
+        cartId: cart.id,
+        lineIds: [lineId],
+      },
+    });
+
+    if (res.errors) {
+      console.error(res.errors);
+      return;
+    }
+    console.info(`Removed item ${lineId} from cart`);
+    getCart();
   }
 
   useFocusEffect(
@@ -103,6 +124,7 @@ export default function Cart() {
               <View style={styles.itemContainer}>
                 {items.map((item) => (
                   <ProductListItem
+                    lineId={item.lineId}
                     variantId={item.variantId}
                     productId={item.productId}
                     key={item.variantId}
@@ -111,6 +133,9 @@ export default function Cart() {
                     price={item.price}
                     currency={item.currency}
                     quantity={item.quantity}
+                    onDelete={() => {
+                      handleRemoveFromCart(item.lineId);
+                    }}
                   />
                 ))}
               </View>

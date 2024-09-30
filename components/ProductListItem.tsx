@@ -3,6 +3,7 @@ import { Link } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
 export type ProductListItemProps = {
+  lineId: string;
   variantId: string;
   productId: string;
   title: string;
@@ -10,6 +11,7 @@ export type ProductListItemProps = {
   price: number;
   currency: string;
   quantity: number;
+  onDelete?: VoidFunction;
 };
 
 export default function ProductListItem({
@@ -19,6 +21,7 @@ export default function ProductListItem({
   price,
   currency,
   quantity,
+  onDelete,
 }: ProductListItemProps) {
   return (
     <Link
@@ -48,7 +51,9 @@ export default function ProductListItem({
             {currency === "USD" ? `\$${price}` : `${price} ${currency}`}
           </Text>
           <Text>Quantity: {quantity}</Text>
-          <Text>Delete</Text>
+          <Pressable onPress={onDelete}>
+            <Text>Delete</Text>
+          </Pressable>
         </View>
       </Pressable>
     </Link>

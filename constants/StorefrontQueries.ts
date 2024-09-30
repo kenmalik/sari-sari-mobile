@@ -32,6 +32,7 @@ query GetCart($cartId: ID!) {
     lines(first: 10) {
       edges {
         node {
+          id
           quantity
           merchandise {
             ... on ProductVariant {
@@ -53,6 +54,21 @@ query GetCart($cartId: ID!) {
           }
         }
       }
+    }
+  }
+}
+`;
+
+export const REMOVE_FROM_CART = `
+mutation RemoveFromCart($cartId: ID!, $lineIds: [ID!]!) {
+  cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+    cart {
+      id
+      checkoutUrl
+    }
+    userErrors {
+      field
+      message
     }
   }
 }
