@@ -1,9 +1,11 @@
+import { CartContext } from "@/app/CartContext";
 import { ShopifyContext } from "@/app/ShopifyContext";
 import { Carousel } from "@/components/Carousel";
 import { NumberSelector } from "@/components/NumberSelector";
+import { ADD_TO_CART } from "@/constants/StorefrontQueries";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useLocalSearchParams } from "expo-router";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   ScrollView,
   View,
@@ -47,6 +49,38 @@ export default function ProductPage() {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<Variant>();
 
+  const { cart, setCart } = useContext(CartContext);
+
+  const quantity = useRef<number>(1);
+
+  async function handleAddToCart() {
+    if (!selectedVariant || !shopifyClient || !cart) {
+      return;
+    }
+    console.info(
+      `Adding variant with ID ${selectedVariant.id} to cart with ID ${cart.id}`,
+    );
+    const res = await shopifyClient.request(ADD_TO_CART, {
+      variables: {
+        cartId: cart.id,
+        lines: [
+          { quantity: quantity.current, merchandiseId: selectedVariant.id },
+        ],
+      },
+    });
+
+    if (res.errors) {
+      console.error(
+        `Cannot add item ${selectedVariant.id} to cart:`,
+        res.errors,
+      );
+      return;
+    }
+
+    console.log("Cart after adding", res.data.cartLinesAdd.cart);
+    setCart(res.data.cartLinesAdd.cart);
+  }
+
   useEffect(() => {
     if (!shopifyClient) {
       return;
@@ -61,6 +95,7 @@ export default function ProductPage() {
       .then(({ data, errors, extensions }) => {
         const product = data.product;
 
+        console.log(product.images.edges);
         const image = product.images.edges.map((edge: any) => {
           return { url: edge.node.url, id: edge.node.id };
         });
@@ -89,18 +124,18 @@ export default function ProductPage() {
               imageID:
                 index > 0 && variant.node.image.id === product.featuredImage?.id
                   ? undefined
-                  : variant.node.image.id,
+                  : variant.node.image?.id,
             };
           }),
         );
 
         if (errors || extensions) {
-          console.log(errors);
+          console.error(errors);
           console.log(extensions);
         }
       })
       .catch(console.error);
-  }, []);
+  }, [id, shopifyClient]);
 
   useEffect(() => {
     if (variants.length > 0) {
@@ -184,7 +219,13 @@ export default function ProductPage() {
             )}
 
             <View style={[styles.section, styles.wallSpaced]}>
-              <NumberSelector max={product.stock} min={1} />
+              <NumberSelector
+                max={product.stock}
+                min={1}
+                onSelect={(selected) => {
+                  quantity.current = selected;
+                }}
+              />
               <Pressable
                 style={{
                   borderRadius: 64,
@@ -193,6 +234,7 @@ export default function ProductPage() {
                   borderWidth: 1,
                   marginBottom: 8,
                 }}
+                onPress={handleAddToCart}
               >
                 <Text
                   style={{

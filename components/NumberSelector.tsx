@@ -2,13 +2,24 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { useState } from "react";
 import { Pressable, TextInput, View } from "react-native";
 
-export function NumberSelector({ max, min }: { max: number; min: number }) {
+export function NumberSelector({
+  max,
+  min,
+  onSelect,
+}: {
+  max: number;
+  min: number;
+  onSelect?: (selected: number) => void;
+}) {
   const [displayValue, setDisplayValue] = useState<string>("1");
   const [amount, setAmount] = useState<number>(1);
 
   function onIncrement() {
     if (amount < min) {
       setAmount(min);
+      if (onSelect) {
+        onSelect(min);
+      }
       setDisplayValue(min.toString());
       return;
     }
@@ -18,11 +29,17 @@ export function NumberSelector({ max, min }: { max: number; min: number }) {
     let newAmount = amount + 1;
     setAmount(newAmount);
     setDisplayValue(newAmount.toString());
+    if (onSelect) {
+      onSelect(newAmount);
+    }
   }
 
   function onDecrement() {
     if (amount > max) {
       setAmount(max);
+      if (onSelect) {
+        onSelect(max);
+      }
       setDisplayValue(max.toString());
       return;
     }
@@ -32,17 +49,26 @@ export function NumberSelector({ max, min }: { max: number; min: number }) {
     let newAmount = amount - 1;
     setAmount(newAmount);
     setDisplayValue(newAmount.toString());
+    if (onSelect) {
+      onSelect(newAmount);
+    }
   }
 
   function onChangeAmount(newAmount: string) {
     let amount: number = Number.parseInt(newAmount);
     if (isNaN(amount)) {
       setAmount(1);
+      if (onSelect) {
+        onSelect(amount);
+      }
       setDisplayValue(newAmount);
       return;
     }
     setAmount(amount);
     setDisplayValue(newAmount.toString());
+    if (onSelect) {
+      onSelect(amount);
+    }
   }
 
   return (

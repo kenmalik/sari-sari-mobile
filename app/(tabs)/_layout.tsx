@@ -18,7 +18,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="cart"
         options={{
-          headerShown: false,
+          header: () => <SearchBar />,
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <AntDesign name="shoppingcart" size={24} color={color} />

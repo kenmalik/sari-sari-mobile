@@ -1,7 +1,8 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import { ShopifyContext } from "../ShopifyContext";
-import ProductCard, { ProductCardProps } from "@/components/ProductCard";
+import { ProductCardProps } from "@/components/ProductCard";
+import { ProductView } from "@/components/ProductView";
 
 export default function Index() {
   const shopifyClient = useContext(ShopifyContext);
@@ -27,7 +28,6 @@ export default function Index() {
         },
       });
 
-      console.log(res.data);
       const page: ProductCardProps[] = res.data.products.edges.map(
         (edge: any) => ({
           ...edge.node,
@@ -54,40 +54,18 @@ export default function Index() {
     }
   }
 
-  useEffect(function () {
+  useEffect(() => {
     loadPage();
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.pageTitle}>Products</Text>
-      <View style={styles.cardContainer}>
-        {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            id={product.id}
-            title={product.title}
-            featuredImage={product.featuredImage}
-            price={product.price}
-            currency={product.currency}
-          />
-        ))}
-      </View>
-      {hasNextPage && (
-        <Pressable
-          onPress={() => loadPage()}
-          style={({ pressed }) => [
-            {
-              backgroundColor: pressed ? "rgb(33, 39, 186)" : "rgb(3, 9, 156)",
-            },
-            styles.loadMoreButton,
-          ]}
-          disabled={isLoading}
-        >
-          <Text style={styles.buttonText}>Load More</Text>
-        </Pressable>
-      )}
-    </ScrollView>
+    <ProductView
+      products={products}
+      onLoad={loadPage}
+      isLoading={isLoading}
+      hasNextPage={hasNextPage}
+      titleBlock={<Text style={styles.pageTitle}>Products</Text>}
+    />
   );
 }
 
