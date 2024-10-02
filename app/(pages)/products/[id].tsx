@@ -18,6 +18,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { notificationAsync, NotificationFeedbackType } from "expo-haptics";
 
 type ImageObject = {
   id: string;
@@ -44,13 +45,15 @@ export default function ProductPage() {
   const shopifyClient = useContext(ShopifyContext);
   const { id } = useLocalSearchParams();
   const { width, height } = useWindowDimensions();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [product, setProduct] = useState<Product>();
+  const isOutOfStock = product ? product.stock <= 0 : true;
   const [images, setImages] = useState<ImageObject[]>([]);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<Variant>();
 
-  const { cart, setCart } = useContext(CartContext);
+  const { cart } = useContext(CartContext);
 
   const [quantity, setQuantity] = useState<number>(1);
 
@@ -58,26 +61,26 @@ export default function ProductPage() {
     if (!selectedVariant || !shopifyClient || !cart) {
       return;
     }
-    console.info(
-      `Adding variant with ID ${selectedVariant.id} to cart with ID ${cart.id}`,
-    );
-    const res = await shopifyClient.request(ADD_TO_CART, {
-      variables: {
-        cartId: cart.id,
-        lines: [{ quantity: quantity, merchandiseId: selectedVariant.id }],
-      },
-    });
 
-    if (res.errors) {
-      console.error(
-        `Cannot add item ${selectedVariant.id} to cart:`,
-        res.errors,
-      );
-      return;
+    try {
+      setIsLoading(true);
+      const res = await shopifyClient.request(ADD_TO_CART, {
+        variables: {
+          cartId: cart.id,
+          lines: [{ quantity: quantity, merchandiseId: selectedVariant.id }],
+        },
+      });
+      if (res.errors) {
+        throw res.errors;
+      }
+
+      notificationAsync(NotificationFeedbackType.Success);
+    } catch (e) {
+      console.error(e);
+      notificationAsync(NotificationFeedbackType.Error);
+    } finally {
+      setIsLoading(false);
     }
-
-    console.log("Cart after adding", res.data.cartLinesAdd.cart);
-    setCart(res.data.cartLinesAdd.cart);
   }
 
   useEffect(() => {
@@ -224,7 +227,7 @@ export default function ProductPage() {
                 onSelect={(selected) => setQuantity(selected)}
                 value={quantity}
                 style={{ marginBottom: 24 }}
-                disabled={product.stock <= 0}
+                disabled={isOutOfStock}
               />
               <ThemedButton
                 lightColor="transparent"
@@ -234,16 +237,16 @@ export default function ProductPage() {
                 darkPressedColor="white"
                 darkDisabledColor="lightgrey"
                 style={{
-                  borderColor: product.stock <= 0 ? "grey" : "black",
+                  borderColor: isOutOfStock ? "grey" : "black",
                   borderWidth: 1,
                   marginBottom: 8,
                 }}
                 onPress={handleAddToCart}
-                disabled={product.stock <= 0}
+                disabled={isOutOfStock}
               >
                 <Text
                   style={{
-                    color: product.stock <= 0 ? "grey" : "black",
+                    color: isOutOfStock ? "grey" : "black",
                     textAlign: "center",
                     padding: 16,
                   }}
@@ -251,12 +254,12 @@ export default function ProductPage() {
                   Add to Cart
                 </Text>
               </ThemedButton>
-              <ThemedButton disabled={product.stock <= 0}>
+              <ThemedButton disabled={isOutOfStock}>
                 <Text
                   style={{
                     textAlign: "center",
                     padding: 16,
-                    color: product.stock <= 0 ? "gainsboro" : "white",
+                    color: isOutOfStock ? "gainsboro" : "white",
                   }}
                 >
                   Buy Now
@@ -275,6 +278,18 @@ export default function ProductPage() {
           </>
         )}
       </ScrollView>
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "lightgrey",
+          opacity: 0.4,
+          display: isLoading ? "flex" : "none",
+        }}
+      ></View>
     </KeyboardAvoidingView>
   );
 }

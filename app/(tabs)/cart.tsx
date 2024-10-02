@@ -128,60 +128,68 @@ export default function Cart() {
   );
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {isLoading ? (
-        <Text style={styles.loadingText}>Loading cart...</Text>
-      ) : (
-        <>
-          {items.length > 0 ? (
-            <>
-              <Text style={styles.pageTitle}>Your Cart</Text>
-              <Text style={styles.subtitle}>
-                <Text style={{ fontWeight: "300" }}>Subtotal </Text>
-                <Text style={{ fontWeight: "600" }}>
-                  {subtotal.currency === "USD"
-                    ? `\$${Number(subtotal.amount).toFixed(2)}`
-                    : `${Number(subtotal.amount).toFixed(2)} ${subtotal.currency}`}
-                </Text>
+    <>
+      <ScrollView contentContainerStyle={styles.container}>
+        {items.length > 0 ? (
+          <>
+            <Text style={styles.pageTitle}>Your Cart</Text>
+            <Text style={styles.subtitle}>
+              <Text style={{ fontWeight: "300" }}>Subtotal </Text>
+              <Text style={{ fontWeight: "600" }}>
+                {subtotal.currency === "USD"
+                  ? `\$${Number(subtotal.amount).toFixed(2)}`
+                  : `${Number(subtotal.amount).toFixed(2)} ${subtotal.currency}`}
               </Text>
+            </Text>
 
-              <View
-                style={{
-                  borderBottomWidth: 1,
-                  borderColor: "lightgrey",
-                  marginBottom: 16,
-                }}
-              ></View>
+            <View
+              style={{
+                borderBottomWidth: 1,
+                borderColor: "lightgrey",
+                marginBottom: 16,
+              }}
+            ></View>
 
-              <View style={styles.itemContainer}>
-                {items.map((item) => (
-                  <ProductListItem
-                    key={item.lineId}
-                    lineId={item.lineId}
-                    variantId={item.variantId}
-                    productId={item.productId}
-                    title={item.title}
-                    featuredImage={item.featuredImage}
-                    price={item.price}
-                    currency={item.currency}
-                    quantity={item.quantity}
-                    quantityAvailable={item.quantityAvailable}
-                    onDelete={() => {
-                      handleRemoveFromCart(item.lineId);
-                    }}
-                    onQuantityChange={(newQuantity) => {
-                      handleUpdateQuantity(item.lineId, newQuantity);
-                    }}
-                  />
-                ))}
-              </View>
-            </>
-          ) : (
-            <Text style={styles.cartEmptyText}>Cart empty</Text>
-          )}
-        </>
-      )}
-    </ScrollView>
+            <View style={styles.itemContainer}>
+              {items.map((item) => (
+                <ProductListItem
+                  key={item.lineId}
+                  lineId={item.lineId}
+                  variantId={item.variantId}
+                  productId={item.productId}
+                  title={item.title}
+                  featuredImage={item.featuredImage}
+                  price={item.price}
+                  currency={item.currency}
+                  quantity={item.quantity}
+                  quantityAvailable={item.quantityAvailable}
+                  onDelete={() => {
+                    handleRemoveFromCart(item.lineId);
+                  }}
+                  onQuantityChange={(newQuantity) => {
+                    handleUpdateQuantity(item.lineId, newQuantity);
+                  }}
+                />
+              ))}
+            </View>
+          </>
+        ) : (
+          <Text style={styles.cartEmptyText}>Cart empty</Text>
+        )}
+      </ScrollView>
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "lightgrey",
+          opacity: 0.4,
+          display: isLoading ? "flex" : "none",
+        }}
+      ></View>
+    </>
   );
 }
 
