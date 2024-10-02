@@ -2,6 +2,7 @@ import { CartContext } from "@/app/CartContext";
 import { ShopifyContext } from "@/app/ShopifyContext";
 import { Carousel } from "@/components/Carousel";
 import { NumberSelector } from "@/components/NumberSelector";
+import { ThemedButton } from "@/components/ThemedButton";
 import { ADD_TO_CART } from "@/constants/StorefrontQueries";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useLocalSearchParams } from "expo-router";
@@ -225,10 +226,12 @@ export default function ProductPage() {
                 style={{ marginBottom: 24 }}
                 disabled={product.stock <= 0}
               />
-              <Pressable
+              <ThemedButton
+                lightColor={"transparent"}
+                lightPressedColor={"white"}
+                darkColor={"transparent"}
+                darkPressedColor={"white"}
                 style={{
-                  borderRadius: 64,
-                  overflow: "hidden",
                   borderColor: "black",
                   borderWidth: 1,
                   marginBottom: 8,
@@ -243,19 +246,18 @@ export default function ProductPage() {
                 >
                   Add to Cart
                 </Text>
-              </Pressable>
-              <Pressable style={{ borderRadius: 64, overflow: "hidden" }}>
+              </ThemedButton>
+              <ThemedButton>
                 <Text
                   style={{
                     textAlign: "center",
                     padding: 16,
-                    backgroundColor: "rgb(3, 9, 156)",
                     color: "white",
                   }}
                 >
                   Buy Now
                 </Text>
-              </Pressable>
+              </ThemedButton>
             </View>
 
             <View style={[styles.section, styles.wallSpaced]}>
