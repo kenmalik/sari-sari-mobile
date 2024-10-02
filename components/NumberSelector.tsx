@@ -29,9 +29,6 @@ export function NumberSelector({
       }
       return;
     }
-    if (value >= max) {
-      return;
-    }
     let newAmount = value + 1;
     setTextValue(newAmount.toString());
     if (onSelect) {
@@ -45,9 +42,6 @@ export function NumberSelector({
       if (onSelect) {
         onSelect(max);
       }
-      return;
-    }
-    if (value <= min) {
       return;
     }
     let newAmount = value - 1;
@@ -85,6 +79,7 @@ export function NumberSelector({
     >
       <Pressable
         onPress={onDecrement}
+        disabled={value <= min}
         style={{
           display: "flex",
           justifyContent: "center",
@@ -95,7 +90,7 @@ export function NumberSelector({
         <AntDesign
           name="minus"
           size={16}
-          color={disabled ? "grey" : "black"}
+          color={value <= min || disabled ? "lightgrey" : "black"}
           style={{
             marginLeft: 16,
           }}
@@ -112,6 +107,7 @@ export function NumberSelector({
       />
       <Pressable
         onPress={onIncrement}
+        disabled={value >= max}
         style={{
           display: "flex",
           justifyContent: "center",
@@ -122,7 +118,7 @@ export function NumberSelector({
         <AntDesign
           name="plus"
           size={16}
-          color={disabled ? "grey" : "black"}
+          color={value >= max || disabled ? "lightgrey" : "black"}
           style={{
             marginRight: 16,
           }}
