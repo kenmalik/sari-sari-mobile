@@ -87,14 +87,16 @@ export function NumberSelector({
           width: 48,
         }}
       >
-        <AntDesign
-          name="minus"
-          size={16}
-          color={value <= min || disabled ? "lightgrey" : "black"}
-          style={{
-            marginLeft: 16,
-          }}
-        />
+        {({ pressed }) => (
+          <AntDesign
+            name="minus"
+            size={16}
+            color={value <= min || disabled || pressed ? "lightgrey" : "black"}
+            style={{
+              marginLeft: 16,
+            }}
+          />
+        )}
       </Pressable>
       <TextInput
         style={{ padding: 16, flex: 1, textAlign: "center" }}
@@ -115,14 +117,16 @@ export function NumberSelector({
           width: 48,
         }}
       >
-        <AntDesign
-          name="plus"
-          size={16}
-          color={value >= max || disabled ? "lightgrey" : "black"}
-          style={{
-            marginRight: 16,
-          }}
-        />
+        {({ pressed }) => (
+          <AntDesign
+            name="plus"
+            size={16}
+            color={value >= max || disabled || pressed ? "lightgrey" : "black"}
+            style={{
+              marginRight: 16,
+            }}
+          />
+        )}
       </Pressable>
     </View>
   );
