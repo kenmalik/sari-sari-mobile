@@ -5,6 +5,12 @@
 
 const tintColorLight = "rgb(3, 9, 156)";
 const tintHighlightColorLight = "rgb(23, 29, 176)";
+const tintDimmedColorLight = "rgb(83, 99, 176)";
+
+const secondaryColorLight = "#f54242";
+const secondaryHighlightColorLight = "#f54242";
+const secondaryDimmedColorLight = "#f54242";
+
 const tintColorDark = "rgb(3, 9, 156)";
 
 export const Colors = {
@@ -13,6 +19,8 @@ export const Colors = {
     background: "#fff",
     tint: tintColorLight,
     tintHighlight: tintHighlightColorLight,
+    tintDimmed: tintDimmedColorLight,
+    secondary: secondaryColorLight,
     icon: "#687076",
     tabIconDefault: "#687076",
     tabIconSelected: tintColorLight,
@@ -22,6 +30,8 @@ export const Colors = {
     background: "#fff",
     tint: tintColorLight,
     tintHighlight: tintHighlightColorLight,
+    tintDimmed: tintDimmedColorLight,
+    secondary: secondaryColorLight,
     icon: "#687076",
     tabIconDefault: "#687076",
     tabIconSelected: tintColorLight,

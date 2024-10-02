@@ -182,7 +182,7 @@ export default function ProductPage() {
                 {product.stock > 0 ? (
                   <Text>{product.stock} items in stock!</Text>
                 ) : (
-                  <Text>Out of stock</Text>
+                  <Text style={{ color: "red" }}>Out of stock</Text>
                 )}
               </Text>
             </View>
@@ -227,19 +227,23 @@ export default function ProductPage() {
                 disabled={product.stock <= 0}
               />
               <ThemedButton
-                lightColor={"transparent"}
-                lightPressedColor={"white"}
-                darkColor={"transparent"}
-                darkPressedColor={"white"}
+                lightColor="transparent"
+                lightPressedColor="white"
+                lightDisabledColor="lightgrey"
+                darkColor="transparent"
+                darkPressedColor="white"
+                darkDisabledColor="lightgrey"
                 style={{
-                  borderColor: "black",
+                  borderColor: product.stock <= 0 ? "grey" : "black",
                   borderWidth: 1,
                   marginBottom: 8,
                 }}
                 onPress={handleAddToCart}
+                disabled={product.stock <= 0}
               >
                 <Text
                   style={{
+                    color: product.stock <= 0 ? "grey" : "black",
                     textAlign: "center",
                     padding: 16,
                   }}
@@ -247,12 +251,12 @@ export default function ProductPage() {
                   Add to Cart
                 </Text>
               </ThemedButton>
-              <ThemedButton>
+              <ThemedButton disabled={product.stock <= 0}>
                 <Text
                   style={{
                     textAlign: "center",
                     padding: 16,
-                    color: "white",
+                    color: product.stock <= 0 ? "gainsboro" : "white",
                   }}
                 >
                   Buy Now

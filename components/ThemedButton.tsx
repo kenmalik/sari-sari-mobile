@@ -8,6 +8,8 @@ export type ThemedButtonProps = PressableProps &
     darkColor?: string;
     lightPressedColor?: string;
     darkPressedColor?: string;
+    lightDisabledColor?: string;
+    darkDisabledColor?: string;
   };
 
 export function ThemedButton({
@@ -16,12 +18,25 @@ export function ThemedButton({
   darkColor,
   lightPressedColor,
   darkPressedColor,
+  lightDisabledColor,
+  darkDisabledColor,
   ...otherProps
 }: ThemedButtonProps) {
-  const backgroundColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    "tint",
-  );
+  const backgroundColor = otherProps.disabled
+    ? useThemeColor(
+        {
+          light: lightDisabledColor,
+          dark: darkDisabledColor,
+        },
+        "tintDimmed",
+      )
+    : useThemeColor(
+        {
+          light: lightColor,
+          dark: darkColor,
+        },
+        "tint",
+      );
   const pressedColor = useThemeColor(
     { light: lightPressedColor, dark: darkPressedColor },
     "tintHighlight",
