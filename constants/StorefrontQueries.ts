@@ -38,6 +38,7 @@ query GetCart($cartId: ID!) {
             ... on ProductVariant {
               id
               title
+              quantityAvailable
               image {
                 id
                 url

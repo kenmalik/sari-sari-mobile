@@ -13,6 +13,7 @@ export type ProductListItemProps = {
   currency: string;
   quantity: number;
   onDelete?: VoidFunction;
+  quantityAvailable: number;
   onQuantityChange?: (newQuantity: number) => void;
 };
 
@@ -23,6 +24,7 @@ export default function ProductListItem({
   price,
   currency,
   quantity,
+  quantityAvailable,
   onDelete,
   onQuantityChange,
 }: ProductListItemProps) {
@@ -54,7 +56,7 @@ export default function ProductListItem({
             {currency === "USD" ? `\$${price}` : `${price} ${currency}`}
           </Text>
           <NumberSelector
-            max={Infinity}
+            max={quantityAvailable}
             min={0}
             value={quantity}
             onSelect={(selected) =>

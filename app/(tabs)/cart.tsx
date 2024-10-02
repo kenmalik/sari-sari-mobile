@@ -90,6 +90,7 @@ export default function Cart() {
             price: item.price.amount,
             currency: item.price.currencyCode,
             quantity: edge.node.quantity,
+            quantityAvailable: item.quantityAvailable,
           };
         }),
       );
@@ -164,6 +165,7 @@ export default function Cart() {
                     price={item.price}
                     currency={item.currency}
                     quantity={item.quantity}
+                    quantityAvailable={item.quantityAvailable}
                     onDelete={() => {
                       handleRemoveFromCart(item.lineId);
                     }}
