@@ -11,10 +11,14 @@ import { useFocusEffect } from "expo-router";
 import ProductListItem, {
   ProductListItemProps,
 } from "@/components/ProductListItem";
+import { ThemedButton } from "@/components/ThemedButton";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default function Cart() {
   const shopifyClient = useContext(ShopifyContext);
   const { cart } = useContext(CartContext);
+  const checkoutColor = useThemeColor({}, "tertiary");
+  const checkoutColorPressed = useThemeColor({}, "tertiaryHighlight");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [items, setItems] = useState<ProductListItemProps[]>([]);
@@ -139,23 +143,38 @@ export default function Cart() {
       <ScrollView contentContainerStyle={styles.container}>
         {items.length > 0 ? (
           <>
-            <Text style={styles.pageTitle}>Your Cart</Text>
-            <Text style={styles.subtitle}>
-              <Text style={{ fontWeight: "300" }}>Subtotal </Text>
-              <Text style={{ fontWeight: "600" }}>
-                {subtotal.currency === "USD"
-                  ? `\$${Number(subtotal.amount).toFixed(2)}`
-                  : `${Number(subtotal.amount).toFixed(2)} ${subtotal.currency}`}
-              </Text>
-            </Text>
-
             <View
               style={{
                 borderBottomWidth: 1,
                 borderColor: "lightgrey",
                 marginBottom: 16,
+                paddingBottom: 16,
               }}
-            ></View>
+            >
+              <Text style={styles.pageTitle}>Your Cart</Text>
+
+              <Text style={styles.subtitle}>
+                <Text style={{ fontWeight: "300" }}>Subtotal </Text>
+                <Text style={{ fontWeight: "600" }}>
+                  {subtotal.currency === "USD"
+                    ? `\$${Number(subtotal.amount).toFixed(2)}`
+                    : `${Number(subtotal.amount).toFixed(2)} ${subtotal.currency}`}
+                </Text>
+              </Text>
+
+              <ThemedButton
+                lightColor={checkoutColor}
+                lightPressedColor={checkoutColorPressed}
+                darkColor={checkoutColor}
+                darkPressedColor={checkoutColorPressed}
+                style={{ padding: 12 }}
+                onPress={() => console.log(cart?.checkoutUrl)}
+              >
+                <Text style={{ color: "#302f2f", textAlign: "center" }}>
+                  Proceed to Checkout
+                </Text>
+              </ThemedButton>
+            </View>
 
             <View style={styles.itemContainer}>
               {items.map((item) => (
