@@ -3,12 +3,14 @@ import { Link } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { NumberSelector } from "./NumberSelector";
 import { ThemedButton } from "./ThemedButton";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type ProductListItemProps = {
   lineId: string;
   variantId: string;
   productId: string;
-  title: string;
+  variantTitle: string;
+  productTitle: string;
   featuredImage: { id: string; url: string } | null;
   price: number;
   currency: string;
@@ -20,7 +22,8 @@ export type ProductListItemProps = {
 
 export default function ProductListItem({
   productId,
-  title,
+  productTitle,
+  variantTitle,
   featuredImage,
   price,
   currency,
@@ -29,6 +32,8 @@ export default function ProductListItem({
   onDelete,
   onQuantityChange,
 }: ProductListItemProps) {
+  const variantColor = useThemeColor({}, "tintDimmed");
+
   return (
     <Link
       href={{
@@ -53,7 +58,18 @@ export default function ProductListItem({
           )}
 
           <View style={styles.info}>
-            <Text style={styles.title}>{title}</Text>
+            <View style={styles.title}>
+              <Text
+                style={{
+                  marginBottom: variantTitle === "Default Title" ? null : 4,
+                }}
+              >
+                {productTitle}
+              </Text>
+              {variantTitle === "Default Title" ? null : (
+                <Text style={{ color: variantColor }}>{variantTitle}</Text>
+              )}
+            </View>
             <Text style={styles.price}>
               {currency === "USD" ? `\$${price}` : `${price} ${currency}`}
             </Text>

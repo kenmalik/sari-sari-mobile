@@ -86,7 +86,8 @@ export default function Cart() {
             variantId: item.id,
             productId: item.product.id,
             featuredImage: item.image,
-            title: item.product.title,
+            variantTitle: item.title,
+            productTitle: item.product.title,
             price: item.price.amount,
             currency: item.price.currencyCode,
             quantity: edge.node.quantity,
@@ -162,8 +163,9 @@ export default function Cart() {
                   key={item.lineId}
                   lineId={item.lineId}
                   variantId={item.variantId}
+                  variantTitle={item.variantTitle}
                   productId={item.productId}
-                  title={item.title}
+                  productTitle={item.productTitle}
                   featuredImage={item.featuredImage}
                   price={item.price}
                   currency={item.currency}
