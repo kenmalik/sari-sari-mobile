@@ -2,7 +2,11 @@ import { useCallback, useContext, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { CartContext } from "../CartContext";
 import { ShopifyContext } from "../ShopifyContext";
-import { REMOVE_FROM_CART, VIEW_CART } from "@/constants/StorefrontQueries";
+import {
+  REMOVE_FROM_CART,
+  UPDATE_ITEM_IN_CART,
+  VIEW_CART,
+} from "@/constants/StorefrontQueries";
 import { useFocusEffect } from "expo-router";
 import ProductListItem, {
   ProductListItemProps,
@@ -10,7 +14,7 @@ import ProductListItem, {
 
 export default function Cart() {
   const shopifyClient = useContext(ShopifyContext);
-  const { cart, setCart } = useContext(CartContext);
+  const { cart } = useContext(CartContext);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [items, setItems] = useState<ProductListItemProps[]>([]);
@@ -18,6 +22,33 @@ export default function Cart() {
     amount: number;
     currency: string;
   }>({ amount: 0, currency: "USD" });
+
+  async function handleUpdateQuantity(itemId: string, newQuantity: number) {
+    if (!shopifyClient || !cart) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const res = await shopifyClient.request(UPDATE_ITEM_IN_CART, {
+        variables: {
+          cartId: cart.id,
+          lines: [{ id: itemId, quantity: newQuantity }],
+        },
+      });
+
+      if (res.errors) {
+        throw res.errors;
+      }
+
+      console.log(res);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+      getCart();
+    }
+  }
 
   async function getCart() {
     if (!shopifyClient || !cart) {
@@ -124,10 +155,10 @@ export default function Cart() {
               <View style={styles.itemContainer}>
                 {items.map((item) => (
                   <ProductListItem
+                    key={item.lineId}
                     lineId={item.lineId}
                     variantId={item.variantId}
                     productId={item.productId}
-                    key={item.variantId}
                     title={item.title}
                     featuredImage={item.featuredImage}
                     price={item.price}
@@ -135,6 +166,9 @@ export default function Cart() {
                     quantity={item.quantity}
                     onDelete={() => {
                       handleRemoveFromCart(item.lineId);
+                    }}
+                    onQuantityChange={(newQuantity) => {
+                      handleUpdateQuantity(item.lineId, newQuantity);
                     }}
                   />
                 ))}

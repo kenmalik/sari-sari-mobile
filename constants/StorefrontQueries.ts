@@ -73,3 +73,18 @@ mutation RemoveFromCart($cartId: ID!, $lineIds: [ID!]!) {
   }
 }
 `;
+
+export const UPDATE_ITEM_IN_CART = `
+mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+  cartLinesUpdate(cartId: $cartId, lines: $lines) {
+    cart {
+      id
+      checkoutUrl
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+`;

@@ -13,6 +13,7 @@ export type ProductListItemProps = {
   currency: string;
   quantity: number;
   onDelete?: VoidFunction;
+  onQuantityChange?: (newQuantity: number) => void;
 };
 
 export default function ProductListItem({
@@ -23,6 +24,7 @@ export default function ProductListItem({
   currency,
   quantity,
   onDelete,
+  onQuantityChange,
 }: ProductListItemProps) {
   return (
     <Link
@@ -51,7 +53,14 @@ export default function ProductListItem({
           <Text>
             {currency === "USD" ? `\$${price}` : `${price} ${currency}`}
           </Text>
-          <NumberSelector max={Infinity} min={-Infinity} value={quantity} />
+          <NumberSelector
+            max={Infinity}
+            min={0}
+            value={quantity}
+            onSelect={(selected) =>
+              onQuantityChange ? onQuantityChange(selected) : null
+            }
+          />
           <Pressable onPress={onDelete}>
             <Text>Delete</Text>
           </Pressable>
@@ -74,6 +83,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   info: {
+    flex: 1,
     padding: 8,
   },
 });
