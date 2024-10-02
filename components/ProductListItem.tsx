@@ -2,6 +2,7 @@ import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import { Link } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { NumberSelector } from "./NumberSelector";
+import { ThemedButton } from "./ThemedButton";
 
 export type ProductListItemProps = {
   lineId: string;
@@ -37,25 +38,32 @@ export default function ProductListItem({
       asChild
     >
       <Pressable style={styles.container}>
-        {featuredImage ? (
-          <Image source={{ uri: featuredImage.url }} style={styles.image} />
-        ) : (
-          <View
-            style={[
-              styles.image,
-              { alignItems: "center", justifyContent: "center" },
-            ]}
-          >
-            <AntDesign name="picture" size={64} color="lightgrey" />
-          </View>
-        )}
+        <View style={styles.header}>
+          {featuredImage ? (
+            <Image source={{ uri: featuredImage.url }} style={styles.image} />
+          ) : (
+            <View
+              style={[
+                styles.image,
+                { alignItems: "center", justifyContent: "center" },
+              ]}
+            >
+              <AntDesign name="picture" size={64} color="lightgrey" />
+            </View>
+          )}
 
-        <View style={styles.info}>
-          <Text>{title}</Text>
-          <Text>
-            {currency === "USD" ? `\$${price}` : `${price} ${currency}`}
-          </Text>
+          <View style={styles.info}>
+            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.price}>
+              {currency === "USD" ? `\$${price}` : `${price} ${currency}`}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.buttons}>
           <NumberSelector
+            style={styles.numberSelector}
+            textContainerStyle={{ padding: 8 }}
             max={quantityAvailable}
             min={0}
             value={quantity}
@@ -63,9 +71,9 @@ export default function ProductListItem({
               onQuantityChange ? onQuantityChange(selected) : null
             }
           />
-          <Pressable onPress={onDelete}>
-            <Text>Delete</Text>
-          </Pressable>
+          <ThemedButton style={styles.deleteButton} onPress={onDelete}>
+            <Text style={styles.deleteButtonText}>Delete</Text>
+          </ThemedButton>
         </View>
       </Pressable>
     </Link>
@@ -75,7 +83,6 @@ export default function ProductListItem({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "white",
-    flexDirection: "row",
     padding: 8,
   },
   image: {
@@ -87,5 +94,35 @@ const styles = StyleSheet.create({
   info: {
     flex: 1,
     padding: 8,
+  },
+  header: {
+    flexDirection: "row",
+    marginBottom: 8,
+  },
+  buttons: {
+    padding: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  deleteButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 16,
+  },
+  deleteButtonText: {
+    color: "white",
+  },
+  numberSelector: {
+    minWidth: "40%",
+    maxWidth: "60%",
+    borderWidth: 0.8,
+    borderColor: "black",
+  },
+  price: {
+    fontWeight: "bold",
+    fontSize: 24,
+  },
+  title: {
+    marginBottom: 8,
   },
 });

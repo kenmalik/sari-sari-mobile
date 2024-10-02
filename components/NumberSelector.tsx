@@ -8,6 +8,7 @@ type NumberSelectorProps = {
   value?: number;
   onSelect?: (selected: number) => void;
   style?: StyleProp<ViewStyle>;
+  textContainerStyle?: StyleProp<ViewStyle>;
   disabled?: boolean;
 };
 
@@ -17,6 +18,7 @@ export function NumberSelector({
   value = 1,
   onSelect,
   style,
+  textContainerStyle,
   disabled = false,
 }: NumberSelectorProps) {
   const [textValue, setTextValue] = useState<string>(value.toString());
@@ -99,7 +101,7 @@ export function NumberSelector({
         )}
       </Pressable>
       <TextInput
-        style={{ padding: 16, flex: 1, textAlign: "center" }}
+        style={[{ flex: 1, textAlign: "center" }, textContainerStyle]}
         inputMode="numeric"
         onChangeText={setTextValue}
         onEndEditing={() => onTextInput(textValue)}

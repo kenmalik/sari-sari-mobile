@@ -227,6 +227,7 @@ export default function ProductPage() {
                 onSelect={(selected) => setQuantity(selected)}
                 value={quantity}
                 style={{ marginBottom: 24 }}
+                textContainerStyle={{ padding: 16 }}
                 disabled={isOutOfStock}
               />
               <ThemedButton
