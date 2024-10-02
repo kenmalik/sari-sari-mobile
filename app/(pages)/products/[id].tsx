@@ -2,10 +2,11 @@ import { CartContext } from "@/app/CartContext";
 import { ShopifyContext } from "@/app/ShopifyContext";
 import { Carousel } from "@/components/Carousel";
 import { NumberSelector } from "@/components/NumberSelector";
+import { ThemedButton } from "@/components/ThemedButton";
 import { ADD_TO_CART } from "@/constants/StorefrontQueries";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useLocalSearchParams } from "expo-router";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   ScrollView,
   View,
@@ -51,7 +52,7 @@ export default function ProductPage() {
 
   const { cart, setCart } = useContext(CartContext);
 
-  const quantity = useRef<number>(1);
+  const [quantity, setQuantity] = useState<number>(1);
 
   async function handleAddToCart() {
     if (!selectedVariant || !shopifyClient || !cart) {
@@ -63,9 +64,7 @@ export default function ProductPage() {
     const res = await shopifyClient.request(ADD_TO_CART, {
       variables: {
         cartId: cart.id,
-        lines: [
-          { quantity: quantity.current, merchandiseId: selectedVariant.id },
-        ],
+        lines: [{ quantity: quantity, merchandiseId: selectedVariant.id }],
       },
     });
 
@@ -183,7 +182,7 @@ export default function ProductPage() {
                 {product.stock > 0 ? (
                   <Text>{product.stock} items in stock!</Text>
                 ) : (
-                  <Text>Out of stock</Text>
+                  <Text style={{ color: "red" }}>Out of stock</Text>
                 )}
               </Text>
             </View>
@@ -222,41 +221,47 @@ export default function ProductPage() {
               <NumberSelector
                 max={product.stock}
                 min={1}
-                onSelect={(selected) => {
-                  quantity.current = selected;
-                }}
+                onSelect={(selected) => setQuantity(selected)}
+                value={quantity}
+                style={{ marginBottom: 24 }}
+                disabled={product.stock <= 0}
               />
-              <Pressable
+              <ThemedButton
+                lightColor="transparent"
+                lightPressedColor="white"
+                lightDisabledColor="lightgrey"
+                darkColor="transparent"
+                darkPressedColor="white"
+                darkDisabledColor="lightgrey"
                 style={{
-                  borderRadius: 64,
-                  overflow: "hidden",
-                  borderColor: "black",
+                  borderColor: product.stock <= 0 ? "grey" : "black",
                   borderWidth: 1,
                   marginBottom: 8,
                 }}
                 onPress={handleAddToCart}
+                disabled={product.stock <= 0}
               >
                 <Text
                   style={{
+                    color: product.stock <= 0 ? "grey" : "black",
                     textAlign: "center",
                     padding: 16,
                   }}
                 >
                   Add to Cart
                 </Text>
-              </Pressable>
-              <Pressable style={{ borderRadius: 64, overflow: "hidden" }}>
+              </ThemedButton>
+              <ThemedButton disabled={product.stock <= 0}>
                 <Text
                   style={{
                     textAlign: "center",
                     padding: 16,
-                    backgroundColor: "rgb(3, 9, 156)",
-                    color: "white",
+                    color: product.stock <= 0 ? "gainsboro" : "white",
                   }}
                 >
                   Buy Now
                 </Text>
-              </Pressable>
+              </ThemedButton>
             </View>
 
             <View style={[styles.section, styles.wallSpaced]}>

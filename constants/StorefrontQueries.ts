@@ -38,6 +38,7 @@ query GetCart($cartId: ID!) {
             ... on ProductVariant {
               id
               title
+              quantityAvailable
               image {
                 id
                 url
@@ -62,6 +63,21 @@ query GetCart($cartId: ID!) {
 export const REMOVE_FROM_CART = `
 mutation RemoveFromCart($cartId: ID!, $lineIds: [ID!]!) {
   cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+    cart {
+      id
+      checkoutUrl
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+`;
+
+export const UPDATE_ITEM_IN_CART = `
+mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+  cartLinesUpdate(cartId: $cartId, lines: $lines) {
     cart {
       id
       checkoutUrl

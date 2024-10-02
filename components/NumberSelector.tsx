@@ -1,90 +1,85 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useState } from "react";
-import { Pressable, TextInput, View } from "react-native";
+import { Pressable, StyleProp, TextInput, View, ViewStyle } from "react-native";
+
+type NumberSelectorProps = {
+  max?: number;
+  min?: number;
+  value?: number;
+  onSelect?: (selected: number) => void;
+  style?: StyleProp<ViewStyle>;
+  disabled?: boolean;
+};
 
 export function NumberSelector({
-  max,
-  min,
+  max = Infinity,
+  min = -Infinity,
+  value = 1,
   onSelect,
-}: {
-  max: number;
-  min: number;
-  onSelect?: (selected: number) => void;
-}) {
-  const [displayValue, setDisplayValue] = useState<string>("1");
-  const [amount, setAmount] = useState<number>(1);
+  style,
+  disabled = false,
+}: NumberSelectorProps) {
+  const [textValue, setTextValue] = useState<string>(value.toString());
 
   function onIncrement() {
-    if (amount < min) {
-      setAmount(min);
+    if (value < min) {
+      setTextValue(min.toString());
       if (onSelect) {
         onSelect(min);
       }
-      setDisplayValue(min.toString());
       return;
     }
-    if (amount >= max) {
-      return;
-    }
-    let newAmount = amount + 1;
-    setAmount(newAmount);
-    setDisplayValue(newAmount.toString());
+    let newAmount = value + 1;
+    setTextValue(newAmount.toString());
     if (onSelect) {
       onSelect(newAmount);
     }
   }
 
   function onDecrement() {
-    if (amount > max) {
-      setAmount(max);
+    if (value > max) {
+      setTextValue(max.toString());
       if (onSelect) {
         onSelect(max);
       }
-      setDisplayValue(max.toString());
       return;
     }
-    if (amount <= min) {
-      return;
-    }
-    let newAmount = amount - 1;
-    setAmount(newAmount);
-    setDisplayValue(newAmount.toString());
+    let newAmount = value - 1;
+    setTextValue(newAmount.toString());
     if (onSelect) {
       onSelect(newAmount);
     }
   }
 
-  function onChangeAmount(newAmount: string) {
-    let amount: number = Number.parseInt(newAmount);
-    if (isNaN(amount)) {
-      setAmount(1);
+  function onTextInput(newAmount: string) {
+    let value: number = Number.parseInt(newAmount);
+    if (isNaN(value)) {
       if (onSelect) {
-        onSelect(amount);
+        onSelect(0);
       }
-      setDisplayValue(newAmount);
       return;
     }
-    setAmount(amount);
-    setDisplayValue(newAmount.toString());
     if (onSelect) {
-      onSelect(amount);
+      onSelect(value);
     }
   }
 
   return (
     <View
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        backgroundColor: "white",
-        borderRadius: 64,
-        marginBottom: 16,
-        overflow: "hidden",
-      }}
+      style={[
+        {
+          flexDirection: "row",
+          justifyContent: "space-between",
+          backgroundColor: disabled ? "gainsboro" : "white",
+          borderRadius: 64,
+          overflow: "hidden",
+        },
+        style,
+      ]}
     >
       <Pressable
         onPress={onDecrement}
+        disabled={value <= min}
         style={{
           display: "flex",
           justifyContent: "center",
@@ -92,23 +87,29 @@ export function NumberSelector({
           width: 48,
         }}
       >
-        <AntDesign
-          name="minus"
-          size={16}
-          color="black"
-          style={{
-            marginLeft: 16,
-          }}
-        />
+        {({ pressed }) => (
+          <AntDesign
+            name="minus"
+            size={16}
+            color={value <= min || disabled || pressed ? "lightgrey" : "black"}
+            style={{
+              marginLeft: 16,
+            }}
+          />
+        )}
       </Pressable>
       <TextInput
-        style={{ padding: 16 }}
+        style={{ padding: 16, flex: 1, textAlign: "center" }}
         inputMode="numeric"
-        onChangeText={onChangeAmount}
-        value={displayValue}
+        onChangeText={setTextValue}
+        onEndEditing={() => onTextInput(textValue)}
+        value={disabled ? "" : textValue}
+        selectTextOnFocus
+        editable={!disabled}
       />
       <Pressable
         onPress={onIncrement}
+        disabled={value >= max}
         style={{
           display: "flex",
           justifyContent: "center",
@@ -116,14 +117,16 @@ export function NumberSelector({
           width: 48,
         }}
       >
-        <AntDesign
-          name="plus"
-          size={16}
-          color="black"
-          style={{
-            marginRight: 16,
-          }}
-        />
+        {({ pressed }) => (
+          <AntDesign
+            name="plus"
+            size={16}
+            color={value >= max || disabled || pressed ? "lightgrey" : "black"}
+            style={{
+              marginRight: 16,
+            }}
+          />
+        )}
       </Pressable>
     </View>
   );
