@@ -1,6 +1,7 @@
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import { Link } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { NumberSelector } from "./NumberSelector";
 
 export type ProductListItemProps = {
   lineId: string;
@@ -50,7 +51,7 @@ export default function ProductListItem({
           <Text>
             {currency === "USD" ? `\$${price}` : `${price} ${currency}`}
           </Text>
-          <Text>Quantity: {quantity}</Text>
+          <NumberSelector max={Infinity} min={-Infinity} value={quantity} />
           <Pressable onPress={onDelete}>
             <Text>Delete</Text>
           </Pressable>

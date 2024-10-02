@@ -5,7 +5,7 @@ import { NumberSelector } from "@/components/NumberSelector";
 import { ADD_TO_CART } from "@/constants/StorefrontQueries";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useLocalSearchParams } from "expo-router";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   ScrollView,
   View,
@@ -51,7 +51,7 @@ export default function ProductPage() {
 
   const { cart, setCart } = useContext(CartContext);
 
-  const quantity = useRef<number>(1);
+  const [quantity, setQuantity] = useState<number>(1);
 
   async function handleAddToCart() {
     if (!selectedVariant || !shopifyClient || !cart) {
@@ -63,9 +63,7 @@ export default function ProductPage() {
     const res = await shopifyClient.request(ADD_TO_CART, {
       variables: {
         cartId: cart.id,
-        lines: [
-          { quantity: quantity.current, merchandiseId: selectedVariant.id },
-        ],
+        lines: [{ quantity: quantity, merchandiseId: selectedVariant.id }],
       },
     });
 
@@ -222,9 +220,10 @@ export default function ProductPage() {
               <NumberSelector
                 max={product.stock}
                 min={1}
-                onSelect={(selected) => {
-                  quantity.current = selected;
-                }}
+                onSelect={(selected) => setQuantity(selected)}
+                value={quantity}
+                style={{ marginBottom: 24 }}
+                disabled={product.stock <= 0}
               />
               <Pressable
                 style={{
