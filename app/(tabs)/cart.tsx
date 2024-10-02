@@ -106,19 +106,25 @@ export default function Cart() {
       return;
     }
 
-    const res = await shopifyClient.request(REMOVE_FROM_CART, {
-      variables: {
-        cartId: cart.id,
-        lineIds: [lineId],
-      },
-    });
+    try {
+      setIsLoading(true);
+      const res = await shopifyClient.request(REMOVE_FROM_CART, {
+        variables: {
+          cartId: cart.id,
+          lineIds: [lineId],
+        },
+      });
 
-    if (res.errors) {
-      console.error(res.errors);
-      return;
+      if (res.errors) {
+        throw res.errors;
+      }
+
+      getCart();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
     }
-    console.info(`Removed item ${lineId} from cart`);
-    getCart();
   }
 
   useFocusEffect(
