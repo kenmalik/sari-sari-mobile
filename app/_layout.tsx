@@ -43,6 +43,14 @@ export default function RootLayout() {
             name="(pages)/products/[id]"
             options={{ headerTitle: "", headerBackTitleVisible: false }}
           />
+          <Stack.Screen
+            name="(pages)/collections/[id]"
+            options={{ title: "", headerBackTitleVisible: false }}
+          />
+          <Stack.Screen
+            name="(pages)/search/[searchTerm]"
+            options={{ title: "", headerBackTitleVisible: false }}
+          />
         </Stack>
       </CartContext.Provider>
     </ShopifyContext.Provider>
