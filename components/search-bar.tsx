@@ -1,6 +1,8 @@
+import { ShopifyContext } from "@/app/ShopifyContext";
+import { PREDICTIVE_SEARCH } from "@/constants/StorefrontQueries";
 import Feather from "@expo/vector-icons/build/Feather";
-import { router } from "expo-router";
-import { useRef, useState } from "react";
+import { Link, router } from "expo-router";
+import { useContext, useRef, useState } from "react";
 import {
   Text,
   TextInput,
@@ -13,10 +15,43 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function SearchBar() {
+  const shopifyClient = useContext(ShopifyContext);
+
   const insets = useSafeAreaInsets();
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<SearchResultObject[]>([]);
   const barHeight = useRef<number>(0);
+
+  async function handleSearch() {
+    if (!shopifyClient) {
+      return [];
+    }
+
+    try {
+      const res = await shopifyClient.request(PREDICTIVE_SEARCH, {
+        variables: {
+          query: searchText,
+          maxResults: 10,
+        },
+      });
+      if (res.errors) {
+        throw res.errors;
+      }
+
+      const searchResults = res.data.predictiveSearch.products.map(
+        (result: any) => {
+          return {
+            id: result.id,
+            title: result.title,
+          };
+        },
+      );
+      setSearchResults(searchResults);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   return (
     <View>
@@ -43,7 +78,10 @@ export default function SearchBar() {
             setSearchText("");
           }}
           value={searchText}
-          onChangeText={setSearchText}
+          onChangeText={(text) => {
+            setSearchText(text);
+            handleSearch();
+          }}
         />
       </View>
       <View
@@ -53,13 +91,14 @@ export default function SearchBar() {
           isFocused ? null : { display: "none" },
         ]}
       >
-        <SearchResults results={SAMPLE_DATA} />
+        <SearchResults results={searchResults} />
       </View>
     </View>
   );
 }
 
 type SearchResultObject = {
+  id: string;
   title: string;
 };
 
@@ -71,7 +110,7 @@ function SearchResults({ results }: SearchResultsProps) {
   return (
     <View style={{ gap: 8 }}>
       {results.map((result, index) => (
-        <SearchResult title={result.title} key={index} />
+        <SearchResult productId={result.id} title={result.title} key={index} />
       ))}
     </View>
   );
@@ -80,31 +119,40 @@ function SearchResults({ results }: SearchResultsProps) {
 function SearchResult({
   style,
   title,
+  productId,
 }: {
   style?: StyleProp<ViewStyle>;
   title: string;
+  productId: string;
 }) {
   return (
-    <Pressable
-      style={[{ flexDirection: "row", gap: 16, alignItems: "center" }, style]}
-      onPress={() => console.log("Navigaing to ", title)}
+    <Link
+      href={{ pathname: "/(pages)/products/[id]", params: { id: productId } }}
+      asChild
     >
-      {({ pressed }) => (
-        <>
-          <Text
-            style={{ flex: 1, color: pressed ? "grey" : "black" }}
-            numberOfLines={1}
+      <Pressable onPress={() => console.log("Navigaing to ", title)}>
+        {({ pressed }) => (
+          <View
+            style={[
+              { flexDirection: "row", gap: 16, alignItems: "center" },
+              style,
+            ]}
           >
-            {title}
-          </Text>
-          <Feather
-            name="arrow-up-left"
-            size={24}
-            color={pressed ? "black" : "grey"}
-          />
-        </>
-      )}
-    </Pressable>
+            <Text
+              style={{ flex: 1, color: pressed ? "grey" : "black" }}
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+            <Feather
+              name="arrow-up-left"
+              size={24}
+              color={pressed ? "black" : "grey"}
+            />
+          </View>
+        )}
+      </Pressable>
+    </Link>
   );
 }
 
@@ -126,16 +174,3 @@ const styles = StyleSheet.create({
     width: "100%",
   },
 });
-
-const SAMPLE_DATA = [
-  { title: "Result 1" },
-  { title: "Result 2" },
-  { title: "Result 3" },
-  { title: "Result 4" },
-  { title: "Result 5" },
-  { title: "Result 6" },
-  { title: "Result 7" },
-  { title: "Result 8" },
-  { title: "Result 9" },
-  { title: "Result 10" },
-];

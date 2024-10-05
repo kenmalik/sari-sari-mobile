@@ -89,3 +89,18 @@ mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
   }
 }
 `;
+
+export const PREDICTIVE_SEARCH = `
+query PredictiveSearch($query: String!, $maxResults: Int) {
+  predictiveSearch(query: $query, limit: $maxResults) {
+    products {
+      id
+      title
+    }
+    collections {
+      id
+      title
+    }
+  }
+}
+`;
