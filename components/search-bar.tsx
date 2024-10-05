@@ -11,6 +11,7 @@ import {
   ViewStyle,
   StyleProp,
   Pressable,
+  PressableProps,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -22,6 +23,7 @@ export default function SearchBar() {
   const [searchText, setSearchText] = useState<string>("");
   const [searchResults, setSearchResults] = useState<SearchResultObject[]>([]);
   const barHeight = useRef<number>(0);
+  const inputRef = useRef<TextInput>(null);
 
   async function handleSearch() {
     if (!shopifyClient) {
@@ -71,17 +73,20 @@ export default function SearchBar() {
           onFocus={() => setIsFocused(true)}
           onEndEditing={() => setIsFocused(false)}
           onSubmitEditing={() => {
-            router.push({
-              pathname: "/(pages)/search/[searchTerm]",
-              params: { searchTerm: searchText },
-            });
-            setSearchText("");
+            if (searchText !== "") {
+              router.push({
+                pathname: "/(pages)/search/[searchTerm]",
+                params: { searchTerm: searchText },
+              });
+              setSearchText("");
+            }
           }}
           value={searchText}
           onChangeText={(text) => {
             setSearchText(text);
             handleSearch();
           }}
+          ref={inputRef}
         />
       </View>
       <View
@@ -91,7 +96,17 @@ export default function SearchBar() {
           isFocused ? null : { display: "none" },
         ]}
       >
-        <SearchResults results={searchResults} />
+        {searchResults.map((result, index) => (
+          <SearchResult
+            productId={result.id}
+            title={result.title}
+            key={index}
+            onPress={() => {
+              inputRef.current?.blur();
+              setSearchText("");
+            }}
+          />
+        ))}
       </View>
     </View>
   );
@@ -102,35 +117,24 @@ type SearchResultObject = {
   title: string;
 };
 
-type SearchResultsProps = {
-  results: SearchResultObject[];
+type SearchResultProps = PressableProps & {
+  style?: StyleProp<ViewStyle>;
+  title: string;
+  productId: string;
 };
-
-function SearchResults({ results }: SearchResultsProps) {
-  return (
-    <View style={{ gap: 8 }}>
-      {results.map((result, index) => (
-        <SearchResult productId={result.id} title={result.title} key={index} />
-      ))}
-    </View>
-  );
-}
 
 function SearchResult({
   style,
   title,
   productId,
-}: {
-  style?: StyleProp<ViewStyle>;
-  title: string;
-  productId: string;
-}) {
+  ...otherProps
+}: SearchResultProps) {
   return (
     <Link
       href={{ pathname: "/(pages)/products/[id]", params: { id: productId } }}
       asChild
     >
-      <Pressable onPress={() => console.log("Navigaing to ", title)}>
+      <Pressable {...otherProps}>
         {({ pressed }) => (
           <View
             style={[
@@ -172,5 +176,6 @@ const styles = StyleSheet.create({
     padding: 8,
     position: "absolute",
     width: "100%",
+    gap: 8,
   },
 });
