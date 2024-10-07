@@ -53,7 +53,7 @@ export default function ProductPage() {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<Variant>();
 
-  const { cart } = useContext(CartContext);
+  const { cart, setCart } = useContext(CartContext);
 
   const [quantity, setQuantity] = useState<number>(1);
 
@@ -74,6 +74,7 @@ export default function ProductPage() {
         throw res.errors;
       }
 
+      setCart(res.data.cartLinesAdd.cart);
       notificationAsync(NotificationFeedbackType.Success);
     } catch (e) {
       console.error(e);
