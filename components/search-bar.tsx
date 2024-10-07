@@ -93,7 +93,7 @@ export default function SearchBar() {
         style={[
           styles.results,
           { top: barHeight.current },
-          isFocused ? null : { display: "none" },
+          isFocused && searchResults.length > 0 ? null : { display: "none" },
         ]}
       >
         {searchResults.map((result, index) => (
