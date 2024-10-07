@@ -13,10 +13,12 @@ import ProductListItem, {
 } from "@/components/ProductListItem";
 import { ThemedButton } from "@/components/ThemedButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
 
 export default function Cart() {
   const shopifyClient = useContext(ShopifyContext);
-  const { cart } = useContext(CartContext);
+  const shopifyCheckout = useShopifyCheckoutSheet();
+  const { cart, setCart } = useContext(CartContext);
   const checkoutColor = useThemeColor({}, "tertiary");
   const checkoutColorPressed = useThemeColor({}, "tertiaryHighlight");
 
@@ -44,8 +46,6 @@ export default function Cart() {
       if (res.errors) {
         throw res.errors;
       }
-
-      console.log(res);
     } catch (e) {
       console.error(e);
     } finally {
@@ -168,7 +168,14 @@ export default function Cart() {
                 darkColor={checkoutColor}
                 darkPressedColor={checkoutColorPressed}
                 style={{ padding: 12 }}
-                onPress={() => console.log(cart?.checkoutUrl)}
+                onPress={() => {
+                  if (!cart) {
+                    console.error("Checkout Error: No cart");
+                    return;
+                  }
+                  console.log(cart.checkoutUrl);
+                  shopifyCheckout.present(cart.checkoutUrl);
+                }}
               >
                 <Text style={{ color: "#302f2f", textAlign: "center" }}>
                   Proceed to Checkout

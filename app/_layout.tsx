@@ -4,6 +4,7 @@ import { createStorefrontApiClient } from "@shopify/storefront-api-client";
 import { Cart, CartContext } from "./CartContext";
 import { CREATE_CART } from "@/constants/StorefrontQueries";
 import { useEffect, useState } from "react";
+import { ShopifyCheckoutSheetProvider } from "@shopify/checkout-sheet-kit";
 
 const client = createStorefrontApiClient({
   storeDomain: "http://sari-sari-test.myshopify.com",
@@ -36,23 +37,25 @@ export default function RootLayout() {
 
   return (
     <ShopifyContext.Provider value={client}>
-      <CartContext.Provider value={cartContext}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="(pages)/products/[id]"
-            options={{ headerTitle: "", headerBackTitleVisible: false }}
-          />
-          <Stack.Screen
-            name="(pages)/collections/[id]"
-            options={{ title: "", headerBackTitleVisible: false }}
-          />
-          <Stack.Screen
-            name="(pages)/search/[searchTerm]"
-            options={{ title: "", headerBackTitleVisible: false }}
-          />
-        </Stack>
-      </CartContext.Provider>
+      <ShopifyCheckoutSheetProvider>
+        <CartContext.Provider value={cartContext}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="(pages)/products/[id]"
+              options={{ headerTitle: "", headerBackTitleVisible: false }}
+            />
+            <Stack.Screen
+              name="(pages)/collections/[id]"
+              options={{ title: "", headerBackTitleVisible: false }}
+            />
+            <Stack.Screen
+              name="(pages)/search/[searchTerm]"
+              options={{ title: "", headerBackTitleVisible: false }}
+            />
+          </Stack>
+        </CartContext.Provider>
+      </ShopifyCheckoutSheetProvider>
     </ShopifyContext.Provider>
   );
 }
