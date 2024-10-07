@@ -1,23 +1,23 @@
 export const CREATE_CART = `
-  mutation CreateCart {
-    cartCreate {
-      cart {
-        id
-        checkoutUrl
-      }
+mutation CreateCart {
+  cartCreate {
+    cart {
+      id
+      checkoutUrl
     }
   }
+}
 `;
 
 export const ADD_TO_CART = `
-  mutation AddToCart($cartId: ID!, $lines: [CartLineInput!]!) {
-    cartLinesAdd(cartId: $cartId, lines: $lines) {
-      cart {
-        id
-        checkoutUrl
-      }
+mutation AddToCart($cartId: ID!, $lines: [CartLineInput!]!) {
+  cartLinesAdd(cartId: $cartId, lines: $lines) {
+    cart {
+      id
+      checkoutUrl
     }
   }
+}
 `;
 
 export const VIEW_CART = `
@@ -85,6 +85,73 @@ mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
     userErrors {
       field
       message
+    }
+  }
+}
+`;
+
+export const GET_COLLECTIONS = `
+query CollectionQuery($count: Int, $cursor: String) {
+  collections(first: $count, after: $cursor) {
+      edges {
+        node {
+          id
+          title
+          image {
+            altText
+            id
+            url
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+}
+`;
+
+export const PREDICTIVE_SEARCH = `
+query PredictiveSearch($query: String!, $maxResults: Int) {
+  predictiveSearch(query: $query, limit: $maxResults) {
+    products {
+      id
+      title
+    }
+    collections {
+      id
+      title
+    }
+  }
+}
+`;
+
+export const SEARCH = `
+query Search($query: String!, $count: Int, $cursor: String) {
+  search(query: $query, first: $count, after: $cursor, types: PRODUCT) {
+    edges {
+      node {
+        ... on Product {
+          id
+          title
+          featuredImage {
+            id
+            url
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
     }
   }
 }

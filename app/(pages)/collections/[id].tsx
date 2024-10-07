@@ -94,21 +94,18 @@ export default function CollectionPage() {
   }, []);
 
   return (
-    <>
-      <Stack.Screen options={{ title: "", headerBackTitleVisible: false }} />
-      <ProductView
-        products={products}
-        onLoad={() => getProducts()}
-        hasNextPage={hasNextPage}
-        isLoading={isLoading}
-        titleBlock={
-          <View>
-            <Text style={styles.pageTitle}>{title}</Text>
-            {description && <Text>{description}</Text>}
-          </View>
-        }
-      />
-    </>
+    <ProductView
+      products={products}
+      onLoad={() => getProducts()}
+      hasNextPage={hasNextPage}
+      isLoading={isLoading}
+      titleBlock={
+        <View>
+          <Text style={styles.pageTitle}>{title}</Text>
+          {description && <Text>{description}</Text>}
+        </View>
+      }
+    />
   );
 }
 

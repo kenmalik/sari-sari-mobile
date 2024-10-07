@@ -5,6 +5,7 @@ import {
   CollectionCard,
   CollectionCardProps,
 } from "@/components/CollectionCard";
+import { GET_COLLECTIONS } from "@/constants/StorefrontQueries";
 
 export default function Catalog() {
   const shopifyClient = useContext(ShopifyContext);
@@ -130,25 +131,3 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
   },
 });
-
-const GET_COLLECTIONS = `
-  query CollectionQuery($count: Int, $cursor: String) {
-    collections(first: $count, after: $cursor) {
-        edges {
-          node {
-            id
-            title
-            image {
-              altText
-              id
-              url
-            }
-          }
-        }
-        pageInfo {
-          endCursor
-          hasNextPage
-        }
-      }
-  }
-`;
