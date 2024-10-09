@@ -156,3 +156,46 @@ query Search($query: String!, $count: Int, $cursor: String) {
   }
 }
 `;
+
+export const GET_PRODUCT_INFO = `
+  query ProductQuery($id: ID!) {
+    product(id: $id) {
+      title
+      availableForSale
+      description
+      featuredImage {
+        id
+        url
+      }
+      variants(first: 10) {
+        edges {
+          node {
+            id
+            title
+            price {
+              amount
+              currencyCode
+            }
+            quantityAvailable
+            image {
+              id
+            }
+          }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+      totalInventory
+      images(first: 5) {
+        edges {
+          node {
+            id
+            url
+          }
+        }
+      }
+    }
+  }
+`;

@@ -3,7 +3,7 @@ import { ShopifyContext } from "@/app/ShopifyContext";
 import { Carousel } from "@/components/Carousel";
 import { NumberSelector } from "@/components/NumberSelector";
 import { ThemedButton } from "@/components/ThemedButton";
-import { ADD_TO_CART } from "@/constants/StorefrontQueries";
+import { ADD_TO_CART, GET_PRODUCT_INFO } from "@/constants/StorefrontQueries";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
@@ -87,60 +87,61 @@ export default function ProductPage() {
     }
   }
 
-  useEffect(() => {
+  async function getVariants() {
     if (!shopifyClient) {
       return;
     }
 
-    shopifyClient
-      .request(GET_PRODUCT_INFO, {
+    try {
+      const res = await shopifyClient.request(GET_PRODUCT_INFO, {
         variables: {
           id: id,
         },
-      })
-      .then(({ data, errors, extensions }) => {
-        const product = data.product;
+      });
+      if (res.errors) {
+        throw res.errors;
+      }
 
-        console.log(product.images.edges);
-        const image = product.images.edges.map((edge: any) => {
-          return { url: edge.node.url, id: edge.node.id };
-        });
-        setImages(image);
+      const product = res.data.product;
+      const images = product.images.edges.map((edge: any) => {
+        return { url: edge.node.url, id: edge.node.id };
+      });
+      setImages(images);
 
-        setProduct({
-          title: product.title,
-          description: product.description,
-          featuredImage: product.featuredImage
-            ? {
-                id: product.featuredImage.id,
-                url: product.featuredImage.url,
-              }
-            : undefined,
-          available: product.availableForSale,
-          stock: product.totalInventory,
-        });
+      setProduct({
+        title: product.title,
+        description: product.description,
+        featuredImage: product.featuredImage
+          ? {
+              id: product.featuredImage.id,
+              url: product.featuredImage.url,
+            }
+          : undefined,
+        available: product.availableForSale,
+        stock: product.totalInventory,
+      });
 
-        setVariants(
-          product.variants.edges.map((variant: any, index: number) => {
-            return {
-              id: variant.node.id,
-              title: variant.node.title,
-              price: variant.node.price,
-              stock: variant.node.quantityAvailable,
-              imageID:
-                index > 0 && variant.node.image.id === product.featuredImage?.id
-                  ? undefined
-                  : variant.node.image?.id,
-            };
-          }),
-        );
+      setVariants(
+        product.variants.edges.map((variant: any, index: number) => {
+          return {
+            id: variant.node.id,
+            title: variant.node.title,
+            price: variant.node.price,
+            stock: variant.node.quantityAvailable,
+            imageID:
+              index > 0 && variant.node.image.id === product.featuredImage?.id
+                ? undefined
+                : variant.node.image?.id,
+          };
+        }),
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
-        if (errors || extensions) {
-          console.error(errors);
-          console.log(extensions);
-        }
-      })
-      .catch(console.error);
+  useEffect(() => {
+    getVariants();
   }, [id, shopifyClient]);
 
   useEffect(() => {
@@ -186,8 +187,10 @@ export default function ProductPage() {
 
             <View style={[styles.section, styles.wallSpaced]}>
               <Text>
-                {product.stock > 0 ? (
-                  <Text>{product.stock} items in stock!</Text>
+                {(selectedVariant?.stock ?? product.stock) > 0 ? (
+                  <Text>
+                    {selectedVariant?.stock ?? product.stock} items in stock!
+                  </Text>
                 ) : (
                   <Text style={{ color: "red" }}>Out of stock</Text>
                 )}
@@ -347,49 +350,6 @@ function VariantCard({
     </Pressable>
   );
 }
-
-const GET_PRODUCT_INFO = `
-  query ProductQuery($id: ID!) {
-    product(id: $id) {
-      title
-      availableForSale
-      description
-      featuredImage {
-        id
-        url
-      }
-      variants(first: 10) {
-        edges {
-          node {
-            id
-            title
-            price {
-              amount
-              currencyCode
-            }
-            quantityAvailable
-            image {
-              id
-            }
-          }
-        }
-        pageInfo {
-          endCursor
-          hasNextPage
-        }
-      }
-      totalInventory
-      images(first: 5) {
-        edges {
-          node {
-            id
-            url
-          }
-        }
-      }
-    }
-  }
-`;
 
 const styles = StyleSheet.create({
   container: {
