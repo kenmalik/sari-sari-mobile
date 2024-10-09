@@ -41,6 +41,8 @@ type Variant = {
   imageID?: string;
 };
 
+const DEFAULT_QUANTITY = 1;
+
 export default function ProductPage() {
   const shopifyClient = useContext(ShopifyContext);
   const { id } = useLocalSearchParams();
@@ -55,7 +57,7 @@ export default function ProductPage() {
 
   const { cart, setCart } = useContext(CartContext);
 
-  const [quantity, setQuantity] = useState<number>(1);
+  const [quantity, setQuantity] = useState<number>(DEFAULT_QUANTITY);
 
   async function handleAddToCart() {
     if (!selectedVariant || !shopifyClient || !cart) {
@@ -81,6 +83,7 @@ export default function ProductPage() {
       notificationAsync(NotificationFeedbackType.Error);
     } finally {
       setIsLoading(false);
+      setQuantity(DEFAULT_QUANTITY);
     }
   }
 
