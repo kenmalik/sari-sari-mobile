@@ -7,10 +7,11 @@ import {
   ADD_TO_CART,
   BUY_NOW,
   GET_PRODUCT_INFO,
+  GET_VARIANTS,
 } from "@/constants/StorefrontQueries";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useLocalSearchParams } from "expo-router";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   ScrollView,
   View,
@@ -30,12 +31,10 @@ type ImageObject = {
   url: string;
 };
 
-type Product = {
+type ProductInfo = {
   title: string;
   description: string;
   featuredImage?: ImageObject;
-  available: boolean;
-  stock: number;
 };
 
 type Variant = {
@@ -47,22 +46,26 @@ type Variant = {
 };
 
 const DEFAULT_QUANTITY = 1;
+const VARIANTS_PER_PAGE = 10;
 
 export default function ProductPage() {
   const shopifyClient = useContext(ShopifyContext);
   const shopifyCheckout = useShopifyCheckoutSheet();
+  const { cart, setCart } = useContext(CartContext);
+
   const { id } = useLocalSearchParams();
   const { width, height } = useWindowDimensions();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [product, setProduct] = useState<Product>();
-  const isOutOfStock = product ? product.stock <= 0 : true;
-  const [images, setImages] = useState<ImageObject[]>([]);
+  const [productInfo, setProductInfo] = useState<ProductInfo>();
+
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<Variant>();
+  const isOutOfStock = selectedVariant ? selectedVariant.stock <= 0 : true;
+  const cursor = useRef<string | null>(null);
+  const [hasNextPage, setHasNextPage] = useState<boolean>(false);
 
-  const { cart, setCart } = useContext(CartContext);
-
+  const [images, setImages] = useState<ImageObject[]>([]);
   const [quantity, setQuantity] = useState<number>(DEFAULT_QUANTITY);
 
   async function handleAddToCart() {
@@ -118,7 +121,7 @@ export default function ProductPage() {
     }
   }
 
-  async function getVariants() {
+  async function getProductInfo() {
     if (!shopifyClient) {
       return;
     }
@@ -139,7 +142,7 @@ export default function ProductPage() {
       });
       setImages(images);
 
-      setProduct({
+      setProductInfo({
         title: product.title,
         description: product.description,
         featuredImage: product.featuredImage
@@ -148,31 +151,56 @@ export default function ProductPage() {
               url: product.featuredImage.url,
             }
           : undefined,
-        available: product.availableForSale,
-        stock: product.totalInventory,
       });
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
+  async function getVariantPage() {
+    if (!shopifyClient) {
+      return;
+    }
+
+    try {
+      const res = await shopifyClient.request(GET_VARIANTS, {
+        variables: {
+          productId: id,
+          count: VARIANTS_PER_PAGE,
+          cursor: cursor.current,
+        },
+      });
+      if (res.errors) {
+        throw res.errors;
+      }
+
+      const page = res.data.product.variants;
       setVariants(
-        product.variants.edges.map((variant: any, index: number) => {
-          return {
-            id: variant.node.id,
-            title: variant.node.title,
-            price: variant.node.price,
-            stock: variant.node.quantityAvailable,
-            imageID:
-              index > 0 && variant.node.image.id === product.featuredImage?.id
-                ? undefined
-                : variant.node.image?.id,
-          };
-        }),
+        variants.concat(
+          page.edges.map((variant: any) => {
+            return {
+              id: variant.node.id,
+              title: variant.node.title,
+              price: variant.node.price,
+              stock: variant.node.quantityAvailable,
+              imageID: variant.node.image?.id,
+            };
+          }),
+        ),
       );
+
+      cursor.current = page.pageInfo.hasNextPage
+        ? page.pageInfo.endCursor
+        : null;
+      setHasNextPage(page.pageInfo.hasNextPage);
     } catch (e) {
       console.error(e);
     }
   }
 
   useEffect(() => {
-    getVariants();
+    getProductInfo();
+    getVariantPage();
   }, [id, shopifyClient]);
 
   useEffect(() => {
@@ -186,7 +214,7 @@ export default function ProductPage() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView contentContainerStyle={styles.container}>
-        {product && (
+        {productInfo && (
           <>
             <View style={[styles.imageContainer, { height: height * 0.5 }]}>
               {images.length > 0 ? (
@@ -213,15 +241,13 @@ export default function ProductPage() {
             </View>
 
             <Text style={[styles.title, styles.wallSpaced]}>
-              {product.title}
+              {productInfo.title}
             </Text>
 
             <View style={[styles.section, styles.wallSpaced]}>
               <Text>
-                {(selectedVariant?.stock ?? product.stock) > 0 ? (
-                  <Text>
-                    {selectedVariant?.stock ?? product.stock} items in stock!
-                  </Text>
+                {selectedVariant && selectedVariant.stock > 0 ? (
+                  <Text>{selectedVariant?.stock} items in stock!</Text>
                 ) : (
                   <Text style={{ color: "red" }}>Out of stock</Text>
                 )}
@@ -252,13 +278,43 @@ export default function ProductPage() {
                       }}
                     />
                   ))}
+                  {hasNextPage && (
+                    <Pressable
+                      onPress={getVariantPage}
+                      style={[
+                        {
+                          justifyContent: "center",
+                          alignItems: "center",
+                          padding: 8,
+                        },
+                        styles.disabledVariantCard,
+                      ]}
+                    >
+                      {({ pressed }) => (
+                        <>
+                          <AntDesign
+                            name="pluscircleo"
+                            size={24}
+                            color={pressed ? "rgb(3, 9, 156)" : "black"}
+                          />
+                          <Text
+                            style={{
+                              color: pressed ? "rgb(3, 9, 156)" : "black",
+                            }}
+                          >
+                            Load more
+                          </Text>
+                        </>
+                      )}
+                    </Pressable>
+                  )}
                 </ScrollView>
               </View>
             )}
 
             <View style={[styles.section, styles.wallSpaced]}>
               <NumberSelector
-                max={product.stock}
+                max={selectedVariant?.stock}
                 min={1}
                 onSelect={(selected) => setQuantity(selected)}
                 value={quantity}
@@ -308,8 +364,8 @@ export default function ProductPage() {
               <Text style={[styles.subheading, { fontWeight: "bold" }]}>
                 Description:{" "}
               </Text>
-              {product.description ? (
-                <Text>{product.description}</Text>
+              {productInfo.description ? (
+                <Text>{productInfo.description}</Text>
               ) : (
                 <Text>This item has no description.</Text>
               )}

@@ -11,7 +11,7 @@ type CarouselProps = {
 export function Carousel({ children, height, width, selected }: CarouselProps) {
   const ref = useRef<any>(0);
 
-  if (selected !== undefined) {
+  if (selected !== undefined && ref.current) {
     const index = Children.toArray(children).findIndex((element) => {
       if (isValidElement(element)) {
         return element.props?.id === selected;
