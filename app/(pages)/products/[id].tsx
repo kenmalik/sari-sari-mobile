@@ -200,10 +200,8 @@ export default function ProductPage() {
             {variants.length > 1 && (
               <View style={styles.section}>
                 <Text style={[styles.subheading, styles.wallSpaced]}>
-                  Variant:{" "}
-                  <Text style={{ fontWeight: "regular" }}>
-                    {selectedVariant?.title}
-                  </Text>
+                  <Text style={{ fontWeight: "bold" }}>Variant: </Text>
+                  <Text>{selectedVariant?.title}</Text>
                 </Text>
                 <ScrollView
                   contentContainerStyle={styles.variantCardContainer}
@@ -276,7 +274,9 @@ export default function ProductPage() {
             </View>
 
             <View style={[styles.section, styles.wallSpaced]}>
-              <Text style={styles.subheading}>Description: </Text>
+              <Text style={[styles.subheading, { fontWeight: "bold" }]}>
+                Description:{" "}
+              </Text>
               {product.description ? (
                 <Text>{product.description}</Text>
               ) : (
@@ -320,7 +320,6 @@ function VariantCard({
         style,
       ]}
       onPress={onSelect}
-      disabled={disabled}
     >
       <Text
         style={{
@@ -372,7 +371,6 @@ const styles = StyleSheet.create({
   },
   subheading: {
     fontSize: 16,
-    fontWeight: "bold",
     marginTop: 4,
     marginBottom: 8,
   },
