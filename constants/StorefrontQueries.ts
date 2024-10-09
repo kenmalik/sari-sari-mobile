@@ -9,6 +9,20 @@ mutation CreateCart {
 }
 `;
 
+export const BUY_NOW = `
+mutation BuyNow($lines: [CartLineInput!]!) {
+  cartCreate(
+    input: {
+      lines: $lines,
+    }
+  ) {
+    cart {
+      checkoutUrl
+    }
+  }
+}
+`;
+
 export const ADD_TO_CART = `
 mutation AddToCart($cartId: ID!, $lines: [CartLineInput!]!) {
   cartLinesAdd(cartId: $cartId, lines: $lines) {

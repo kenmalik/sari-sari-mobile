@@ -3,7 +3,11 @@ import { ShopifyContext } from "@/app/ShopifyContext";
 import { Carousel } from "@/components/Carousel";
 import { NumberSelector } from "@/components/NumberSelector";
 import { ThemedButton } from "@/components/ThemedButton";
-import { ADD_TO_CART, GET_PRODUCT_INFO } from "@/constants/StorefrontQueries";
+import {
+  ADD_TO_CART,
+  BUY_NOW,
+  GET_PRODUCT_INFO,
+} from "@/constants/StorefrontQueries";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useState } from "react";
@@ -19,6 +23,7 @@ import {
   Platform,
 } from "react-native";
 import { notificationAsync, NotificationFeedbackType } from "expo-haptics";
+import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
 
 type ImageObject = {
   id: string;
@@ -45,6 +50,7 @@ const DEFAULT_QUANTITY = 1;
 
 export default function ProductPage() {
   const shopifyClient = useContext(ShopifyContext);
+  const shopifyCheckout = useShopifyCheckoutSheet();
   const { id } = useLocalSearchParams();
   const { width, height } = useWindowDimensions();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -82,8 +88,33 @@ export default function ProductPage() {
       console.error(e);
       notificationAsync(NotificationFeedbackType.Error);
     } finally {
-      setIsLoading(false);
       setQuantity(DEFAULT_QUANTITY);
+      setIsLoading(false);
+    }
+  }
+
+  async function handleBuyNow() {
+    if (!selectedVariant || !shopifyClient || !cart) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const res = await shopifyClient.request(BUY_NOW, {
+        variables: {
+          lines: [{ quantity: quantity, merchandiseId: selectedVariant.id }],
+        },
+      });
+      if (res.errors) {
+        throw res.errors;
+      }
+
+      shopifyCheckout.present(res.data.cartCreate.cart.checkoutUrl);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setQuantity(DEFAULT_QUANTITY);
+      setIsLoading(false);
     }
   }
 
@@ -260,7 +291,7 @@ export default function ProductPage() {
                   Add to Cart
                 </Text>
               </ThemedButton>
-              <ThemedButton disabled={isOutOfStock}>
+              <ThemedButton onPress={handleBuyNow} disabled={isOutOfStock}>
                 <Text
                   style={{
                     textAlign: "center",
