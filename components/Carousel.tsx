@@ -9,7 +9,7 @@ type CarouselProps = {
 };
 
 export function Carousel({ children, height, width, selected }: CarouselProps) {
-  const ref = useRef<any>(0);
+  const ref = useRef<ScrollView>(null);
 
   if (selected !== undefined && ref.current) {
     const index = Children.toArray(children).findIndex((element) => {

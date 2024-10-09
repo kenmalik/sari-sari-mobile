@@ -201,7 +201,7 @@ export default function ProductPage() {
   useEffect(() => {
     getProductInfo();
     getVariantPage();
-  }, [id, shopifyClient]);
+  }, []);
 
   useEffect(() => {
     if (variants.length > 0) {
