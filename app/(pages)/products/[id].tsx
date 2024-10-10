@@ -3,10 +3,15 @@ import { ShopifyContext } from "@/app/ShopifyContext";
 import { Carousel } from "@/components/Carousel";
 import { NumberSelector } from "@/components/NumberSelector";
 import { ThemedButton } from "@/components/ThemedButton";
-import { ADD_TO_CART } from "@/constants/StorefrontQueries";
+import {
+  ADD_TO_CART,
+  BUY_NOW,
+  GET_PRODUCT_INFO,
+  GET_VARIANTS,
+} from "@/constants/StorefrontQueries";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useLocalSearchParams } from "expo-router";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   ScrollView,
   View,
@@ -19,18 +24,17 @@ import {
   Platform,
 } from "react-native";
 import { notificationAsync, NotificationFeedbackType } from "expo-haptics";
+import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
 
 type ImageObject = {
   id: string;
   url: string;
 };
 
-type Product = {
+type ProductInfo = {
   title: string;
   description: string;
   featuredImage?: ImageObject;
-  available: boolean;
-  stock: number;
 };
 
 type Variant = {
@@ -41,21 +45,28 @@ type Variant = {
   imageID?: string;
 };
 
+const DEFAULT_QUANTITY = 1;
+const VARIANTS_PER_PAGE = 10;
+
 export default function ProductPage() {
   const shopifyClient = useContext(ShopifyContext);
+  const shopifyCheckout = useShopifyCheckoutSheet();
+  const { cart, setCart } = useContext(CartContext);
+
   const { id } = useLocalSearchParams();
   const { width, height } = useWindowDimensions();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [product, setProduct] = useState<Product>();
-  const isOutOfStock = product ? product.stock <= 0 : true;
-  const [images, setImages] = useState<ImageObject[]>([]);
+  const [productInfo, setProductInfo] = useState<ProductInfo>();
+
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<Variant>();
+  const isOutOfStock = selectedVariant ? selectedVariant.stock <= 0 : true;
+  const cursor = useRef<string | null>(null);
+  const [hasNextPage, setHasNextPage] = useState<boolean>(false);
 
-  const { cart, setCart } = useContext(CartContext);
-
-  const [quantity, setQuantity] = useState<number>(1);
+  const [images, setImages] = useState<ImageObject[]>([]);
+  const [quantity, setQuantity] = useState<number>(DEFAULT_QUANTITY);
 
   async function handleAddToCart() {
     if (!selectedVariant || !shopifyClient || !cart) {
@@ -80,65 +91,117 @@ export default function ProductPage() {
       console.error(e);
       notificationAsync(NotificationFeedbackType.Error);
     } finally {
+      setQuantity(DEFAULT_QUANTITY);
       setIsLoading(false);
     }
   }
 
-  useEffect(() => {
+  async function handleBuyNow() {
+    if (!selectedVariant || !shopifyClient || !cart) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const res = await shopifyClient.request(BUY_NOW, {
+        variables: {
+          lines: [{ quantity: quantity, merchandiseId: selectedVariant.id }],
+        },
+      });
+      if (res.errors) {
+        throw res.errors;
+      }
+
+      shopifyCheckout.present(res.data.cartCreate.cart.checkoutUrl);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setQuantity(DEFAULT_QUANTITY);
+      setIsLoading(false);
+    }
+  }
+
+  async function getProductInfo() {
     if (!shopifyClient) {
       return;
     }
 
-    shopifyClient
-      .request(GET_PRODUCT_INFO, {
+    try {
+      const res = await shopifyClient.request(GET_PRODUCT_INFO, {
         variables: {
           id: id,
         },
-      })
-      .then(({ data, errors, extensions }) => {
-        const product = data.product;
+      });
+      if (res.errors) {
+        throw res.errors;
+      }
 
-        console.log(product.images.edges);
-        const image = product.images.edges.map((edge: any) => {
-          return { url: edge.node.url, id: edge.node.id };
-        });
-        setImages(image);
+      const product = res.data.product;
+      const images = product.images.edges.map((edge: any) => {
+        return { url: edge.node.url, id: edge.node.id };
+      });
+      setImages(images);
 
-        setProduct({
-          title: product.title,
-          description: product.description,
-          featuredImage: product.featuredImage
-            ? {
-                id: product.featuredImage.id,
-                url: product.featuredImage.url,
-              }
-            : undefined,
-          available: product.availableForSale,
-          stock: product.totalInventory,
-        });
+      setProductInfo({
+        title: product.title,
+        description: product.description,
+        featuredImage: product.featuredImage
+          ? {
+              id: product.featuredImage.id,
+              url: product.featuredImage.url,
+            }
+          : undefined,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
-        setVariants(
-          product.variants.edges.map((variant: any, index: number) => {
+  async function getVariantPage() {
+    if (!shopifyClient) {
+      return;
+    }
+
+    try {
+      const res = await shopifyClient.request(GET_VARIANTS, {
+        variables: {
+          productId: id,
+          count: VARIANTS_PER_PAGE,
+          cursor: cursor.current,
+        },
+      });
+      if (res.errors) {
+        throw res.errors;
+      }
+
+      const page = res.data.product.variants;
+      setVariants(
+        variants.concat(
+          page.edges.map((variant: any) => {
             return {
               id: variant.node.id,
               title: variant.node.title,
               price: variant.node.price,
               stock: variant.node.quantityAvailable,
-              imageID:
-                index > 0 && variant.node.image.id === product.featuredImage?.id
-                  ? undefined
-                  : variant.node.image?.id,
+              imageID: variant.node.image?.id,
             };
           }),
-        );
+        ),
+      );
 
-        if (errors || extensions) {
-          console.error(errors);
-          console.log(extensions);
-        }
-      })
-      .catch(console.error);
-  }, [id, shopifyClient]);
+      cursor.current = page.pageInfo.hasNextPage
+        ? page.pageInfo.endCursor
+        : null;
+      setHasNextPage(page.pageInfo.hasNextPage);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  useEffect(() => {
+    getProductInfo();
+    getVariantPage();
+  }, []);
 
   useEffect(() => {
     if (variants.length > 0) {
@@ -151,7 +214,7 @@ export default function ProductPage() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView contentContainerStyle={styles.container}>
-        {product && (
+        {productInfo && (
           <>
             <View style={[styles.imageContainer, { height: height * 0.5 }]}>
               {images.length > 0 ? (
@@ -178,13 +241,13 @@ export default function ProductPage() {
             </View>
 
             <Text style={[styles.title, styles.wallSpaced]}>
-              {product.title}
+              {productInfo.title}
             </Text>
 
             <View style={[styles.section, styles.wallSpaced]}>
               <Text>
-                {product.stock > 0 ? (
-                  <Text>{product.stock} items in stock!</Text>
+                {selectedVariant && selectedVariant.stock > 0 ? (
+                  <Text>{selectedVariant?.stock} items in stock!</Text>
                 ) : (
                   <Text style={{ color: "red" }}>Out of stock</Text>
                 )}
@@ -194,10 +257,8 @@ export default function ProductPage() {
             {variants.length > 1 && (
               <View style={styles.section}>
                 <Text style={[styles.subheading, styles.wallSpaced]}>
-                  Variant:{" "}
-                  <Text style={{ fontWeight: "regular" }}>
-                    {selectedVariant?.title}
-                  </Text>
+                  <Text style={{ fontWeight: "bold" }}>Variant: </Text>
+                  <Text>{selectedVariant?.title}</Text>
                 </Text>
                 <ScrollView
                   contentContainerStyle={styles.variantCardContainer}
@@ -217,13 +278,43 @@ export default function ProductPage() {
                       }}
                     />
                   ))}
+                  {hasNextPage && (
+                    <Pressable
+                      onPress={getVariantPage}
+                      style={[
+                        {
+                          justifyContent: "center",
+                          alignItems: "center",
+                          padding: 8,
+                        },
+                        styles.disabledVariantCard,
+                      ]}
+                    >
+                      {({ pressed }) => (
+                        <>
+                          <AntDesign
+                            name="pluscircleo"
+                            size={24}
+                            color={pressed ? "rgb(3, 9, 156)" : "black"}
+                          />
+                          <Text
+                            style={{
+                              color: pressed ? "rgb(3, 9, 156)" : "black",
+                            }}
+                          >
+                            Load more
+                          </Text>
+                        </>
+                      )}
+                    </Pressable>
+                  )}
                 </ScrollView>
               </View>
             )}
 
             <View style={[styles.section, styles.wallSpaced]}>
               <NumberSelector
-                max={product.stock}
+                max={selectedVariant?.stock}
                 min={1}
                 onSelect={(selected) => setQuantity(selected)}
                 value={quantity}
@@ -256,7 +347,7 @@ export default function ProductPage() {
                   Add to Cart
                 </Text>
               </ThemedButton>
-              <ThemedButton disabled={isOutOfStock}>
+              <ThemedButton onPress={handleBuyNow} disabled={isOutOfStock}>
                 <Text
                   style={{
                     textAlign: "center",
@@ -270,9 +361,11 @@ export default function ProductPage() {
             </View>
 
             <View style={[styles.section, styles.wallSpaced]}>
-              <Text style={styles.subheading}>Description: </Text>
-              {product.description ? (
-                <Text>{product.description}</Text>
+              <Text style={[styles.subheading, { fontWeight: "bold" }]}>
+                Description:{" "}
+              </Text>
+              {productInfo.description ? (
+                <Text>{productInfo.description}</Text>
               ) : (
                 <Text>This item has no description.</Text>
               )}
@@ -314,7 +407,6 @@ function VariantCard({
         style,
       ]}
       onPress={onSelect}
-      disabled={disabled}
     >
       <Text
         style={{
@@ -345,49 +437,6 @@ function VariantCard({
   );
 }
 
-const GET_PRODUCT_INFO = `
-  query ProductQuery($id: ID!) {
-    product(id: $id) {
-      title
-      availableForSale
-      description
-      featuredImage {
-        id
-        url
-      }
-      variants(first: 10) {
-        edges {
-          node {
-            id
-            title
-            price {
-              amount
-              currencyCode
-            }
-            quantityAvailable
-            image {
-              id
-            }
-          }
-        }
-        pageInfo {
-          endCursor
-          hasNextPage
-        }
-      }
-      totalInventory
-      images(first: 5) {
-        edges {
-          node {
-            id
-            url
-          }
-        }
-      }
-    }
-  }
-`;
-
 const styles = StyleSheet.create({
   container: {
     paddingBottom: 16,
@@ -409,7 +458,6 @@ const styles = StyleSheet.create({
   },
   subheading: {
     fontSize: 16,
-    fontWeight: "bold",
     marginTop: 4,
     marginBottom: 8,
   },

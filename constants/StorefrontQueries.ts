@@ -9,6 +9,20 @@ mutation CreateCart {
 }
 `;
 
+export const BUY_NOW = `
+mutation BuyNow($lines: [CartLineInput!]!) {
+  cartCreate(
+    input: {
+      lines: $lines,
+    }
+  ) {
+    cart {
+      checkoutUrl
+    }
+  }
+}
+`;
+
 export const ADD_TO_CART = `
 mutation AddToCart($cartId: ID!, $lines: [CartLineInput!]!) {
   cartLinesAdd(cartId: $cartId, lines: $lines) {
@@ -152,6 +166,53 @@ query Search($query: String!, $count: Int, $cursor: String) {
     pageInfo {
       hasNextPage
       endCursor
+    }
+  }
+}
+`;
+
+export const GET_PRODUCT_INFO = `
+query ProductQuery($id: ID!) {
+  product(id: $id) {
+    title
+    description
+    featuredImage {
+      id
+      url
+    }
+    images(first: 5) {
+      edges {
+        node {
+          id
+          url
+        }
+      }
+    }
+  }
+}
+`;
+export const GET_VARIANTS = `
+query Variants($productId: ID!, $count: Int!, $cursor: String) {
+  product(id: $productId) {
+    variants(first: $count, after: $cursor) {
+      edges {
+        node {
+          id
+          title
+          price {
+            amount
+            currencyCode
+          }
+          quantityAvailable
+          image {
+            id
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
     }
   }
 }

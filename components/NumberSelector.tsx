@@ -1,12 +1,12 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Pressable, StyleProp, TextInput, View, ViewStyle } from "react-native";
 
 type NumberSelectorProps = {
   max?: number;
   min?: number;
   value?: number;
-  onSelect?: (selected: number) => void;
+  onSelect: (selected: number) => void;
   style?: StyleProp<ViewStyle>;
   textContainerStyle?: StyleProp<ViewStyle>;
   disabled?: boolean;
@@ -22,48 +22,40 @@ export function NumberSelector({
   disabled = false,
 }: NumberSelectorProps) {
   const [textValue, setTextValue] = useState<string>(value.toString());
+  const inputRef = useRef<TextInput>(null);
+
+  if (!inputRef.current?.isFocused() && value.toString() !== textValue) {
+    setTextValue(value.toString());
+  }
 
   function onIncrement() {
     if (value < min) {
-      setTextValue(min.toString());
-      if (onSelect) {
-        onSelect(min);
-      }
+      onSelect(min);
       return;
     }
     let newAmount = value + 1;
-    setTextValue(newAmount.toString());
-    if (onSelect) {
-      onSelect(newAmount);
-    }
+    onSelect(newAmount);
   }
 
   function onDecrement() {
     if (value > max) {
-      setTextValue(max.toString());
-      if (onSelect) {
-        onSelect(max);
-      }
+      onSelect(max);
       return;
     }
     let newAmount = value - 1;
-    setTextValue(newAmount.toString());
-    if (onSelect) {
-      onSelect(newAmount);
-    }
+    onSelect(newAmount);
   }
 
   function onTextInput(newAmount: string) {
-    let value: number = Number.parseInt(newAmount);
+    let value: number = parseInt(newAmount);
     if (isNaN(value)) {
-      if (onSelect) {
-        onSelect(0);
-      }
+      onSelect(1);
+      // Parent rerender won't be triggered by onSelect if the parent state is 1.
+      // Therefore, we need to manually reset the input text state to "1".
+      setTextValue("1");
       return;
     }
-    if (onSelect) {
-      onSelect(value);
-    }
+    onSelect(value);
   }
 
   return (
@@ -101,6 +93,7 @@ export function NumberSelector({
         )}
       </Pressable>
       <TextInput
+        ref={inputRef}
         style={[{ flex: 1, textAlign: "center" }, textContainerStyle]}
         inputMode="numeric"
         onChangeText={setTextValue}
