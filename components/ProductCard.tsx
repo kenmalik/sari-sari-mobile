@@ -26,19 +26,32 @@ export function ProductCard({
       asChild
     >
       <Pressable style={styles.card}>
-        <Text style={styles.cardTitle}>{title}</Text>
-        {featuredImage ? (
-          <Image style={styles.cardImage} source={{ uri: featuredImage.url }} />
-        ) : (
-          <View style={[styles.cardImage, styles.cardNoImage]}>
-            <AntDesign name="picture" size={64} color="lightgrey" />
-          </View>
+        {({ pressed }) => (
+          <>
+            <Text
+              style={[styles.cardTitle, pressed ? { color: "grey" } : null]}
+            >
+              {title}
+            </Text>
+            {featuredImage ? (
+              <Image
+                style={[styles.cardImage, pressed ? { opacity: 0.5 } : null]}
+                source={{ uri: featuredImage.url }}
+              />
+            ) : (
+              <View style={[styles.cardImage, styles.cardNoImage]}>
+                <AntDesign name="picture" size={64} color="lightgrey" />
+              </View>
+            )}
+            <Text
+              style={[styles.cardPrice, pressed ? { color: "grey" } : null]}
+            >
+              {currency === "USD" && "$"}
+              {Number(price).toFixed(2)}
+              {currency !== "USD" && ` ${currency}`}
+            </Text>
+          </>
         )}
-        <Text style={styles.cardPrice}>
-          {currency === "USD" && "$"}
-          {Number(price).toFixed(2)}
-          {currency !== "USD" && ` ${currency}`}
-        </Text>
       </Pressable>
     </Link>
   );
