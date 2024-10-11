@@ -1,7 +1,7 @@
 import { ShopifyContext } from "@/app/ShopifyContext";
 import { ProductCardProps } from "@/components/ProductCard";
 import { ProductView } from "@/components/ProductView";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
@@ -99,10 +99,17 @@ export default function CollectionPage() {
       onLoad={() => getProducts()}
       hasNextPage={hasNextPage}
       isLoading={isLoading}
-      titleBlock={
+      HeaderComponent={
         <View>
-          <Text style={styles.pageTitle}>{title}</Text>
-          {description && <Text>{description}</Text>}
+          <Text
+            style={[
+              styles.pageTitle,
+              description ? { marginBottom: 16 } : null,
+            ]}
+          >
+            {title}
+          </Text>
+          {description && <Text style={styles.description}>{description}</Text>}
         </View>
       }
     />
@@ -114,6 +121,12 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "bold",
     marginTop: 24,
+    marginBottom: 32,
+    marginHorizontal: 16,
+    textAlign: "center",
+  },
+  description: {
+    marginHorizontal: 16,
     marginBottom: 32,
   },
 });
