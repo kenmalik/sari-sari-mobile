@@ -217,3 +217,30 @@ query Variants($productId: ID!, $count: Int!, $cursor: String) {
   }
 }
 `;
+
+export const GET_PRODUCT_PAGE = `
+  query PageQuery($count: Int, $cursor: String) {
+    products(first: $count, after: $cursor) {
+      edges {
+        node {
+          id
+          title
+          featuredImage {
+            id
+            url
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`;

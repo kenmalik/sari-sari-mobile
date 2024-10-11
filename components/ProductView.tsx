@@ -1,13 +1,12 @@
 import {
-  ScrollView,
   StyleSheet,
   Text,
-  View,
   Pressable,
   FlatList,
+  StyleProp,
+  ViewStyle,
 } from "react-native";
 import { ProductCard, ProductCardProps } from "./ProductCard";
-import { ReactNode } from "react";
 
 export type ProductViewProps = {
   products: ProductCardProps[];
@@ -18,6 +17,7 @@ export type ProductViewProps = {
     | React.ReactElement<any, string | React.JSXElementConstructor<any>>
     | React.ComponentType<any>
     | null;
+  style?: StyleProp<ViewStyle>;
 };
 
 export function ProductView({
@@ -26,6 +26,7 @@ export function ProductView({
   hasNextPage,
   isLoading,
   HeaderComponent,
+  style,
 }: ProductViewProps) {
   return (
     <FlatList
@@ -48,8 +49,8 @@ export function ProductView({
           isLoading={isLoading}
         />
       )}
-      contentContainerStyle={styles.container}
-    ></FlatList>
+      contentContainerStyle={[styles.container, style]}
+    />
   );
 }
 

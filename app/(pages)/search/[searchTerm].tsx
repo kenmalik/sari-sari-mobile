@@ -65,7 +65,7 @@ export default function Search() {
       onLoad={fetchSearchResults}
       hasNextPage={hasNextPage}
       isLoading={isLoading}
-      titleBlock={
+      HeaderComponent={
         <View style={{ marginBottom: 32, marginHorizontal: 32 }}>
           <Text style={styles.pageTitle}>Search</Text>
           <Text numberOfLines={1}>Showing results for "{searchTerm}"</Text>

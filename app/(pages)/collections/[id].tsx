@@ -109,25 +109,24 @@ export default function CollectionPage() {
           >
             {title}
           </Text>
-          {description && <Text style={styles.description}>{description}</Text>}
+          {description && <Text>{description}</Text>}
         </View>
       }
+      style={styles.container}
     />
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 32,
+    gap: 32,
+  },
   pageTitle: {
     fontSize: 32,
     fontWeight: "bold",
     marginTop: 24,
-    marginBottom: 32,
-    marginHorizontal: 16,
     textAlign: "center",
-  },
-  description: {
-    marginHorizontal: 16,
-    marginBottom: 32,
   },
 });
 

@@ -61,9 +61,6 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "white",
     padding: 16,
-    marginBottom: 32,
-    marginLeft: 64,
-    marginRight: 64,
     shadowColor: "lightgrey",
     shadowOpacity: 50,
     shadowRadius: 4,

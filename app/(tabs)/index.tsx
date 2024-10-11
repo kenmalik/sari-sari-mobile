@@ -64,35 +64,20 @@ export default function Index() {
       isLoading={isLoading}
       hasNextPage={hasNextPage}
       HeaderComponent={<Text style={styles.pageTitle}>Products</Text>}
+      style={styles.container}
     />
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-  },
-  cardContainer: {
-    width: "100%",
+    paddingHorizontal: 32,
+    gap: 32,
   },
   pageTitle: {
     fontSize: 32,
     fontWeight: "bold",
     marginTop: 24,
-    marginBottom: 32,
     textAlign: "center",
-  },
-  loadMoreButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 64,
-    marginTop: 16,
-    marginBottom: 64,
-    shadowColor: "grey",
-    shadowOpacity: 100,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  buttonText: {
-    color: "white",
   },
 });
