@@ -1,4 +1,11 @@
-import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  FlatList,
+} from "react-native";
 import { ProductCard, ProductCardProps } from "./ProductCard";
 import { ReactNode } from "react";
 
@@ -7,7 +14,10 @@ export type ProductViewProps = {
   onLoad: VoidFunction;
   hasNextPage: boolean;
   isLoading: boolean;
-  titleBlock?: ReactNode;
+  HeaderComponent?:
+    | React.ReactElement<any, string | React.JSXElementConstructor<any>>
+    | React.ComponentType<any>
+    | null;
 };
 
 export function ProductView({
@@ -15,47 +25,56 @@ export function ProductView({
   onLoad,
   hasNextPage,
   isLoading,
-  titleBlock,
+  HeaderComponent,
 }: ProductViewProps) {
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {titleBlock}
-      <View style={styles.cardContainer}>
-        {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            id={product.id}
-            title={product.title}
-            featuredImage={product.featuredImage}
-            price={product.price}
-            currency={product.currency}
-          />
-        ))}
-      </View>
-      {hasNextPage && (
-        <Pressable
-          onPress={onLoad}
-          style={({ pressed }) => [
-            {
-              backgroundColor: pressed ? "rgb(33, 39, 186)" : "rgb(3, 9, 156)",
-            },
-            styles.loadMoreButton,
-          ]}
-          disabled={isLoading}
-        >
-          <Text style={styles.buttonText}>Load More</Text>
-        </Pressable>
+    <FlatList
+      data={products}
+      renderItem={({ item }) => (
+        <ProductCard
+          key={item.id}
+          id={item.id}
+          title={item.title}
+          featuredImage={item.featuredImage}
+          price={item.price}
+          currency={item.currency}
+        />
       )}
-    </ScrollView>
+      ListHeaderComponent={HeaderComponent}
+      ListFooterComponent={() => (
+        <Footer
+          hasNextPage={hasNextPage}
+          onLoad={onLoad}
+          isLoading={isLoading}
+        />
+      )}
+      contentContainerStyle={styles.container}
+    ></FlatList>
   );
+}
+
+function Footer({ hasNextPage, onLoad, isLoading }: any) {
+  if (hasNextPage) {
+    return (
+      <Pressable
+        onPress={onLoad}
+        style={({ pressed }) => [
+          {
+            backgroundColor: pressed ? "rgb(33, 39, 186)" : "rgb(3, 9, 156)",
+          },
+          styles.loadMoreButton,
+        ]}
+        disabled={isLoading}
+      >
+        <Text style={styles.buttonText}>Load More</Text>
+      </Pressable>
+    );
+  } else return null;
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-  },
-  cardContainer: {
-    width: "100%",
+    alignItems: "stretch",
   },
   loadMoreButton: {
     paddingVertical: 16,
@@ -66,6 +85,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 100,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
+    alignSelf: "center",
   },
   buttonText: {
     color: "white",
