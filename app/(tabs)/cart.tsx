@@ -62,46 +62,54 @@ export default function Cart() {
         quantity: cartData.totalQuantity,
       });
 
-      let cursor: string | null = null;
-      let hasNextPage = true;
-      let items: ProductListItemProps[] = [];
-      while (hasNextPage) {
-        const res: any = await shopifyClient.request(VIEW_CART, {
-          variables: {
-            cartId: cart.id,
-            count: ITEMS_PER_PAGE,
-            cursor: cursor,
-          },
-        });
-        if (res.errors) {
-          throw res.errors;
-        }
-        const page = res.data.cart.lines.edges.map((edge: any) => {
-          const item = edge.node.merchandise;
-          return {
-            lineId: edge.node.id,
-            variantId: item.id,
-            productId: item.product.id,
-            featuredImage: item.image,
-            variantTitle: item.title,
-            productTitle: item.product.title,
-            price: item.price.amount,
-            currency: item.price.currencyCode,
-            quantity: edge.node.quantity,
-            quantityAvailable: item.quantityAvailable,
-          };
-        });
-
-        items.push(...page);
-        hasNextPage = res.data.cart.lines.pageInfo.hasNextPage;
-        cursor = hasNextPage ? res.data.cart.lines.pageInfo.endCursor : null;
-      }
-      setItems(items);
+      setItems(await getCartItems());
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
     }
+  }
+
+  async function getCartItems() {
+    if (!shopifyClient || !cart) {
+      return [];
+    }
+
+    let cursor: string | null = null;
+    let hasNextPage = true;
+    let items: ProductListItemProps[] = [];
+    while (hasNextPage) {
+      const res: any = await shopifyClient.request(VIEW_CART, {
+        variables: {
+          cartId: cart.id,
+          count: ITEMS_PER_PAGE,
+          cursor: cursor,
+        },
+      });
+      if (res.errors) {
+        throw res.errors;
+      }
+      const page = res.data.cart.lines.edges.map((edge: any) => {
+        const item = edge.node.merchandise;
+        return {
+          lineId: edge.node.id,
+          variantId: item.id,
+          productId: item.product.id,
+          featuredImage: item.image,
+          variantTitle: item.title,
+          productTitle: item.product.title,
+          price: item.price.amount,
+          currency: item.price.currencyCode,
+          quantity: edge.node.quantity,
+          quantityAvailable: item.quantityAvailable,
+        };
+      });
+
+      items.push(...page);
+      hasNextPage = res.data.cart.lines.pageInfo.hasNextPage;
+      cursor = hasNextPage ? res.data.cart.lines.pageInfo.endCursor : null;
+    }
+    return items;
   }
 
   async function handleUpdateQuantity(itemId: string, newQuantity: number) {
