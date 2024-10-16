@@ -36,8 +36,8 @@ mutation AddToCart($cartId: ID!, $lines: [CartLineInput!]!) {
 }
 `;
 
-export const VIEW_CART = `
-query GetCart($cartId: ID!) {
+export const GET_SUBTOTAL = `
+query GetSubtotal($cartId: ID!) {
   cart(id: $cartId) {
     id
     checkoutUrl
@@ -48,7 +48,14 @@ query GetCart($cartId: ID!) {
         currencyCode
       }
     }
-    lines(first: 10) {
+  }
+}
+`;
+
+export const VIEW_CART = `
+query GetCart($cartId: ID!, $count: Int, $cursor: String) {
+  cart(id: $cartId) {
+    lines(first: $count, after: $cursor) {
       edges {
         node {
           id
@@ -73,6 +80,10 @@ query GetCart($cartId: ID!) {
             }
           }
         }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
       }
     }
   }

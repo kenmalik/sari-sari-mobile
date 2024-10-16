@@ -3,6 +3,7 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 import { CartContext } from "../CartContext";
 import { ShopifyContext } from "../ShopifyContext";
 import {
+  GET_SUBTOTAL,
   REMOVE_FROM_CART,
   UPDATE_ITEM_IN_CART,
   VIEW_CART,
@@ -14,6 +15,8 @@ import ProductListItem, {
 import { ThemedButton } from "@/components/ThemedButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
+
+const ITEMS_PER_PAGE = 20;
 
 export default function Cart() {
   const shopifyClient = useContext(ShopifyContext);
@@ -28,6 +31,78 @@ export default function Cart() {
     amount: number;
     currency: string;
   }>({ amount: 0, currency: "USD" });
+
+  async function getCart() {
+    if (!shopifyClient || !cart) {
+      return;
+    }
+
+    try {
+      console.info(
+        "getCart() (app/(tabs)/cart.tsx): Requesting cart with ID",
+        cart.id,
+      );
+      setIsLoading(true);
+      const meta = await shopifyClient.request(GET_SUBTOTAL, {
+        variables: {
+          cartId: cart.id,
+        },
+      });
+      if (meta.errors) {
+        throw meta.errors;
+      }
+      const cartData = meta.data.cart;
+      setSubtotal({
+        amount: cartData.cost.subtotalAmount.amount,
+        currency: cartData.cost.subtotalAmount.currencyCode,
+      });
+      setCart({
+        id: cartData.id,
+        checkoutUrl: cartData.checkoutUrl,
+        quantity: cartData.totalQuantity,
+      });
+
+      let cursor: string | null = null;
+      let hasNextPage = true;
+      let items: ProductListItemProps[] = [];
+      while (hasNextPage) {
+        const res: any = await shopifyClient.request(VIEW_CART, {
+          variables: {
+            cartId: cart.id,
+            count: ITEMS_PER_PAGE,
+            cursor: cursor,
+          },
+        });
+        if (res.errors) {
+          throw res.errors;
+        }
+        const page = res.data.cart.lines.edges.map((edge: any) => {
+          const item = edge.node.merchandise;
+          return {
+            lineId: edge.node.id,
+            variantId: item.id,
+            productId: item.product.id,
+            featuredImage: item.image,
+            variantTitle: item.title,
+            productTitle: item.product.title,
+            price: item.price.amount,
+            currency: item.price.currencyCode,
+            quantity: edge.node.quantity,
+            quantityAvailable: item.quantityAvailable,
+          };
+        });
+
+        items.push(...page);
+        hasNextPage = res.data.cart.lines.pageInfo.hasNextPage;
+        cursor = hasNextPage ? res.data.cart.lines.pageInfo.endCursor : null;
+      }
+      setItems(items);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   async function handleUpdateQuantity(itemId: string, newQuantity: number) {
     if (!shopifyClient || !cart) {
@@ -50,63 +125,6 @@ export default function Cart() {
       console.error(e);
     } finally {
       getCart();
-      setIsLoading(false);
-    }
-  }
-
-  async function getCart() {
-    if (!shopifyClient || !cart) {
-      return;
-    }
-
-    try {
-      console.info(
-        "getCart() (app/(tabs)/cart.tsx): Requesting cart with ID",
-        cart.id,
-      );
-      setIsLoading(true);
-      const res = await shopifyClient.request(VIEW_CART, {
-        variables: {
-          cartId: cart.id,
-        },
-      });
-
-      if (res.errors) {
-        console.error(
-          "getCart() (app/(tabs)/cart.tsx):",
-          res.errors.graphQLErrors?.map((error) => error.message),
-        );
-        return;
-      }
-      setSubtotal({
-        amount: res.data.cart.cost.subtotalAmount.amount,
-        currency: res.data.cart.cost.subtotalAmount.currencyCode,
-      });
-      setItems(
-        res.data.cart.lines.edges.map((edge: any) => {
-          const item = edge.node.merchandise;
-          return {
-            lineId: edge.node.id,
-            variantId: item.id,
-            productId: item.product.id,
-            featuredImage: item.image,
-            variantTitle: item.title,
-            productTitle: item.product.title,
-            price: item.price.amount,
-            currency: item.price.currencyCode,
-            quantity: edge.node.quantity,
-            quantityAvailable: item.quantityAvailable,
-          };
-        }),
-      );
-      setCart({
-        id: res.data.cart.id,
-        checkoutUrl: res.data.cart.checkoutUrl,
-        quantity: res.data.cart.totalQuantity,
-      });
-    } catch (error) {
-      console.error(error);
-    } finally {
       setIsLoading(false);
     }
   }
