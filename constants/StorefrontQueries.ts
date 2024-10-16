@@ -244,3 +244,41 @@ export const GET_PRODUCT_PAGE = `
     }
   }
 `;
+
+export const GET_COLLECTION_INFO = `
+  query($id: ID!) {
+    collection(id: $id) {
+      title
+      description
+    }
+  }
+`;
+
+export const GET_COLLECTION_PRODUCTS = `
+  query($id: ID!, $count: Int, $cursor: String) {
+    collection(id: $id) {
+      products(first: $count, after: $cursor) {
+        edges {
+          node {
+            id
+            title
+            featuredImage {
+              id
+              url
+            }
+            priceRange {
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+            }
+          }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+  }
+`;

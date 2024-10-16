@@ -1,6 +1,10 @@
 import { ShopifyContext } from "@/app/ShopifyContext";
 import { ProductCardProps } from "@/components/ProductCard";
 import { ProductView } from "@/components/ProductView";
+import {
+  GET_COLLECTION_INFO,
+  GET_COLLECTION_PRODUCTS,
+} from "@/constants/StorefrontQueries";
 import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
@@ -129,41 +133,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-const GET_COLLECTION_INFO = `
-  query($id: ID!) {
-    collection(id: $id) {
-      title
-      description
-    }
-  }
-`;
-
-const GET_COLLECTION_PRODUCTS = `
-  query($id: ID!, $count: Int, $cursor: String) {
-    collection(id: $id) {
-      products(first: $count, after: $cursor) {
-        edges {
-          node {
-            id
-            title
-            featuredImage {
-              id
-              url
-            }
-            priceRange {
-              minVariantPrice {
-                amount
-                currencyCode
-              }
-            }
-          }
-        }
-        pageInfo {
-          endCursor
-          hasNextPage
-        }
-      }
-    }
-  }
-`;
