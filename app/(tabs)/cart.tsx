@@ -49,8 +49,8 @@ export default function Cart() {
     } catch (e) {
       console.error(e);
     } finally {
-      setIsLoading(false);
       getCart();
+      setIsLoading(false);
     }
   }
 
@@ -99,6 +99,11 @@ export default function Cart() {
           };
         }),
       );
+      setCart({
+        id: res.data.cart.id,
+        checkoutUrl: res.data.cart.checkoutUrl,
+        quantity: res.data.cart.totalQuantity,
+      });
     } catch (error) {
       console.error(error);
     } finally {
@@ -123,11 +128,10 @@ export default function Cart() {
       if (res.errors) {
         throw res.errors;
       }
-
-      getCart();
     } catch (e) {
       console.error(e);
     } finally {
+      getCart();
       setIsLoading(false);
     }
   }

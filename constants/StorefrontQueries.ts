@@ -29,6 +29,7 @@ mutation AddToCart($cartId: ID!, $lines: [CartLineInput!]!) {
     cart {
       id
       checkoutUrl
+      totalQuantity
     }
   }
 }
@@ -37,6 +38,9 @@ mutation AddToCart($cartId: ID!, $lines: [CartLineInput!]!) {
 export const VIEW_CART = `
 query GetCart($cartId: ID!) {
   cart(id: $cartId) {
+    id
+    checkoutUrl
+    totalQuantity
     cost {
       subtotalAmount {
         amount
@@ -80,6 +84,7 @@ mutation RemoveFromCart($cartId: ID!, $lineIds: [ID!]!) {
     cart {
       id
       checkoutUrl
+      totalQuantity
     }
     userErrors {
       field
