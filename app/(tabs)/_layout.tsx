@@ -1,7 +1,7 @@
 import { Text, View } from "react-native";
 import { Tabs } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import SearchBar from "@/components/search-bar";
+import SearchBar from "@/components/SearchBar";
 import { useContext } from "react";
 import { CartContext } from "../CartContext";
 
