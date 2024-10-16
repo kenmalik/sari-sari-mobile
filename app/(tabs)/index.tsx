@@ -3,6 +3,7 @@ import { StyleSheet, Text } from "react-native";
 import { ShopifyContext } from "../ShopifyContext";
 import { ProductCardProps } from "@/components/ProductCard";
 import { ProductView } from "@/components/ProductView";
+import { GET_PRODUCT_PAGE } from "@/constants/StorefrontQueries";
 
 export default function Index() {
   const shopifyClient = useContext(ShopifyContext);
@@ -27,6 +28,9 @@ export default function Index() {
           cursor: pageCursor.current,
         },
       });
+      if (res.errors) {
+        throw res.errors;
+      }
 
       const page: ProductCardProps[] = res.data.products.edges.map(
         (edge: any) => ({
@@ -42,11 +46,6 @@ export default function Index() {
       pageCursor.current = hasNextPage
         ? res.data.products.pageInfo.endCursor
         : null;
-
-      if (res.errors || res.extensions) {
-        console.error(res.errors);
-        console.log(res.extensions);
-      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -64,63 +63,17 @@ export default function Index() {
       onLoad={loadPage}
       isLoading={isLoading}
       hasNextPage={hasNextPage}
-      titleBlock={<Text style={styles.pageTitle}>Products</Text>}
+      HeaderComponent={<Text style={styles.pageTitle}>Products</Text>}
     />
   );
 }
 
-const GET_PRODUCT_PAGE = `
-  query PageQuery($count: Int, $cursor: String) {
-    products(first: $count, after: $cursor) {
-      edges {
-        node {
-          id
-          title
-          featuredImage {
-            id
-            url
-          }
-          priceRange {
-            minVariantPrice {
-              amount
-              currencyCode
-            }
-          }
-        }
-      }
-      pageInfo {
-        hasNextPage
-        endCursor
-      }
-    }
-  }
-`;
-
 const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-  },
-  cardContainer: {
-    width: "100%",
-  },
   pageTitle: {
     fontSize: 32,
     fontWeight: "bold",
-    marginTop: 24,
-    marginBottom: 32,
+    marginTop: 32,
+    marginBottom: 24,
     textAlign: "center",
-  },
-  loadMoreButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 64,
-    marginTop: 16,
-    marginBottom: 64,
-    shadowColor: "grey",
-    shadowOpacity: 100,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  buttonText: {
-    color: "white",
   },
 });

@@ -1,5 +1,13 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Pressable,
+  StyleProp,
+  ViewStyle,
+} from "react-native";
 import { Link } from "expo-router";
 
 export type ProductCardProps = {
@@ -8,6 +16,7 @@ export type ProductCardProps = {
   featuredImage: { id: string; url: string } | null;
   price: number;
   currency: string;
+  style?: StyleProp<ViewStyle>;
 };
 
 export function ProductCard({
@@ -16,6 +25,7 @@ export function ProductCard({
   featuredImage,
   price,
   currency,
+  style,
 }: ProductCardProps) {
   return (
     <Link
@@ -25,20 +35,34 @@ export function ProductCard({
       }}
       asChild
     >
-      <Pressable style={styles.card}>
-        <Text style={styles.cardTitle}>{title}</Text>
-        {featuredImage ? (
-          <Image style={styles.cardImage} source={{ uri: featuredImage.url }} />
-        ) : (
-          <View style={[styles.cardImage, styles.cardNoImage]}>
-            <AntDesign name="picture" size={64} color="lightgrey" />
+      <Pressable style={style}>
+        {({ pressed }) => (
+          <View style={styles.card}>
+            {featuredImage ? (
+              <Image
+                style={[styles.cardImage, pressed ? { opacity: 0.5 } : null]}
+                source={{ uri: featuredImage.url }}
+              />
+            ) : (
+              <View style={[styles.cardImage, styles.cardNoImage]}>
+                <AntDesign name="picture" size={64} color="lightgrey" />
+              </View>
+            )}
+            <Text
+              style={[styles.cardTitle, pressed ? { color: "grey" } : null]}
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+            <Text
+              style={[styles.cardPrice, pressed ? { color: "grey" } : null]}
+            >
+              {currency === "USD" && "$"}
+              {Number(price).toFixed(2)}
+              {currency !== "USD" && ` ${currency}`}
+            </Text>
           </View>
         )}
-        <Text style={styles.cardPrice}>
-          {currency === "USD" && "$"}
-          {Number(price).toFixed(2)}
-          {currency !== "USD" && ` ${currency}`}
-        </Text>
       </Pressable>
     </Link>
   );
@@ -48,13 +72,12 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "white",
     padding: 16,
-    marginBottom: 32,
-    marginLeft: 64,
-    marginRight: 64,
     shadowColor: "lightgrey",
     shadowOpacity: 50,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
+    width: "100%",
+    height: "100%",
   },
   cardTitle: {
     textAlign: "center",
@@ -63,7 +86,7 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     width: "100%",
-    height: 256,
+    flexGrow: 1,
     objectFit: "contain",
   },
   cardNoImage: {

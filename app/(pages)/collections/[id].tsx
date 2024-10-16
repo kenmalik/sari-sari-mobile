@@ -1,7 +1,11 @@
 import { ShopifyContext } from "@/app/ShopifyContext";
 import { ProductCardProps } from "@/components/ProductCard";
 import { ProductView } from "@/components/ProductView";
-import { Stack, useLocalSearchParams } from "expo-router";
+import {
+  GET_COLLECTION_INFO,
+  GET_COLLECTION_PRODUCTS,
+} from "@/constants/StorefrontQueries";
+import { useLocalSearchParams } from "expo-router";
 import { useContext, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
@@ -9,7 +13,7 @@ export default function CollectionPage() {
   const shopifyClient = useContext(ShopifyContext);
   const { id } = useLocalSearchParams();
 
-  const PRODUCTS_PER_PAGE = 5;
+  const PRODUCTS_PER_PAGE = 10;
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasNextPage, setHasNextPage] = useState<boolean>(false);
   const [products, setProducts] = useState<ProductCardProps[]>([]);
@@ -99,59 +103,33 @@ export default function CollectionPage() {
       onLoad={() => getProducts()}
       hasNextPage={hasNextPage}
       isLoading={isLoading}
-      titleBlock={
+      HeaderComponent={
         <View>
-          <Text style={styles.pageTitle}>{title}</Text>
+          <Text
+            style={[
+              styles.pageTitle,
+              description ? { marginBottom: 16 } : null,
+            ]}
+          >
+            {title}
+          </Text>
           {description && <Text>{description}</Text>}
         </View>
       }
+      style={styles.container}
     />
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 16,
+  },
   pageTitle: {
     fontSize: 32,
     fontWeight: "bold",
-    marginTop: 24,
-    marginBottom: 32,
+    marginTop: 32,
+    marginBottom: 24,
+    textAlign: "center",
   },
 });
-
-const GET_COLLECTION_INFO = `
-  query($id: ID!) {
-    collection(id: $id) {
-      title
-      description
-    }
-  }
-`;
-
-const GET_COLLECTION_PRODUCTS = `
-  query($id: ID!, $count: Int, $cursor: String) {
-    collection(id: $id) {
-      products(first: $count, after: $cursor) {
-        edges {
-          node {
-            id
-            title
-            featuredImage {
-              id
-              url
-            }
-            priceRange {
-              minVariantPrice {
-                amount
-                currencyCode
-              }
-            }
-          }
-        }
-        pageInfo {
-          endCursor
-          hasNextPage
-        }
-      }
-    }
-  }
-`;
