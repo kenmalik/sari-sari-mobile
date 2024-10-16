@@ -4,6 +4,7 @@ mutation CreateCart {
     cart {
       id
       checkoutUrl
+      totalQuantity
     }
   }
 }
