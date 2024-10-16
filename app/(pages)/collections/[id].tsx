@@ -119,7 +119,7 @@ export default function CollectionPage() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 32,
+    paddingHorizontal: 16,
   },
   pageTitle: {
     fontSize: 32,
