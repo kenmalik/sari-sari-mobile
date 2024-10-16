@@ -39,17 +39,22 @@ export function ProductView({
           featuredImage={item.featuredImage}
           price={item.price}
           currency={item.currency}
+          style={{ flex: 1, aspectRatio: "1 / 1.25" }}
         />
       )}
       ListHeaderComponent={HeaderComponent}
-      ListFooterComponent={() => (
+      ListFooterComponent={
         <Footer
           hasNextPage={hasNextPage}
           onLoad={onLoad}
           isLoading={isLoading}
         />
-      )}
+      }
       contentContainerStyle={[styles.container, style]}
+      numColumns={2}
+      columnWrapperStyle={{
+        gap: 8,
+      }}
     />
   );
 }
@@ -75,13 +80,14 @@ function Footer({ hasNextPage, onLoad, isLoading }: any) {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "stretch",
+    paddingHorizontal: 16,
+    gap: 8,
   },
   loadMoreButton: {
     paddingVertical: 16,
     paddingHorizontal: 64,
     marginTop: 16,
-    marginBottom: 64,
+    marginBottom: 8,
     shadowColor: "grey",
     shadowOpacity: 100,
     shadowRadius: 4,

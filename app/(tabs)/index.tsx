@@ -64,20 +64,16 @@ export default function Index() {
       isLoading={isLoading}
       hasNextPage={hasNextPage}
       HeaderComponent={<Text style={styles.pageTitle}>Products</Text>}
-      style={styles.container}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 32,
-    gap: 32,
-  },
   pageTitle: {
     fontSize: 32,
     fontWeight: "bold",
-    marginTop: 24,
+    marginTop: 32,
+    marginBottom: 24,
     textAlign: "center",
   },
 });

@@ -9,7 +9,7 @@ export default function CollectionPage() {
   const shopifyClient = useContext(ShopifyContext);
   const { id } = useLocalSearchParams();
 
-  const PRODUCTS_PER_PAGE = 5;
+  const PRODUCTS_PER_PAGE = 10;
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasNextPage, setHasNextPage] = useState<boolean>(false);
   const [products, setProducts] = useState<ProductCardProps[]>([]);
@@ -120,12 +120,12 @@ export default function CollectionPage() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 32,
-    gap: 32,
   },
   pageTitle: {
     fontSize: 32,
     fontWeight: "bold",
-    marginTop: 24,
+    marginTop: 32,
+    marginBottom: 24,
     textAlign: "center",
   },
 });
