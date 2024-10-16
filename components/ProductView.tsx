@@ -72,7 +72,9 @@ function Footer({ hasNextPage, onLoad, isLoading }: any) {
         ]}
         disabled={isLoading}
       >
-        <Text style={styles.buttonText}>Load More</Text>
+        <Text style={styles.buttonText}>
+          {isLoading ? "Loading..." : "Load More"}
+        </Text>
       </Pressable>
     );
   } else return null;
