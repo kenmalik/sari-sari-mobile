@@ -1,5 +1,5 @@
 import { useCallback, useContext, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { CartContext } from "../CartContext";
 import { ShopifyContext } from "../ShopifyContext";
 import {
@@ -144,17 +144,33 @@ export default function Cart() {
 
   return (
     <>
-      <ScrollView contentContainerStyle={styles.container}>
-        {items.length > 0 ? (
-          <>
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderColor: "lightgrey",
-                marginBottom: 16,
-                paddingBottom: 16,
-              }}
-            >
+      <FlatList
+        data={items}
+        contentContainerStyle={styles.container}
+        renderItem={({ item }) => (
+          <ProductListItem
+            key={item.lineId}
+            lineId={item.lineId}
+            variantId={item.variantId}
+            variantTitle={item.variantTitle}
+            productId={item.productId}
+            productTitle={item.productTitle}
+            featuredImage={item.featuredImage}
+            price={item.price}
+            currency={item.currency}
+            quantity={item.quantity}
+            quantityAvailable={item.quantityAvailable}
+            onDelete={() => {
+              handleRemoveFromCart(item.lineId);
+            }}
+            onQuantityChange={(newQuantity) => {
+              handleUpdateQuantity(item.lineId, newQuantity);
+            }}
+          />
+        )}
+        ListHeaderComponent={
+          items.length > 0 ? (
+            <View style={styles.header}>
               <Text style={styles.pageTitle}>Your Cart</Text>
 
               <Text style={styles.subtitle}>
@@ -186,35 +202,11 @@ export default function Cart() {
                 </Text>
               </ThemedButton>
             </View>
-
-            <View style={styles.itemContainer}>
-              {items.map((item) => (
-                <ProductListItem
-                  key={item.lineId}
-                  lineId={item.lineId}
-                  variantId={item.variantId}
-                  variantTitle={item.variantTitle}
-                  productId={item.productId}
-                  productTitle={item.productTitle}
-                  featuredImage={item.featuredImage}
-                  price={item.price}
-                  currency={item.currency}
-                  quantity={item.quantity}
-                  quantityAvailable={item.quantityAvailable}
-                  onDelete={() => {
-                    handleRemoveFromCart(item.lineId);
-                  }}
-                  onQuantityChange={(newQuantity) => {
-                    handleUpdateQuantity(item.lineId, newQuantity);
-                  }}
-                />
-              ))}
-            </View>
-          </>
-        ) : (
-          <Text style={styles.cartEmptyText}>Cart empty</Text>
-        )}
-      </ScrollView>
+          ) : (
+            <Text style={styles.cartEmptyText}>Cart empty</Text>
+          )
+        }
+      />
       <View
         style={{
           position: "absolute",
@@ -233,8 +225,8 @@ export default function Cart() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingBottom: 32,
+    padding: 16,
+    gap: 8,
   },
   pageTitle: {
     fontSize: 32,
@@ -261,5 +253,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 32,
+  },
+  header: {
+    borderBottomWidth: 1,
+    borderColor: "lightgrey",
+    marginBottom: 8,
+    paddingBottom: 16,
   },
 });
