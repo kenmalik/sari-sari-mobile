@@ -13,8 +13,8 @@ import ProductListItem, {
   ProductListItemProps,
 } from "@/components/ProductListItem";
 import { ThemedButton } from "@/components/ThemedButton";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
+import { Colors } from "@/constants/Colors";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -22,8 +22,8 @@ export default function Cart() {
   const shopifyClient = useContext(ShopifyContext);
   const shopifyCheckout = useShopifyCheckoutSheet();
   const { cart, setCart } = useContext(CartContext);
-  const checkoutColor = useThemeColor({}, "tertiary");
-  const checkoutColorPressed = useThemeColor({}, "tertiaryHighlight");
+  const checkoutColor = Colors["tertiary"];
+  const checkoutColorPressed = Colors["tertiaryHighlight"];
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [items, setItems] = useState<ProductListItemProps[]>([]);
@@ -209,10 +209,8 @@ export default function Cart() {
               </Text>
 
               <ThemedButton
-                lightColor={checkoutColor}
-                lightPressedColor={checkoutColorPressed}
-                darkColor={checkoutColor}
-                darkPressedColor={checkoutColorPressed}
+                color={checkoutColor}
+                pressedColor={checkoutColorPressed}
                 style={{ padding: 12 }}
                 onPress={() => {
                   if (!cart) {

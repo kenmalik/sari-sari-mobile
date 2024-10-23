@@ -1,52 +1,32 @@
+import { Colors } from "@/constants/Colors";
 import { Pressable, type PressableProps, type ViewProps } from "react-native";
-
-import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type ThemedButtonProps = PressableProps &
   ViewProps & {
-    lightColor?: string;
-    darkColor?: string;
-    lightPressedColor?: string;
-    darkPressedColor?: string;
-    lightDisabledColor?: string;
-    darkDisabledColor?: string;
+    color?: string;
+    pressedColor?: string;
+    disabledColor?: string;
   };
 
 export function ThemedButton({
   style,
-  lightColor,
-  darkColor,
-  lightPressedColor,
-  darkPressedColor,
-  lightDisabledColor,
-  darkDisabledColor,
+  color,
+  pressedColor,
+  disabledColor,
   ...otherProps
 }: ThemedButtonProps) {
   const backgroundColor = otherProps.disabled
-    ? useThemeColor(
-        {
-          light: lightDisabledColor,
-          dark: darkDisabledColor,
-        },
-        "tintDimmed",
-      )
-    : useThemeColor(
-        {
-          light: lightColor,
-          dark: darkColor,
-        },
-        "tint",
-      );
-  const pressedColor = useThemeColor(
-    { light: lightPressedColor, dark: darkPressedColor },
-    "tintHighlight",
-  );
+    ? Colors["tintDimmed"]
+    : color
+      ? color
+      : Colors["tint"];
+  const pressColor = pressedColor ? pressedColor : Colors["tintHighlight"];
 
   return (
     <Pressable
       style={({ pressed }) => [
         {
-          backgroundColor: pressed ? pressedColor : backgroundColor,
+          backgroundColor: pressed ? pressColor : backgroundColor,
           borderRadius: 64,
           overflow: "hidden",
         },
