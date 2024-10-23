@@ -9,18 +9,16 @@ const tertiaryColorLight = "rgb(249, 204, 0)";
 const tertiaryHighlightColorLight = "#fcdb53";
 
 export const Colors = {
-  light: {
-    text: "#11181C",
-    background: "#fff",
-    tint: tintColorLight,
-    tintHighlight: tintHighlightColorLight,
-    tintDimmed: tintDimmedColorLight,
-    secondary: secondaryColorLight,
-    secondaryHighlight: secondaryHighlightLight,
-    tertiary: tertiaryColorLight,
-    tertiaryHighlight: tertiaryHighlightColorLight,
-    icon: "#687076",
-    tabIconDefault: "#687076",
-    tabIconSelected: tintColorLight,
-  },
+  text: "#11181C",
+  background: "#fff",
+  tint: tintColorLight,
+  tintHighlight: tintHighlightColorLight,
+  tintDimmed: tintDimmedColorLight,
+  secondary: secondaryColorLight,
+  secondaryHighlight: secondaryHighlightLight,
+  tertiary: tertiaryColorLight,
+  tertiaryHighlight: tertiaryHighlightColorLight,
+  icon: "#687076",
+  tabIconDefault: "#687076",
+  tabIconSelected: tintColorLight,
 };

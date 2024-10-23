@@ -1,6 +1,5 @@
+import { Colors } from "@/constants/Colors";
 import { Pressable, type PressableProps, type ViewProps } from "react-native";
-
-import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type ThemedButtonProps = PressableProps &
   ViewProps & {
@@ -17,22 +16,13 @@ export function ThemedButton({
   ...otherProps
 }: ThemedButtonProps) {
   const backgroundColor = otherProps.disabled
-    ? useThemeColor(
-        {
-          light: lightDisabledColor,
-        },
-        "tintDimmed",
-      )
-    : useThemeColor(
-        {
-          light: lightColor,
-        },
-        "tint",
-      );
-  const pressedColor = useThemeColor(
-    { light: lightPressedColor },
-    "tintHighlight",
-  );
+    ? Colors["tintDimmed"]
+    : lightColor
+      ? lightColor
+      : Colors["tint"];
+  const pressedColor = lightPressedColor
+    ? lightPressedColor
+    : Colors["tintHighlight"];
 
   return (
     <Pressable
