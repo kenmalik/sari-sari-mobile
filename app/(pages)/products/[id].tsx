@@ -331,9 +331,6 @@ export default function ProductPage() {
                 lightColor="transparent"
                 lightPressedColor="white"
                 lightDisabledColor="lightgrey"
-                darkColor="transparent"
-                darkPressedColor="white"
-                darkDisabledColor="lightgrey"
                 style={{
                   borderColor: isOutOfStock ? "grey" : "black",
                   borderWidth: 1,

@@ -5,40 +5,32 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 export type ThemedButtonProps = PressableProps &
   ViewProps & {
     lightColor?: string;
-    darkColor?: string;
     lightPressedColor?: string;
-    darkPressedColor?: string;
     lightDisabledColor?: string;
-    darkDisabledColor?: string;
   };
 
 export function ThemedButton({
   style,
   lightColor,
-  darkColor,
   lightPressedColor,
-  darkPressedColor,
   lightDisabledColor,
-  darkDisabledColor,
   ...otherProps
 }: ThemedButtonProps) {
   const backgroundColor = otherProps.disabled
     ? useThemeColor(
         {
           light: lightDisabledColor,
-          dark: darkDisabledColor,
         },
         "tintDimmed",
       )
     : useThemeColor(
         {
           light: lightColor,
-          dark: darkColor,
         },
         "tint",
       );
   const pressedColor = useThemeColor(
-    { light: lightPressedColor, dark: darkPressedColor },
+    { light: lightPressedColor },
     "tintHighlight",
   );
 

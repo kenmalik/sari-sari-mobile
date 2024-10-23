@@ -211,8 +211,6 @@ export default function Cart() {
               <ThemedButton
                 lightColor={checkoutColor}
                 lightPressedColor={checkoutColorPressed}
-                darkColor={checkoutColor}
-                darkPressedColor={checkoutColorPressed}
                 style={{ padding: 12 }}
                 onPress={() => {
                   if (!cart) {
