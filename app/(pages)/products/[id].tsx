@@ -60,8 +60,9 @@ export default function ProductPage() {
   const [productInfo, setProductInfo] = useState<ProductInfo>();
 
   const [variants, setVariants] = useState<Variant[]>([]);
-  const [selectedVariant, setSelectedVariant] = useState<Variant>();
-  const isOutOfStock = selectedVariant ? selectedVariant.stock <= 0 : true;
+  const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
+  const isOutOfStock =
+    selectedVariant !== null ? variants[selectedVariant].stock <= 0 : true;
   const cursor = useRef<string | null>(null);
   const [hasNextPage, setHasNextPage] = useState<boolean>(false);
 
@@ -78,7 +79,9 @@ export default function ProductPage() {
       const res = await shopifyClient.request(ADD_TO_CART, {
         variables: {
           cartId: cart.id,
-          lines: [{ quantity: quantity, merchandiseId: selectedVariant.id }],
+          lines: [
+            { quantity: quantity, merchandiseId: variants[selectedVariant].id },
+          ],
         },
       });
       if (res.errors) {
@@ -110,7 +113,9 @@ export default function ProductPage() {
       setIsLoading(true);
       const res = await shopifyClient.request(BUY_NOW, {
         variables: {
-          lines: [{ quantity: quantity, merchandiseId: selectedVariant.id }],
+          lines: [
+            { quantity: quantity, merchandiseId: variants[selectedVariant].id },
+          ],
         },
       });
       if (res.errors) {
@@ -193,6 +198,9 @@ export default function ProductPage() {
           }),
         ),
       );
+      if (selectedVariant === null && page.edges.length > 0) {
+        setSelectedVariant(0);
+      }
 
       cursor.current = page.pageInfo.hasNextPage
         ? page.pageInfo.endCursor
@@ -208,11 +216,9 @@ export default function ProductPage() {
     getVariantPage();
   }, []);
 
-  useEffect(() => {
-    if (variants.length > 0) {
-      setSelectedVariant(variants[0]);
-    }
-  }, [variants]);
+  if (selectedVariant === null) {
+    return <View />;
+  }
 
   return (
     <KeyboardAvoidingView
@@ -226,7 +232,7 @@ export default function ProductPage() {
                 <Carousel
                   height={height}
                   width={width}
-                  selected={selectedVariant?.imageID}
+                  selected={variants[selectedVariant]?.imageID}
                 >
                   {images.map((image) => (
                     <Image
@@ -251,8 +257,11 @@ export default function ProductPage() {
 
             <View style={[styles.section, styles.wallSpaced]}>
               <Text>
-                {selectedVariant && selectedVariant.stock > 0 ? (
-                  <Text>{selectedVariant?.stock} items in stock!</Text>
+                {variants[selectedVariant] &&
+                variants[selectedVariant].stock > 0 ? (
+                  <Text>
+                    {variants[selectedVariant]?.stock} items in stock!
+                  </Text>
                 ) : (
                   <Text style={{ color: "red" }}>Out of stock</Text>
                 )}
@@ -263,23 +272,23 @@ export default function ProductPage() {
               <View style={styles.section}>
                 <Text style={[styles.subheading, styles.wallSpaced]}>
                   <Text style={{ fontWeight: "bold" }}>Variant: </Text>
-                  <Text>{selectedVariant?.title}</Text>
+                  <Text>{variants[selectedVariant]?.title}</Text>
                 </Text>
                 <ScrollView
                   contentContainerStyle={styles.variantCardContainer}
                   horizontal
                 >
-                  {variants.map((variant) => (
+                  {variants.map((variant, index) => (
                     <VariantCard
                       key={variant.id}
                       variant={variant}
                       style={
-                        selectedVariant?.id === variant.id
+                        variants[selectedVariant]?.id === variant.id
                           ? { borderColor: "rgb(3, 9, 156)" }
                           : undefined
                       }
                       onSelect={() => {
-                        setSelectedVariant(variant);
+                        setSelectedVariant(index);
                       }}
                     />
                   ))}
@@ -319,7 +328,9 @@ export default function ProductPage() {
 
             <View style={[styles.section, styles.wallSpaced]}>
               <NumberSelector
-                max={selectedVariant?.stock}
+                max={
+                  selectedVariant ? variants[selectedVariant].stock : undefined
+                }
                 min={1}
                 onSelect={(selected) => setQuantity(selected)}
                 value={quantity}
