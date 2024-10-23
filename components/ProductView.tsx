@@ -5,11 +5,12 @@ import {
   FlatList,
   StyleProp,
   ViewStyle,
+  View,
 } from "react-native";
 import { ProductCard, ProductCardProps } from "./ProductCard";
 
 export type ProductViewProps = {
-  products: ProductCardProps[];
+  products: (ProductCardProps | null)[];
   onLoad: VoidFunction;
   hasNextPage: boolean;
   isLoading: boolean;
@@ -28,20 +29,27 @@ export function ProductView({
   HeaderComponent,
   style,
 }: ProductViewProps) {
+  if (products.length % 2 != 0) {
+    products.push(null);
+  }
   return (
     <FlatList
       data={products}
-      renderItem={({ item }) => (
-        <ProductCard
-          key={item.id}
-          id={item.id}
-          title={item.title}
-          featuredImage={item.featuredImage}
-          price={item.price}
-          currency={item.currency}
-          style={{ flex: 1, aspectRatio: "1 / 1.25" }}
-        />
-      )}
+      renderItem={({ item }) =>
+        item ? (
+          <ProductCard
+            key={item.id}
+            id={item.id}
+            title={item.title}
+            featuredImage={item.featuredImage}
+            price={item.price}
+            currency={item.currency}
+            style={styles.card}
+          />
+        ) : (
+          <View style={styles.card} />
+        )
+      }
       ListHeaderComponent={HeaderComponent}
       ListFooterComponent={
         <LoadMoreButton
@@ -84,6 +92,10 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     gap: 8,
+  },
+  card: {
+    flex: 1,
+    aspectRatio: "1 / 1.25",
   },
   loadMoreButton: {
     paddingVertical: 16,
