@@ -209,8 +209,8 @@ export default function Cart() {
               </Text>
 
               <ThemedButton
-                lightColor={checkoutColor}
-                lightPressedColor={checkoutColorPressed}
+                color={checkoutColor}
+                pressedColor={checkoutColorPressed}
                 style={{ padding: 12 }}
                 onPress={() => {
                   if (!cart) {

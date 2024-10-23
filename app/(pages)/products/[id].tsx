@@ -328,9 +328,9 @@ export default function ProductPage() {
                 disabled={isOutOfStock}
               />
               <ThemedButton
-                lightColor="transparent"
-                lightPressedColor="white"
-                lightDisabledColor="lightgrey"
+                color="transparent"
+                pressedColor="white"
+                disabledColor="lightgrey"
                 style={{
                   borderColor: isOutOfStock ? "grey" : "black",
                   borderWidth: 1,
