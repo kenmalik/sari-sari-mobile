@@ -4,6 +4,7 @@ mutation CreateCart {
     cart {
       id
       checkoutUrl
+      totalQuantity
     }
   }
 }
@@ -29,21 +30,32 @@ mutation AddToCart($cartId: ID!, $lines: [CartLineInput!]!) {
     cart {
       id
       checkoutUrl
+      totalQuantity
     }
   }
 }
 `;
 
-export const VIEW_CART = `
-query GetCart($cartId: ID!) {
+export const GET_SUBTOTAL = `
+query GetSubtotal($cartId: ID!) {
   cart(id: $cartId) {
+    id
+    checkoutUrl
+    totalQuantity
     cost {
       subtotalAmount {
         amount
         currencyCode
       }
     }
-    lines(first: 10) {
+  }
+}
+`;
+
+export const VIEW_CART = `
+query GetCart($cartId: ID!, $count: Int, $cursor: String) {
+  cart(id: $cartId) {
+    lines(first: $count, after: $cursor) {
       edges {
         node {
           id
@@ -69,6 +81,10 @@ query GetCart($cartId: ID!) {
           }
         }
       }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
     }
   }
 }
@@ -80,6 +96,7 @@ mutation RemoveFromCart($cartId: ID!, $lineIds: [ID!]!) {
     cart {
       id
       checkoutUrl
+      totalQuantity
     }
     userErrors {
       field

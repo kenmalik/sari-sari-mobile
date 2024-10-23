@@ -1,8 +1,9 @@
 import { useCallback, useContext, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { CartContext } from "../CartContext";
 import { ShopifyContext } from "../ShopifyContext";
 import {
+  GET_SUBTOTAL,
   REMOVE_FROM_CART,
   UPDATE_ITEM_IN_CART,
   VIEW_CART,
@@ -14,6 +15,8 @@ import ProductListItem, {
 import { ThemedButton } from "@/components/ThemedButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
+
+const ITEMS_PER_PAGE = 20;
 
 export default function Cart() {
   const shopifyClient = useContext(ShopifyContext);
@@ -28,6 +31,86 @@ export default function Cart() {
     amount: number;
     currency: string;
   }>({ amount: 0, currency: "USD" });
+
+  async function getCart() {
+    if (!shopifyClient || !cart) {
+      return;
+    }
+
+    try {
+      console.info(
+        "getCart() (app/(tabs)/cart.tsx): Requesting cart with ID",
+        cart.id,
+      );
+      setIsLoading(true);
+      const meta = await shopifyClient.request(GET_SUBTOTAL, {
+        variables: {
+          cartId: cart.id,
+        },
+      });
+      if (meta.errors) {
+        throw meta.errors;
+      }
+      const cartData = meta.data.cart;
+      setSubtotal({
+        amount: cartData.cost.subtotalAmount.amount,
+        currency: cartData.cost.subtotalAmount.currencyCode,
+      });
+      setCart({
+        id: cartData.id,
+        checkoutUrl: cartData.checkoutUrl,
+        quantity: cartData.totalQuantity,
+      });
+
+      setItems(await getCartItems());
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function getCartItems() {
+    if (!shopifyClient || !cart) {
+      return [];
+    }
+
+    let cursor: string | null = null;
+    let hasNextPage = true;
+    let items: ProductListItemProps[] = [];
+    while (hasNextPage) {
+      const res: any = await shopifyClient.request(VIEW_CART, {
+        variables: {
+          cartId: cart.id,
+          count: ITEMS_PER_PAGE,
+          cursor: cursor,
+        },
+      });
+      if (res.errors) {
+        throw res.errors;
+      }
+      const page = res.data.cart.lines.edges.map((edge: any) => {
+        const item = edge.node.merchandise;
+        return {
+          lineId: edge.node.id,
+          variantId: item.id,
+          productId: item.product.id,
+          featuredImage: item.image,
+          variantTitle: item.title,
+          productTitle: item.product.title,
+          price: item.price.amount,
+          currency: item.price.currencyCode,
+          quantity: edge.node.quantity,
+          quantityAvailable: item.quantityAvailable,
+        };
+      });
+
+      items.push(...page);
+      hasNextPage = res.data.cart.lines.pageInfo.hasNextPage;
+      cursor = hasNextPage ? res.data.cart.lines.pageInfo.endCursor : null;
+    }
+    return items;
+  }
 
   async function handleUpdateQuantity(itemId: string, newQuantity: number) {
     if (!shopifyClient || !cart) {
@@ -49,59 +132,7 @@ export default function Cart() {
     } catch (e) {
       console.error(e);
     } finally {
-      setIsLoading(false);
       getCart();
-    }
-  }
-
-  async function getCart() {
-    if (!shopifyClient || !cart) {
-      return;
-    }
-
-    try {
-      console.info(
-        "getCart() (app/(tabs)/cart.tsx): Requesting cart with ID",
-        cart.id,
-      );
-      setIsLoading(true);
-      const res = await shopifyClient.request(VIEW_CART, {
-        variables: {
-          cartId: cart.id,
-        },
-      });
-
-      if (res.errors) {
-        console.error(
-          "getCart() (app/(tabs)/cart.tsx):",
-          res.errors.graphQLErrors?.map((error) => error.message),
-        );
-        return;
-      }
-      setSubtotal({
-        amount: res.data.cart.cost.subtotalAmount.amount,
-        currency: res.data.cart.cost.subtotalAmount.currencyCode,
-      });
-      setItems(
-        res.data.cart.lines.edges.map((edge: any) => {
-          const item = edge.node.merchandise;
-          return {
-            lineId: edge.node.id,
-            variantId: item.id,
-            productId: item.product.id,
-            featuredImage: item.image,
-            variantTitle: item.title,
-            productTitle: item.product.title,
-            price: item.price.amount,
-            currency: item.price.currencyCode,
-            quantity: edge.node.quantity,
-            quantityAvailable: item.quantityAvailable,
-          };
-        }),
-      );
-    } catch (error) {
-      console.error(error);
-    } finally {
       setIsLoading(false);
     }
   }
@@ -123,11 +154,10 @@ export default function Cart() {
       if (res.errors) {
         throw res.errors;
       }
-
-      getCart();
     } catch (e) {
       console.error(e);
     } finally {
+      getCart();
       setIsLoading(false);
     }
   }
@@ -140,17 +170,33 @@ export default function Cart() {
 
   return (
     <>
-      <ScrollView contentContainerStyle={styles.container}>
-        {items.length > 0 ? (
-          <>
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderColor: "lightgrey",
-                marginBottom: 16,
-                paddingBottom: 16,
-              }}
-            >
+      <FlatList
+        data={items}
+        contentContainerStyle={styles.container}
+        renderItem={({ item }) => (
+          <ProductListItem
+            key={item.lineId}
+            lineId={item.lineId}
+            variantId={item.variantId}
+            variantTitle={item.variantTitle}
+            productId={item.productId}
+            productTitle={item.productTitle}
+            featuredImage={item.featuredImage}
+            price={item.price}
+            currency={item.currency}
+            quantity={item.quantity}
+            quantityAvailable={item.quantityAvailable}
+            onDelete={() => {
+              handleRemoveFromCart(item.lineId);
+            }}
+            onQuantityChange={(newQuantity) => {
+              handleUpdateQuantity(item.lineId, newQuantity);
+            }}
+          />
+        )}
+        ListHeaderComponent={
+          items.length > 0 ? (
+            <View style={styles.header}>
               <Text style={styles.pageTitle}>Your Cart</Text>
 
               <Text style={styles.subtitle}>
@@ -182,35 +228,11 @@ export default function Cart() {
                 </Text>
               </ThemedButton>
             </View>
-
-            <View style={styles.itemContainer}>
-              {items.map((item) => (
-                <ProductListItem
-                  key={item.lineId}
-                  lineId={item.lineId}
-                  variantId={item.variantId}
-                  variantTitle={item.variantTitle}
-                  productId={item.productId}
-                  productTitle={item.productTitle}
-                  featuredImage={item.featuredImage}
-                  price={item.price}
-                  currency={item.currency}
-                  quantity={item.quantity}
-                  quantityAvailable={item.quantityAvailable}
-                  onDelete={() => {
-                    handleRemoveFromCart(item.lineId);
-                  }}
-                  onQuantityChange={(newQuantity) => {
-                    handleUpdateQuantity(item.lineId, newQuantity);
-                  }}
-                />
-              ))}
-            </View>
-          </>
-        ) : (
-          <Text style={styles.cartEmptyText}>Cart empty</Text>
-        )}
-      </ScrollView>
+          ) : (
+            <Text style={styles.cartEmptyText}>Cart empty</Text>
+          )
+        }
+      />
       <View
         style={{
           position: "absolute",
@@ -229,8 +251,8 @@ export default function Cart() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingBottom: 32,
+    padding: 16,
+    gap: 8,
   },
   pageTitle: {
     fontSize: 32,
@@ -257,5 +279,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 32,
+  },
+  header: {
+    borderBottomWidth: 1,
+    borderColor: "lightgrey",
+    marginBottom: 8,
+    paddingBottom: 16,
   },
 });

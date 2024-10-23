@@ -5,6 +5,7 @@ import { Cart, CartContext } from "./CartContext";
 import { CREATE_CART } from "@/constants/StorefrontQueries";
 import { useEffect, useState } from "react";
 import { ShopifyCheckoutSheetProvider } from "@shopify/checkout-sheet-kit";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const client = createStorefrontApiClient({
   storeDomain: "http://sari-sari-test.myshopify.com",
@@ -14,7 +15,18 @@ const client = createStorefrontApiClient({
 
 export default function RootLayout() {
   const [cart, setCart] = useState<Cart>(null);
-  const cartContext = { cart, setCart };
+  const cartContext = { cart, setCart: setAndStoreCart };
+
+  async function setAndStoreCart(cart: Cart) {
+    try {
+      const jsonCart = JSON.stringify(cart);
+      await AsyncStorage.setItem("cart", jsonCart);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCart(cart);
+    }
+  }
 
   async function createCart() {
     try {
@@ -23,17 +35,37 @@ export default function RootLayout() {
         "createCart() (app/_layout.tsx): Created cart",
         res.data.cartCreate.cart.id,
       );
-      setCart(res.data.cartCreate.cart);
+      const cart = res.data.cartCreate.cart;
+      setCart({
+        id: cart.id,
+        checkoutUrl: cart.checkoutUrl,
+        quantity: cart.totalQuantity,
+      });
     } catch (error) {
       console.error("Error Getting Cart: ", error);
     }
   }
 
   useEffect(() => {
-    if (!cart) {
-      createCart();
-    }
-  }, [cart]);
+    (async () => {
+      let cartRetrieved = false;
+      try {
+        const jsonCart = await AsyncStorage.getItem("cart");
+        const cart = jsonCart != null ? JSON.parse(jsonCart) : null;
+        if (cart !== null) {
+          setCart(cart);
+          cartRetrieved = true;
+          console.info(`Cart retrieved with id ${cart.id}`);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (!cartRetrieved) {
+          createCart();
+        }
+      }
+    })();
+  }, []);
 
   return (
     <ShopifyContext.Provider value={client}>

@@ -85,7 +85,12 @@ export default function ProductPage() {
         throw res.errors;
       }
 
-      setCart(res.data.cartLinesAdd.cart);
+      const newCart: any = res.data.cartLinesAdd.cart;
+      setCart({
+        id: newCart.id,
+        checkoutUrl: newCart.checkoutUrl,
+        quantity: newCart.totalQuantity,
+      });
       notificationAsync(NotificationFeedbackType.Success);
     } catch (e) {
       console.error(e);

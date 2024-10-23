@@ -44,7 +44,7 @@ export function ProductView({
       )}
       ListHeaderComponent={HeaderComponent}
       ListFooterComponent={
-        <Footer
+        <LoadMoreButton
           hasNextPage={hasNextPage}
           onLoad={onLoad}
           isLoading={isLoading}
@@ -59,7 +59,7 @@ export function ProductView({
   );
 }
 
-function Footer({ hasNextPage, onLoad, isLoading }: any) {
+function LoadMoreButton({ hasNextPage, onLoad, isLoading }: any) {
   if (hasNextPage) {
     return (
       <Pressable
