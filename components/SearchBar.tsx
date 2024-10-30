@@ -10,13 +10,12 @@ export function FakeSearchBar() {
   return (
     <View style={[styles.bar, { paddingTop: insets.top + 4 }]}>
       <Link href={"/search/IntermediateSearch"} asChild>
-        <Pressable style={styles.input}>
-          <TextInput
-            placeholder="Search Shop Sari Sari"
-            placeholderTextColor="grey"
-            editable={false}
-          />
-        </Pressable>
+        <TextInput
+          style={styles.input}
+          placeholder="Search Shop Sari Sari"
+          placeholderTextColor="grey"
+          editable={false}
+        />
       </Link>
     </View>
   );
