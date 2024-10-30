@@ -1,7 +1,7 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Link, router } from "expo-router";
-import { useRef, useState } from "react";
-import { Text, TextInput, View, StyleSheet, Pressable } from "react-native";
+import { useState } from "react";
+import { TextInput, View, StyleSheet, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function FakeSearchBar() {
@@ -11,16 +11,11 @@ export function FakeSearchBar() {
     <View style={[styles.bar, { paddingTop: insets.top + 4 }]}>
       <Link href={"/search/IntermediateSearch"} asChild>
         <Pressable style={styles.input}>
-          <Text
-            style={{
-              color: "grey",
-              height: "100%",
-              textAlignVertical: "center",
-              marginLeft: 8,
-            }}
-          >
-            Search Shop Sari Sari
-          </Text>
+          <TextInput
+            placeholder="Search Shop Sari Sari"
+            placeholderTextColor="grey"
+            editable={false}
+          />
         </Pressable>
       </Link>
     </View>
@@ -50,7 +45,7 @@ export function SearchBar({ onChangeText }: SearchBarProps) {
         </Pressable>
         <TextInput
           autoFocus
-          style={[styles.input, { paddingHorizontal: 8 }]}
+          style={styles.input}
           placeholder="Search Shop Sari Sari"
           placeholderTextColor="grey"
           enterKeyHint="search"
@@ -84,6 +79,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 8,
     flex: 1,
+    padding: 8,
   },
   results: {
     backgroundColor: "white",
