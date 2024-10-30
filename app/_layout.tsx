@@ -88,13 +88,6 @@ export default function RootLayout() {
               name="(pages)/search/[searchTerm]"
               options={{ title: "", headerBackTitleVisible: false }}
             />
-            <Stack.Screen
-              name="(pages)/search/IntermediateSearch"
-              options={{
-                header: () => <SearchBar />,
-                animation: "none",
-              }}
-            />
           </Stack>
         </CartContext.Provider>
       </ShopifyCheckoutSheetProvider>
