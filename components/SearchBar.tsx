@@ -34,7 +34,6 @@ type SearchBarProps = {
 export function SearchBar({ onChangeText }: SearchBarProps) {
   const insets = useSafeAreaInsets();
   const [searchText, setSearchText] = useState<string>("");
-  const inputRef = useRef<TextInput>(null);
 
   function onSearch(text: string) {
     setSearchText(text);
@@ -66,7 +65,6 @@ export function SearchBar({ onChangeText }: SearchBarProps) {
           }}
           value={searchText}
           onChangeText={onSearch}
-          ref={inputRef}
         />
       </View>
     </View>
