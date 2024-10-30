@@ -68,7 +68,9 @@ export default function Search() {
       HeaderComponent={
         <View style={{ marginBottom: 32, marginHorizontal: 32 }}>
           <Text style={styles.pageTitle}>Search</Text>
-          <Text numberOfLines={1}>Showing results for "{searchTerm}"</Text>
+          <Text numberOfLines={1} style={{ textAlign: "center" }}>
+            Showing results for "{searchTerm}"
+          </Text>
         </View>
       }
     />
