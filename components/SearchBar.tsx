@@ -1,5 +1,6 @@
 import { ShopifyContext } from "@/app/ShopifyContext";
 import { PREDICTIVE_SEARCH } from "@/constants/StorefrontQueries";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/build/Feather";
 import { Link, router } from "expo-router";
 import { useContext, useRef, useState } from "react";
@@ -15,7 +16,30 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function SearchBar() {
+export function FakeSearchBar() {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View style={[styles.bar, { paddingTop: insets.top + 4 }]}>
+      <Link href={"/search/IntermediateSearch"} asChild>
+        <Pressable style={styles.input}>
+          <Text
+            style={{
+              color: "grey",
+              height: "100%",
+              textAlignVertical: "center",
+              marginLeft: 8,
+            }}
+          >
+            Search Shop Sari Sari
+          </Text>
+        </Pressable>
+      </Link>
+    </View>
+  );
+}
+
+export function SearchBar() {
   const shopifyClient = useContext(ShopifyContext);
 
   const insets = useSafeAreaInsets();
@@ -66,7 +90,8 @@ export default function SearchBar() {
         }
       >
         <TextInput
-          style={styles.input}
+          autoFocus
+          style={[styles.input, { paddingHorizontal: 8 }]}
           placeholder="Search Shop Sari Sari"
           placeholderTextColor="grey"
           enterKeyHint="search"
@@ -88,6 +113,17 @@ export default function SearchBar() {
           }}
           ref={inputRef}
         />
+        <Pressable
+          onPress={() => {
+            if (searchText === "") {
+              router.back();
+            } else {
+              setSearchText("");
+            }
+          }}
+        >
+          <AntDesign name="close" size={24} color="white" />
+        </Pressable>
       </View>
       <View
         style={[
@@ -164,12 +200,15 @@ const styles = StyleSheet.create({
   bar: {
     padding: 12,
     backgroundColor: "rgb(3, 9, 156)",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   input: {
     height: 32,
-    padding: 8,
     backgroundColor: "white",
-    borderRadius: 12,
+    borderRadius: 8,
+    flex: 1,
   },
   results: {
     backgroundColor: "white",

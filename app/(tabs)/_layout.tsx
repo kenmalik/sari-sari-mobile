@@ -1,7 +1,7 @@
 import { Text, View } from "react-native";
 import { Tabs } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import SearchBar from "@/components/SearchBar";
+import { FakeSearchBar } from "@/components/SearchBar";
 import { useContext } from "react";
 import { CartContext } from "../CartContext";
 
@@ -12,7 +12,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          header: () => <SearchBar />,
+          header: () => <FakeSearchBar />,
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <AntDesign name="home" size={24} color={color} />
@@ -22,7 +22,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="cart"
         options={{
-          header: () => <SearchBar />,
+          header: () => <FakeSearchBar />,
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <View>
@@ -51,7 +51,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="catalog"
         options={{
-          header: () => <SearchBar />,
+          header: () => <FakeSearchBar />,
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <AntDesign name="appstore-o" size={24} color={color} />
