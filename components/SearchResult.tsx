@@ -25,7 +25,6 @@ export function SearchResult({
     <Link
       href={{ pathname: "/(pages)/products/[id]", params: { id: productId } }}
       asChild
-      replace
     >
       <Pressable {...otherProps}>
         {({ pressed }) => (
