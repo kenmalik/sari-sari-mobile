@@ -6,8 +6,6 @@ import { CREATE_CART } from "@/constants/StorefrontQueries";
 import { useEffect, useState } from "react";
 import { ShopifyCheckoutSheetProvider } from "@shopify/checkout-sheet-kit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { SearchBar } from "@/components/SearchBar";
-import { StatusBar } from "expo-status-bar";
 
 const client = createStorefrontApiClient({
   storeDomain: "http://sari-sari-test.myshopify.com",
@@ -72,7 +70,6 @@ export default function RootLayout() {
   return (
     <ShopifyContext.Provider value={client}>
       <ShopifyCheckoutSheetProvider>
-        <StatusBar style="light" />
         <CartContext.Provider value={cartContext}>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

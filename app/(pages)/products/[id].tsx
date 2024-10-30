@@ -25,6 +25,7 @@ import {
 } from "react-native";
 import { notificationAsync, NotificationFeedbackType } from "expo-haptics";
 import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
+import { StatusBar } from "expo-status-bar";
 
 type ImageObject = {
   id: string;
@@ -221,184 +222,191 @@ export default function ProductPage() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        {productInfo && (
-          <>
-            <View style={[styles.imageContainer, { height: height * 0.5 }]}>
-              {images.length > 0 ? (
-                <Carousel
-                  height={height}
-                  width={width}
-                  selected={variants[selectedVariant]?.imageID}
-                >
-                  {images.map((image) => (
-                    <Image
-                      id={image.id}
-                      key={image.id}
-                      style={[styles.image]}
-                      source={{ uri: image.url }}
-                    />
-                  ))}
-                </Carousel>
-              ) : (
-                <>
-                  <AntDesign name="picture" size={64} color="lightgrey" />
-                  <Text style={{ color: "lightgrey" }}>No image provided.</Text>
-                </>
-              )}
-            </View>
-
-            <Text style={[styles.title, styles.wallSpaced]}>
-              {productInfo.title}
-            </Text>
-
-            <View style={[styles.section, styles.wallSpaced]}>
-              <Text>
-                {variants[selectedVariant] &&
-                variants[selectedVariant].stock > 0 ? (
-                  <Text>
-                    {variants[selectedVariant]?.stock} items in stock!
-                  </Text>
+    <>
+      <StatusBar style="dark" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          {productInfo && (
+            <>
+              <View style={[styles.imageContainer, { height: height * 0.5 }]}>
+                {images.length > 0 ? (
+                  <Carousel
+                    height={height}
+                    width={width}
+                    selected={variants[selectedVariant]?.imageID}
+                  >
+                    {images.map((image) => (
+                      <Image
+                        id={image.id}
+                        key={image.id}
+                        style={[styles.image]}
+                        source={{ uri: image.url }}
+                      />
+                    ))}
+                  </Carousel>
                 ) : (
-                  <Text style={{ color: "red" }}>Out of stock</Text>
+                  <>
+                    <AntDesign name="picture" size={64} color="lightgrey" />
+                    <Text style={{ color: "lightgrey" }}>
+                      No image provided.
+                    </Text>
+                  </>
                 )}
-              </Text>
-            </View>
-
-            {variants.length > 1 && (
-              <View style={styles.section}>
-                <Text style={[styles.subheading, styles.wallSpaced]}>
-                  <Text style={{ fontWeight: "bold" }}>Variant: </Text>
-                  <Text>{variants[selectedVariant]?.title}</Text>
-                </Text>
-                <ScrollView
-                  contentContainerStyle={styles.variantCardContainer}
-                  horizontal
-                >
-                  {variants.map((variant, index) => (
-                    <VariantCard
-                      key={variant.id}
-                      variant={variant}
-                      style={
-                        variants[selectedVariant]?.id === variant.id
-                          ? { borderColor: "rgb(3, 9, 156)" }
-                          : undefined
-                      }
-                      onSelect={() => {
-                        setSelectedVariant(index);
-                      }}
-                    />
-                  ))}
-                  {hasNextPage && (
-                    <Pressable
-                      onPress={getVariantPage}
-                      style={[
-                        {
-                          justifyContent: "center",
-                          alignItems: "center",
-                          padding: 8,
-                        },
-                        styles.disabledVariantCard,
-                      ]}
-                    >
-                      {({ pressed }) => (
-                        <>
-                          <AntDesign
-                            name="pluscircleo"
-                            size={24}
-                            color={pressed ? "rgb(3, 9, 156)" : "black"}
-                          />
-                          <Text
-                            style={{
-                              color: pressed ? "rgb(3, 9, 156)" : "black",
-                            }}
-                          >
-                            Load more
-                          </Text>
-                        </>
-                      )}
-                    </Pressable>
-                  )}
-                </ScrollView>
               </View>
-            )}
 
-            <View style={[styles.section, styles.wallSpaced]}>
-              <NumberSelector
-                max={
-                  selectedVariant ? variants[selectedVariant].stock : undefined
-                }
-                min={1}
-                onSelect={(selected) => setQuantity(selected)}
-                value={quantity}
-                style={{ marginBottom: 24 }}
-                textContainerStyle={{ padding: 16 }}
-                disabled={isOutOfStock}
-              />
-              <ThemedButton
-                color="transparent"
-                pressedColor="white"
-                disabledColor="lightgrey"
-                style={{
-                  borderColor: isOutOfStock ? "grey" : "black",
-                  borderWidth: 1,
-                  marginBottom: 8,
-                }}
-                onPress={handleAddToCart}
-                disabled={isOutOfStock}
-              >
-                <Text
-                  style={{
-                    color: isOutOfStock ? "grey" : "black",
-                    textAlign: "center",
-                    padding: 16,
-                  }}
-                >
-                  Add to Cart
-                </Text>
-              </ThemedButton>
-              <ThemedButton onPress={handleBuyNow} disabled={isOutOfStock}>
-                <Text
-                  style={{
-                    textAlign: "center",
-                    padding: 16,
-                    color: isOutOfStock ? "gainsboro" : "white",
-                  }}
-                >
-                  Buy Now
-                </Text>
-              </ThemedButton>
-            </View>
-
-            <View style={[styles.section, styles.wallSpaced]}>
-              <Text style={[styles.subheading, { fontWeight: "bold" }]}>
-                Description:{" "}
+              <Text style={[styles.title, styles.wallSpaced]}>
+                {productInfo.title}
               </Text>
-              {productInfo.description ? (
-                <Text>{productInfo.description}</Text>
-              ) : (
-                <Text>This item has no description.</Text>
+
+              <View style={[styles.section, styles.wallSpaced]}>
+                <Text>
+                  {variants[selectedVariant] &&
+                  variants[selectedVariant].stock > 0 ? (
+                    <Text>
+                      {variants[selectedVariant]?.stock} items in stock!
+                    </Text>
+                  ) : (
+                    <Text style={{ color: "red" }}>Out of stock</Text>
+                  )}
+                </Text>
+              </View>
+
+              {variants.length > 1 && (
+                <View style={styles.section}>
+                  <Text style={[styles.subheading, styles.wallSpaced]}>
+                    <Text style={{ fontWeight: "bold" }}>Variant: </Text>
+                    <Text>{variants[selectedVariant]?.title}</Text>
+                  </Text>
+                  <ScrollView
+                    contentContainerStyle={styles.variantCardContainer}
+                    horizontal
+                  >
+                    {variants.map((variant, index) => (
+                      <VariantCard
+                        key={variant.id}
+                        variant={variant}
+                        style={
+                          variants[selectedVariant]?.id === variant.id
+                            ? { borderColor: "rgb(3, 9, 156)" }
+                            : undefined
+                        }
+                        onSelect={() => {
+                          setSelectedVariant(index);
+                        }}
+                      />
+                    ))}
+                    {hasNextPage && (
+                      <Pressable
+                        onPress={getVariantPage}
+                        style={[
+                          {
+                            justifyContent: "center",
+                            alignItems: "center",
+                            padding: 8,
+                          },
+                          styles.disabledVariantCard,
+                        ]}
+                      >
+                        {({ pressed }) => (
+                          <>
+                            <AntDesign
+                              name="pluscircleo"
+                              size={24}
+                              color={pressed ? "rgb(3, 9, 156)" : "black"}
+                            />
+                            <Text
+                              style={{
+                                color: pressed ? "rgb(3, 9, 156)" : "black",
+                              }}
+                            >
+                              Load more
+                            </Text>
+                          </>
+                        )}
+                      </Pressable>
+                    )}
+                  </ScrollView>
+                </View>
               )}
-            </View>
-          </>
-        )}
-      </ScrollView>
-      <View
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          backgroundColor: "lightgrey",
-          opacity: 0.4,
-          display: isLoading ? "flex" : "none",
-        }}
-      ></View>
-    </KeyboardAvoidingView>
+
+              <View style={[styles.section, styles.wallSpaced]}>
+                <NumberSelector
+                  max={
+                    selectedVariant
+                      ? variants[selectedVariant].stock
+                      : undefined
+                  }
+                  min={1}
+                  onSelect={(selected) => setQuantity(selected)}
+                  value={quantity}
+                  style={{ marginBottom: 24 }}
+                  textContainerStyle={{ padding: 16 }}
+                  disabled={isOutOfStock}
+                />
+                <ThemedButton
+                  color="transparent"
+                  pressedColor="white"
+                  disabledColor="lightgrey"
+                  style={{
+                    borderColor: isOutOfStock ? "grey" : "black",
+                    borderWidth: 1,
+                    marginBottom: 8,
+                  }}
+                  onPress={handleAddToCart}
+                  disabled={isOutOfStock}
+                >
+                  <Text
+                    style={{
+                      color: isOutOfStock ? "grey" : "black",
+                      textAlign: "center",
+                      padding: 16,
+                    }}
+                  >
+                    Add to Cart
+                  </Text>
+                </ThemedButton>
+                <ThemedButton onPress={handleBuyNow} disabled={isOutOfStock}>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      padding: 16,
+                      color: isOutOfStock ? "gainsboro" : "white",
+                    }}
+                  >
+                    Buy Now
+                  </Text>
+                </ThemedButton>
+              </View>
+
+              <View style={[styles.section, styles.wallSpaced]}>
+                <Text style={[styles.subheading, { fontWeight: "bold" }]}>
+                  Description:{" "}
+                </Text>
+                {productInfo.description ? (
+                  <Text>{productInfo.description}</Text>
+                ) : (
+                  <Text>This item has no description.</Text>
+                )}
+              </View>
+            </>
+          )}
+        </ScrollView>
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "lightgrey",
+            opacity: 0.4,
+            display: isLoading ? "flex" : "none",
+          }}
+        ></View>
+      </KeyboardAvoidingView>
+    </>
   );
 }
 
