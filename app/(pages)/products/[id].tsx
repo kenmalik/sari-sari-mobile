@@ -71,7 +71,7 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState<number>(DEFAULT_QUANTITY);
 
   async function handleAddToCart() {
-    if (!selectedVariant || !shopifyClient || !cart) {
+    if (selectedVariant === null || !shopifyClient || !cart) {
       return;
     }
 
@@ -106,7 +106,7 @@ export default function ProductPage() {
   }
 
   async function handleBuyNow() {
-    if (!selectedVariant || !shopifyClient || !cart) {
+    if (selectedVariant === null || !shopifyClient || !cart) {
       return;
     }
 
