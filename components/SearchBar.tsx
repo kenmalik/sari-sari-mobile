@@ -1,8 +1,6 @@
-import { ShopifyContext } from "@/app/ShopifyContext";
-import { PREDICTIVE_SEARCH } from "@/constants/StorefrontQueries";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Link, router } from "expo-router";
-import { useContext, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Text, TextInput, View, StyleSheet, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
