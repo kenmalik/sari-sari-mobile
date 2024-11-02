@@ -1,12 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  ScrollView,
-  Pressable,
-  FlatList,
-} from "react-native";
+import { Text, View, StyleSheet, Pressable, FlatList } from "react-native";
 import { ShopifyContext } from "../ShopifyContext";
 import {
   CollectionCard,

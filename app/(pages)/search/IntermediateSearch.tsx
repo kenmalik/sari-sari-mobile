@@ -6,10 +6,12 @@ import { SearchBar } from "@/components/SearchBar";
 import { Stack } from "expo-router";
 import { SearchResult } from "@/components/SearchResult";
 import { StatusBar } from "expo-status-bar";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 type SearchResultObject = {
   id: string;
   title: string;
+  isCollection: boolean;
 };
 
 export default function IntermediateSearch() {
@@ -33,15 +35,23 @@ export default function IntermediateSearch() {
         throw res.errors;
       }
 
-      const searchResults = res.data.predictiveSearch.products.map(
+      const products = res.data.predictiveSearch.products.map((result: any) => {
+        return {
+          id: result.id,
+          title: result.title,
+          isCollection: false,
+        };
+      });
+      const collections = res.data.predictiveSearch.collections.map(
         (result: any) => {
           return {
             id: result.id,
             title: result.title,
+            isCollection: true,
           };
         },
       );
-      setSearchResults(searchResults);
+      setSearchResults(products.concat(collections));
     } catch (e) {
       console.error(e);
     }
@@ -62,9 +72,24 @@ export default function IntermediateSearch() {
         {searchResults.map((result) => (
           <SearchResult
             key={result.id}
-            productId={result.id}
             title={result.title}
             style={styles.result}
+            link={
+              result.isCollection
+                ? {
+                    pathname: "/(pages)/collections/[id]",
+                    params: { id: result.id },
+                  }
+                : {
+                    pathname: "/(pages)/products/[id]",
+                    params: { id: result.id },
+                  }
+            }
+            icon={
+              result.isCollection ? (
+                <AntDesign name="isv" size={20} color="grey" />
+              ) : null
+            }
           />
         ))}
       </View>
