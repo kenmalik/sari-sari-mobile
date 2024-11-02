@@ -1,33 +1,61 @@
 import { Colors } from "@/constants/Colors";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { Link, router } from "expo-router";
-import { useState } from "react";
+import { Link, router, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { TextInput, View, StyleSheet, Pressable, Platform } from "react-native";
+import Animated, {
+  ReduceMotion,
+  Easing,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function FakeSearchBar() {
+  const offset = 24 + styles.bar.padding - styles.barItems.gap;
+  const slideAnimation = useSharedValue(0);
   const insets = useSafeAreaInsets();
+
+  const searchPressed = useRef<boolean>(false);
+  useFocusEffect(
+    useCallback(() => {
+      if (searchPressed.current === true) {
+        slideAnimation.value = offset;
+        slideAnimation.value = withTiming(0, {
+          duration: 200,
+          easing: Easing.inOut(Easing.ease),
+          reduceMotion: ReduceMotion.System,
+        });
+        searchPressed.current = false;
+      }
+    }, [searchPressed]),
+  );
 
   return (
     <View style={[styles.bar, { paddingTop: insets.top + 4 }]}>
-      <Link href={"/search/IntermediateSearch"} asChild>
-        {Platform.OS === "ios" ? (
-          <TextInput
-            style={styles.input}
-            placeholder="Search Shop Sari Sari"
-            placeholderTextColor="grey"
-            editable={false}
-          />
-        ) : (
-          <Pressable style={styles.input}>
+      <Animated.View style={[styles.barItems, { left: slideAnimation }]}>
+        <Link href={"/search/IntermediateSearch"} asChild>
+          {Platform.OS === "ios" ? (
             <TextInput
+              style={styles.input}
               placeholder="Search Shop Sari Sari"
               placeholderTextColor="grey"
               editable={false}
             />
-          </Pressable>
-        )}
-      </Link>
+          ) : (
+            <Pressable
+              style={styles.input}
+              onPress={() => (searchPressed.current = true)}
+            >
+              <TextInput
+                placeholder="Search Shop Sari Sari"
+                placeholderTextColor="grey"
+                editable={false}
+              />
+            </Pressable>
+          )}
+        </Link>
+      </Animated.View>
     </View>
   );
 }
@@ -37,6 +65,8 @@ type SearchBarProps = {
 };
 
 export function SearchBar({ onChangeText }: SearchBarProps) {
+  const offset = 24 + styles.bar.padding - styles.barItems.gap;
+  const slideAnimation = useSharedValue(offset);
   const insets = useSafeAreaInsets();
   const [searchText, setSearchText] = useState<string>("");
 
@@ -47,9 +77,17 @@ export function SearchBar({ onChangeText }: SearchBarProps) {
     }
   }
 
+  useEffect(() => {
+    slideAnimation.value = withTiming(0, {
+      duration: 200,
+      easing: Easing.inOut(Easing.ease),
+      reduceMotion: ReduceMotion.System,
+    });
+  });
+
   return (
-    <View>
-      <View style={[styles.bar, { paddingTop: insets.top + 4 }]}>
+    <View style={[styles.bar, { paddingTop: insets.top + 4 }]}>
+      <Animated.View style={[styles.barItems, { right: slideAnimation }]}>
         <Pressable onPress={router.back}>
           <AntDesign name="arrowleft" size={24} color="white" />
         </Pressable>
@@ -81,7 +119,7 @@ export function SearchBar({ onChangeText }: SearchBarProps) {
             />
           </Pressable>
         )}
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -90,6 +128,8 @@ const styles = StyleSheet.create({
   bar: {
     padding: 12,
     backgroundColor: "rgb(3, 9, 156)",
+  },
+  barItems: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
