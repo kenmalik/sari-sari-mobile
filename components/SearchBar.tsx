@@ -41,6 +41,7 @@ export function FakeSearchBar() {
               placeholder="Search Shop Sari Sari"
               placeholderTextColor="grey"
               editable={false}
+              onPress={() => (searchPressed.current = true)}
             />
           ) : (
             <Pressable
@@ -93,7 +94,7 @@ export function SearchBar({ onChangeText }: SearchBarProps) {
         </Pressable>
         <TextInput
           autoFocus
-          clearButtonMode="while-editing"
+          clearButtonMode="always"
           style={styles.input}
           placeholder="Search Shop Sari Sari"
           placeholderTextColor="grey"
