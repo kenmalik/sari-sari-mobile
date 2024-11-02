@@ -11,6 +11,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+const ANIMATION_SPEED = 100;
+
 export function FakeSearchBar() {
   const offset = 24 + styles.bar.padding - styles.barItems.gap;
   const slideAnimation = useSharedValue(0);
@@ -22,13 +24,13 @@ export function FakeSearchBar() {
       if (searchPressed.current === true) {
         slideAnimation.value = offset;
         slideAnimation.value = withTiming(0, {
-          duration: 200,
+          duration: ANIMATION_SPEED,
           easing: Easing.inOut(Easing.ease),
           reduceMotion: ReduceMotion.System,
         });
         searchPressed.current = false;
       }
-    }, [searchPressed]),
+    }, [searchPressed.current]),
   );
 
   return (
@@ -80,7 +82,7 @@ export function SearchBar({ onChangeText }: SearchBarProps) {
 
   useEffect(() => {
     slideAnimation.value = withTiming(0, {
-      duration: 200,
+      duration: ANIMATION_SPEED,
       easing: Easing.inOut(Easing.ease),
       reduceMotion: ReduceMotion.System,
     });
