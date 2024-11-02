@@ -15,6 +15,7 @@ import ProductListItem, {
 import { ThemedButton } from "@/components/ThemedButton";
 import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
 import { Colors } from "@/constants/Colors";
+import { StatusBar } from "expo-status-bar";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -170,6 +171,7 @@ export default function Cart() {
 
   return (
     <>
+      <StatusBar style="light" />
       <FlatList
         data={items}
         contentContainerStyle={styles.container}

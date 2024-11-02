@@ -6,6 +6,7 @@ import {
   GET_COLLECTION_PRODUCTS,
 } from "@/constants/StorefrontQueries";
 import { useLocalSearchParams } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useContext, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
@@ -98,26 +99,29 @@ export default function CollectionPage() {
   }, []);
 
   return (
-    <ProductView
-      products={products}
-      onLoad={() => getProducts()}
-      hasNextPage={hasNextPage}
-      isLoading={isLoading}
-      HeaderComponent={
-        <View>
-          <Text
-            style={[
-              styles.pageTitle,
-              description ? { marginBottom: 16 } : null,
-            ]}
-          >
-            {title}
-          </Text>
-          {description && <Text>{description}</Text>}
-        </View>
-      }
-      style={styles.container}
-    />
+    <>
+      <StatusBar style="dark" />
+      <ProductView
+        products={products}
+        onLoad={() => getProducts()}
+        hasNextPage={hasNextPage}
+        isLoading={isLoading}
+        HeaderComponent={
+          <View>
+            <Text
+              style={[
+                styles.pageTitle,
+                description ? { marginBottom: 16 } : null,
+              ]}
+            >
+              {title}
+            </Text>
+            {description && <Text>{description}</Text>}
+          </View>
+        }
+        style={styles.container}
+      />
+    </>
   );
 }
 

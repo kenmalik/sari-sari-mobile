@@ -4,6 +4,7 @@ import { ShopifyContext } from "../ShopifyContext";
 import { ProductCardProps } from "@/components/ProductCard";
 import { ProductView } from "@/components/ProductView";
 import { GET_PRODUCT_PAGE } from "@/constants/StorefrontQueries";
+import { StatusBar } from "expo-status-bar";
 
 export default function Index() {
   const shopifyClient = useContext(ShopifyContext);
@@ -58,13 +59,16 @@ export default function Index() {
   }, []);
 
   return (
-    <ProductView
-      products={products}
-      onLoad={loadPage}
-      isLoading={isLoading}
-      hasNextPage={hasNextPage}
-      HeaderComponent={<Text style={styles.pageTitle}>Products</Text>}
-    />
+    <>
+      <StatusBar style="light" />
+      <ProductView
+        products={products}
+        onLoad={loadPage}
+        isLoading={isLoading}
+        hasNextPage={hasNextPage}
+        HeaderComponent={<Text style={styles.pageTitle}>Products</Text>}
+      />
+    </>
   );
 }
 

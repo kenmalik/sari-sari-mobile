@@ -6,6 +6,7 @@ import {
   CollectionCardProps,
 } from "@/components/CollectionCard";
 import { GET_COLLECTIONS } from "@/constants/StorefrontQueries";
+import { StatusBar } from "expo-status-bar";
 
 export default function Catalog() {
   const shopifyClient = useContext(ShopifyContext);
@@ -56,35 +57,42 @@ export default function Catalog() {
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.pageTitle}>Catalog</Text>
-      <View style={styles.cardContainer}>
-        {collections.map((collection) => (
-          <CollectionCard
-            id={collection.id}
-            title={collection.title}
-            image={collection.image}
-            key={collection.id}
-            style={styles.card}
-          />
-        ))}
-      </View>
-      {isLoading && <Text style={styles.loadingText}>Loading catalog...</Text>}
-      {hasNextPage && (
-        <Pressable
-          onPress={getCollections}
-          style={({ pressed }) => [
-            {
-              backgroundColor: pressed ? "rgb(33, 39, 186)" : "rgb(3, 9, 156)",
-            },
-            styles.loadMoreButton,
-          ]}
-          disabled={isLoading}
-        >
-          <Text style={styles.buttonText}>Load More</Text>
-        </Pressable>
-      )}
-    </ScrollView>
+    <>
+      <StatusBar style="light" />
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.pageTitle}>Catalog</Text>
+        <View style={styles.cardContainer}>
+          {collections.map((collection) => (
+            <CollectionCard
+              id={collection.id}
+              title={collection.title}
+              image={collection.image}
+              key={collection.id}
+              style={styles.card}
+            />
+          ))}
+        </View>
+        {isLoading && (
+          <Text style={styles.loadingText}>Loading catalog...</Text>
+        )}
+        {hasNextPage && (
+          <Pressable
+            onPress={getCollections}
+            style={({ pressed }) => [
+              {
+                backgroundColor: pressed
+                  ? "rgb(33, 39, 186)"
+                  : "rgb(3, 9, 156)",
+              },
+              styles.loadMoreButton,
+            ]}
+            disabled={isLoading}
+          >
+            <Text style={styles.buttonText}>Load More</Text>
+          </Pressable>
+        )}
+      </ScrollView>
+    </>
   );
 }
 

@@ -29,7 +29,7 @@ export function ProductView({
   HeaderComponent,
   style,
 }: ProductViewProps) {
-  if (products.length % 2 != 0) {
+  if (products.length % 2 !== 0) {
     products.push(null);
   }
   return (

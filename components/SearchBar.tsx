@@ -1,80 +1,68 @@
-import { ShopifyContext } from "@/app/ShopifyContext";
-import { PREDICTIVE_SEARCH } from "@/constants/StorefrontQueries";
-import Feather from "@expo/vector-icons/build/Feather";
+import { Colors } from "@/constants/Colors";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { Link, router } from "expo-router";
-import { useContext, useRef, useState } from "react";
-import {
-  Text,
-  TextInput,
-  View,
-  StyleSheet,
-  ViewStyle,
-  StyleProp,
-  Pressable,
-  PressableProps,
-} from "react-native";
+import { useState } from "react";
+import { TextInput, View, StyleSheet, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function SearchBar() {
-  const shopifyClient = useContext(ShopifyContext);
-
+export function FakeSearchBar() {
   const insets = useSafeAreaInsets();
-  const [isFocused, setIsFocused] = useState<boolean>(false);
+
+  return (
+    <View style={[styles.bar, { paddingTop: insets.top + 4 }]}>
+      <Link href={"/search/IntermediateSearch"} asChild>
+        {Platform.OS === "ios" ? (
+          <TextInput
+            style={styles.input}
+            placeholder="Search Shop Sari Sari"
+            placeholderTextColor="grey"
+            editable={false}
+          />
+        ) : (
+          <Pressable style={styles.input}>
+            <TextInput
+              placeholder="Search Shop Sari Sari"
+              placeholderTextColor="grey"
+              editable={false}
+            />
+          </Pressable>
+        )}
+      </Link>
+    </View>
+  );
+}
+
+type SearchBarProps = {
+  onChangeText?: (text: string) => void;
+};
+
+export function SearchBar({ onChangeText }: SearchBarProps) {
+  const insets = useSafeAreaInsets();
   const [searchText, setSearchText] = useState<string>("");
-  const [searchResults, setSearchResults] = useState<SearchResultObject[]>([]);
-  const barHeight = useRef<number>(0);
-  const inputRef = useRef<TextInput>(null);
 
-  async function handleSearch() {
-    if (!shopifyClient) {
-      return [];
-    }
-
-    try {
-      const res = await shopifyClient.request(PREDICTIVE_SEARCH, {
-        variables: {
-          query: searchText,
-          maxResults: 10,
-        },
-      });
-      if (res.errors) {
-        throw res.errors;
-      }
-
-      const searchResults = res.data.predictiveSearch.products.map(
-        (result: any) => {
-          return {
-            id: result.id,
-            title: result.title,
-          };
-        },
-      );
-      setSearchResults(searchResults);
-    } catch (e) {
-      console.error(e);
+  function onSearch(text: string) {
+    setSearchText(text);
+    if (onChangeText) {
+      onChangeText(text);
     }
   }
 
   return (
     <View>
-      <View
-        style={[styles.bar, { paddingTop: insets.top + 4 }]}
-        onLayout={(event) =>
-          event.target.measure(
-            (_x, _y, _width, height) => (barHeight.current = height),
-          )
-        }
-      >
+      <View style={[styles.bar, { paddingTop: insets.top + 4 }]}>
+        <Pressable onPress={router.back}>
+          <AntDesign name="arrowleft" size={24} color="white" />
+        </Pressable>
         <TextInput
+          autoFocus
+          clearButtonMode="while-editing"
           style={styles.input}
           placeholder="Search Shop Sari Sari"
           placeholderTextColor="grey"
           enterKeyHint="search"
-          onFocus={() => setIsFocused(true)}
-          onEndEditing={() => setIsFocused(false)}
           onSubmitEditing={() => {
             if (searchText !== "") {
-              router.push({
+              router.replace({
                 pathname: "/(pages)/search/[searchTerm]",
                 params: { searchTerm: searchText },
               });
@@ -82,81 +70,19 @@ export default function SearchBar() {
             }
           }}
           value={searchText}
-          onChangeText={(text) => {
-            setSearchText(text);
-            handleSearch();
-          }}
-          ref={inputRef}
+          onChangeText={onSearch}
         />
-      </View>
-      <View
-        style={[
-          styles.results,
-          { top: barHeight.current },
-          isFocused && searchResults.length > 0 ? null : { display: "none" },
-        ]}
-      >
-        {searchResults.map((result, index) => (
-          <SearchResult
-            productId={result.id}
-            title={result.title}
-            key={index}
-            onPress={() => {
-              inputRef.current?.blur();
-              setSearchText("");
-            }}
-          />
-        ))}
+        {Platform.OS === "android" && (
+          <Pressable disabled={searchText === ""} onPress={() => onSearch("")}>
+            <AntDesign
+              name="close"
+              size={20}
+              color={searchText === "" ? Colors.tintDimmed : "white"}
+            />
+          </Pressable>
+        )}
       </View>
     </View>
-  );
-}
-
-type SearchResultObject = {
-  id: string;
-  title: string;
-};
-
-type SearchResultProps = PressableProps & {
-  style?: StyleProp<ViewStyle>;
-  title: string;
-  productId: string;
-};
-
-function SearchResult({
-  style,
-  title,
-  productId,
-  ...otherProps
-}: SearchResultProps) {
-  return (
-    <Link
-      href={{ pathname: "/(pages)/products/[id]", params: { id: productId } }}
-      asChild
-    >
-      <Pressable {...otherProps}>
-        {({ pressed }) => (
-          <View
-            style={[
-              { flexDirection: "row", gap: 16, alignItems: "center" },
-              style,
-            ]}
-          >
-            <Text
-              style={{ flex: 1, color: pressed ? "grey" : "black" }}
-              numberOfLines={1}
-            >
-              {title}
-            </Text>
-            <Feather
-              name="arrow-up-left"
-              size={24}
-              color={pressed ? "black" : "grey"}
-            />
-          </View>
-        )}
-      </Pressable>
-    </Link>
   );
 }
 
@@ -164,12 +90,16 @@ const styles = StyleSheet.create({
   bar: {
     padding: 12,
     backgroundColor: "rgb(3, 9, 156)",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   input: {
     height: 32,
-    padding: 8,
     backgroundColor: "white",
-    borderRadius: 12,
+    borderRadius: 8,
+    flex: 1,
+    padding: 8,
   },
   results: {
     backgroundColor: "white",
