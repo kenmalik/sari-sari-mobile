@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Link, router } from "expo-router";
 import { useState } from "react";
@@ -71,6 +72,15 @@ export function SearchBar({ onChangeText }: SearchBarProps) {
           value={searchText}
           onChangeText={onSearch}
         />
+        {Platform.OS === "android" && (
+          <Pressable disabled={searchText === ""} onPress={() => onSearch("")}>
+            <AntDesign
+              name="close"
+              size={20}
+              color={searchText === "" ? Colors.tintDimmed : "white"}
+            />
+          </Pressable>
+        )}
       </View>
     </View>
   );
