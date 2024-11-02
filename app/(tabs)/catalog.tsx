@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Text, View, StyleSheet, ScrollView, Pressable } from "react-native";
+import { Text, View, StyleSheet, Pressable, FlatList } from "react-native";
 import { ShopifyContext } from "../ShopifyContext";
 import {
   CollectionCard,
@@ -8,6 +8,8 @@ import {
 import { GET_COLLECTIONS } from "@/constants/StorefrontQueries";
 import { StatusBar } from "expo-status-bar";
 
+const ITEMS_PER_PAGE = 2;
+
 export default function Catalog() {
   const shopifyClient = useContext(ShopifyContext);
 
@@ -15,7 +17,6 @@ export default function Catalog() {
   const [hasNextPage, setHasNextPage] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const ITEMS_PER_PAGE = 20;
   const pageCursor = useRef<string | null>(null);
 
   async function getCollections() {
@@ -35,6 +36,9 @@ export default function Catalog() {
       const page = res.data.collections.edges.map(({ node }: any) => {
         return { id: node.id, title: node.title, image: node.image };
       });
+      if (page.length % 2 !== 0) {
+        page.push(null);
+      }
       setCollections(collections.concat(page));
 
       const hasNextPage = res.data.collections.pageInfo.hasNextPage;
@@ -59,47 +63,68 @@ export default function Catalog() {
   return (
     <>
       <StatusBar style="light" />
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.pageTitle}>Catalog</Text>
-        <View style={styles.cardContainer}>
-          {collections.map((collection) => (
+      <FlatList
+        data={collections}
+        renderItem={({ item }) =>
+          item ? (
             <CollectionCard
-              id={collection.id}
-              title={collection.title}
-              image={collection.image}
-              key={collection.id}
+              key={item.id}
+              id={item.id}
+              title={item.title}
+              image={item.image}
               style={styles.card}
             />
-          ))}
-        </View>
-        {isLoading && (
-          <Text style={styles.loadingText}>Loading catalog...</Text>
-        )}
-        {hasNextPage && (
-          <Pressable
-            onPress={getCollections}
-            style={({ pressed }) => [
-              {
-                backgroundColor: pressed
-                  ? "rgb(33, 39, 186)"
-                  : "rgb(3, 9, 156)",
-              },
-              styles.loadMoreButton,
-            ]}
-            disabled={isLoading}
-          >
-            <Text style={styles.buttonText}>Load More</Text>
-          </Pressable>
-        )}
-      </ScrollView>
+          ) : (
+            <View style={styles.card} />
+          )
+        }
+        ListHeaderComponent={<Text style={styles.pageTitle}>Catalog</Text>}
+        ListFooterComponent={
+          <ListFooter
+            isLoading={isLoading}
+            hasNextPage={hasNextPage}
+            onLoadMore={() => getCollections()}
+          />
+        }
+        contentContainerStyle={styles.container}
+        numColumns={2}
+        columnWrapperStyle={{ gap: 12 }}
+      ></FlatList>
     </>
   );
+}
+
+type ListFooterProps = {
+  isLoading: boolean;
+  hasNextPage: boolean;
+  onLoadMore: VoidFunction;
+};
+
+function ListFooter({ isLoading, hasNextPage, onLoadMore }: ListFooterProps) {
+  if (hasNextPage) {
+    return (
+      <Pressable
+        onPress={onLoadMore}
+        style={({ pressed }) => [
+          {
+            backgroundColor: pressed ? "rgb(33, 39, 186)" : "rgb(3, 9, 156)",
+          },
+          styles.loadMoreButton,
+        ]}
+        disabled={isLoading}
+      >
+        <Text style={styles.buttonText}>
+          {isLoading ? "Loading..." : "Load More"}
+        </Text>
+      </Pressable>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    paddingBottom: 32,
+    gap: 12,
   },
   pageTitle: {
     fontSize: 32,
@@ -108,15 +133,8 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     textAlign: "center",
   },
-  cardContainer: {
-    width: "100%",
-    flexWrap: "wrap",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    rowGap: 16,
-  },
   card: {
-    width: "48%",
+    flex: 1,
   },
   loadingText: {
     fontSize: 16,

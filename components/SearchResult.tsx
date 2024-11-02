@@ -6,26 +6,26 @@ import {
   StyleProp,
   ViewStyle,
 } from "react-native";
-import { Link } from "expo-router";
+import { Href, Link } from "expo-router";
 import Feather from "@expo/vector-icons/build/Feather";
+import { ReactElement } from "react";
 
 type SearchResultProps = PressableProps & {
   style?: StyleProp<ViewStyle>;
   title: string;
-  productId: string;
+  link: Href;
+  icon?: ReactElement | null;
 };
 
 export function SearchResult({
   style,
   title,
-  productId,
+  link,
+  icon,
   ...otherProps
 }: SearchResultProps) {
   return (
-    <Link
-      href={{ pathname: "/(pages)/products/[id]", params: { id: productId } }}
-      asChild
-    >
+    <Link href={link} asChild>
       <Pressable {...otherProps}>
         {({ pressed }) => (
           <View
@@ -40,11 +40,20 @@ export function SearchResult({
             >
               {title}
             </Text>
-            <Feather
-              name="arrow-up-left"
-              size={24}
-              color={pressed ? "black" : "grey"}
-            />
+            <View
+              style={{
+                width: 24,
+                height: 24,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {icon ? (
+                icon
+              ) : (
+                <Feather name="arrow-up-left" size={24} color={"grey"} />
+              )}
+            </View>
           </View>
         )}
       </Pressable>
