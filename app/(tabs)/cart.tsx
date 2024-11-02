@@ -133,7 +133,7 @@ export default function Cart() {
     } catch (e) {
       console.error(e);
     } finally {
-      getCart();
+      await getCart();
       setIsLoading(false);
     }
   }
@@ -158,7 +158,7 @@ export default function Cart() {
     } catch (e) {
       console.error(e);
     } finally {
-      getCart();
+      await getCart();
       setIsLoading(false);
     }
   }
