@@ -23,6 +23,7 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
 import { Colors } from "@/constants/Colors";
 import { StatusBar } from "expo-status-bar";
+import { useHeaderHeight } from "@react-navigation/elements";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -32,6 +33,7 @@ export default function Cart() {
   const { cart, setCart } = useContext(CartContext);
   const checkoutColor = Colors["tertiary"];
   const checkoutColorPressed = Colors["tertiaryHighlight"];
+  const headerHeight = useHeaderHeight();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [items, setItems] = useState<ProductListItemProps[]>([]);
@@ -46,10 +48,6 @@ export default function Cart() {
     }
 
     try {
-      console.info(
-        "getCart() (app/(tabs)/cart.tsx): Requesting cart with ID",
-        cart.id,
-      );
       setIsLoading(true);
       const meta = await shopifyClient.request(GET_SUBTOTAL, {
         variables: {
@@ -181,7 +179,7 @@ export default function Cart() {
       <StatusBar style="light" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={64}
+        keyboardVerticalOffset={headerHeight}
       >
         <ScrollView contentContainerStyle={styles.container}>
           {items.length > 0 ? (
