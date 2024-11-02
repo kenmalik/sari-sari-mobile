@@ -8,7 +8,7 @@ import {
 import { GET_COLLECTIONS } from "@/constants/StorefrontQueries";
 import { StatusBar } from "expo-status-bar";
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 10;
 
 export default function Catalog() {
   const shopifyClient = useContext(ShopifyContext);
