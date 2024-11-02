@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "white",
     width: "100%",
-    height: 256,
+    aspectRatio: "1 / 1.4",
     shadowColor: "lightgrey",
     shadowOpacity: 50,
     shadowRadius: 4,
