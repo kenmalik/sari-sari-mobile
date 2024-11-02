@@ -1,5 +1,12 @@
 import { useCallback, useContext, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { CartContext } from "../CartContext";
 import { ShopifyContext } from "../ShopifyContext";
 import {
@@ -172,63 +179,68 @@ export default function Cart() {
   return (
     <>
       <StatusBar style="light" />
-      <ScrollView contentContainerStyle={styles.container}>
-        {items.length > 0 ? (
-          <View style={styles.header}>
-            <Text style={styles.pageTitle}>Your Cart</Text>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={64}
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          {items.length > 0 ? (
+            <View style={styles.header}>
+              <Text style={styles.pageTitle}>Your Cart</Text>
 
-            <Text style={styles.subtitle}>
-              <Text style={{ fontWeight: "300" }}>Subtotal </Text>
-              <Text style={{ fontWeight: "600" }}>
-                {subtotal.currency === "USD"
-                  ? `\$${Number(subtotal.amount).toFixed(2)}`
-                  : `${Number(subtotal.amount).toFixed(2)} ${subtotal.currency}`}
+              <Text style={styles.subtitle}>
+                <Text style={{ fontWeight: "300" }}>Subtotal </Text>
+                <Text style={{ fontWeight: "600" }}>
+                  {subtotal.currency === "USD"
+                    ? `\$${Number(subtotal.amount).toFixed(2)}`
+                    : `${Number(subtotal.amount).toFixed(2)} ${subtotal.currency}`}
+                </Text>
               </Text>
-            </Text>
 
-            <ThemedButton
-              color={checkoutColor}
-              pressedColor={checkoutColorPressed}
-              style={{ padding: 12 }}
-              onPress={() => {
-                if (!cart) {
-                  console.error("Checkout Error: No cart");
-                  return;
-                }
-                console.log(cart.checkoutUrl);
-                shopifyCheckout.present(cart.checkoutUrl);
+              <ThemedButton
+                color={checkoutColor}
+                pressedColor={checkoutColorPressed}
+                style={{ padding: 12 }}
+                onPress={() => {
+                  if (!cart) {
+                    console.error("Checkout Error: No cart");
+                    return;
+                  }
+                  console.log(cart.checkoutUrl);
+                  shopifyCheckout.present(cart.checkoutUrl);
+                }}
+              >
+                <Text style={{ color: "#302f2f", textAlign: "center" }}>
+                  Proceed to Checkout
+                </Text>
+              </ThemedButton>
+            </View>
+          ) : (
+            <Text style={styles.cartEmptyText}>Cart empty</Text>
+          )}
+          {items.map((item) => (
+            <ProductListItem
+              key={item.lineId}
+              lineId={item.lineId}
+              variantId={item.variantId}
+              variantTitle={item.variantTitle}
+              productId={item.productId}
+              productTitle={item.productTitle}
+              featuredImage={item.featuredImage}
+              price={item.price}
+              currency={item.currency}
+              quantity={item.quantity}
+              quantityAvailable={item.quantityAvailable}
+              onDelete={() => {
+                handleRemoveFromCart(item.lineId);
               }}
-            >
-              <Text style={{ color: "#302f2f", textAlign: "center" }}>
-                Proceed to Checkout
-              </Text>
-            </ThemedButton>
-          </View>
-        ) : (
-          <Text style={styles.cartEmptyText}>Cart empty</Text>
-        )}
-        {items.map((item) => (
-          <ProductListItem
-            key={item.lineId}
-            lineId={item.lineId}
-            variantId={item.variantId}
-            variantTitle={item.variantTitle}
-            productId={item.productId}
-            productTitle={item.productTitle}
-            featuredImage={item.featuredImage}
-            price={item.price}
-            currency={item.currency}
-            quantity={item.quantity}
-            quantityAvailable={item.quantityAvailable}
-            onDelete={() => {
-              handleRemoveFromCart(item.lineId);
-            }}
-            onQuantityChange={(newQuantity) => {
-              handleUpdateQuantity(item.lineId, newQuantity);
-            }}
-          />
-        ))}
-      </ScrollView>
+              onQuantityChange={(newQuantity) => {
+                handleUpdateQuantity(item.lineId, newQuantity);
+              }}
+            />
+          ))}
+        </ScrollView>
+      </KeyboardAvoidingView>
       <View
         style={{
           position: "absolute",
