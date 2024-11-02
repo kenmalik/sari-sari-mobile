@@ -54,6 +54,7 @@ export function SearchBar({ onChangeText }: SearchBarProps) {
         </Pressable>
         <TextInput
           autoFocus
+          clearButtonMode="while-editing"
           style={styles.input}
           placeholder="Search Shop Sari Sari"
           placeholderTextColor="grey"
