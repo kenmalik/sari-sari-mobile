@@ -26,6 +26,7 @@ import {
 import { notificationAsync, NotificationFeedbackType } from "expo-haptics";
 import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
 import { StatusBar } from "expo-status-bar";
+import { Colors } from "@/constants/Colors";
 
 type ImageObject = {
   id: string;
@@ -42,6 +43,7 @@ type Variant = {
   id: string;
   title: string;
   price: { amount: number; currencyCode: string };
+  compareAtPrice: { amount: number; currencyCode: string };
   stock: number;
   imageID?: string;
 };
@@ -61,9 +63,13 @@ export default function ProductPage() {
   const [productInfo, setProductInfo] = useState<ProductInfo>();
 
   const [variants, setVariants] = useState<Variant[]>([]);
-  const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState<
+    number | null
+  >(null);
   const isOutOfStock =
-    selectedVariant !== null ? variants[selectedVariant].stock <= 0 : true;
+    selectedVariantIndex !== null
+      ? variants[selectedVariantIndex].stock <= 0
+      : true;
   const cursor = useRef<string | null>(null);
   const [hasNextPage, setHasNextPage] = useState<boolean>(false);
 
@@ -71,7 +77,7 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState<number>(DEFAULT_QUANTITY);
 
   async function handleAddToCart() {
-    if (selectedVariant === null || !shopifyClient || !cart) {
+    if (selectedVariantIndex === null || !shopifyClient || !cart) {
       return;
     }
 
@@ -81,7 +87,10 @@ export default function ProductPage() {
         variables: {
           cartId: cart.id,
           lines: [
-            { quantity: quantity, merchandiseId: variants[selectedVariant].id },
+            {
+              quantity: quantity,
+              merchandiseId: variants[selectedVariantIndex].id,
+            },
           ],
         },
       });
@@ -106,7 +115,7 @@ export default function ProductPage() {
   }
 
   async function handleBuyNow() {
-    if (selectedVariant === null || !shopifyClient || !cart) {
+    if (selectedVariantIndex === null || !shopifyClient || !cart) {
       return;
     }
 
@@ -115,7 +124,10 @@ export default function ProductPage() {
       const res = await shopifyClient.request(BUY_NOW, {
         variables: {
           lines: [
-            { quantity: quantity, merchandiseId: variants[selectedVariant].id },
+            {
+              quantity: quantity,
+              merchandiseId: variants[selectedVariantIndex].id,
+            },
           ],
         },
       });
@@ -193,14 +205,15 @@ export default function ProductPage() {
               id: variant.node.id,
               title: variant.node.title,
               price: variant.node.price,
+              compareAtPrice: variant.node.compareAtPrice,
               stock: variant.node.quantityAvailable,
               imageID: variant.node.image?.id,
             };
           }),
         ),
       );
-      if (selectedVariant === null && page.edges.length > 0) {
-        setSelectedVariant(0);
+      if (selectedVariantIndex === null && page.edges.length > 0) {
+        setSelectedVariantIndex(0);
       }
 
       cursor.current = page.pageInfo.hasNextPage
@@ -217,9 +230,10 @@ export default function ProductPage() {
     getVariantPage();
   }, []);
 
-  if (selectedVariant === null) {
+  if (!productInfo || selectedVariantIndex === null) {
     return <View />;
   }
+  const selectedVariant = variants[selectedVariantIndex];
 
   return (
     <>
@@ -228,170 +242,185 @@ export default function ProductPage() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView contentContainerStyle={styles.container}>
-          {productInfo && (
-            <>
-              <View style={[styles.imageContainer, { height: height * 0.5 }]}>
-                {images.length > 0 ? (
-                  <Carousel
-                    height={height}
-                    width={width}
-                    selected={variants[selectedVariant]?.imageID}
-                  >
-                    {images.map((image) => (
-                      <Image
-                        id={image.id}
-                        key={image.id}
-                        style={[styles.image]}
-                        source={{ uri: image.url }}
-                      />
-                    ))}
-                  </Carousel>
-                ) : (
-                  <>
-                    <AntDesign name="picture" size={64} color="lightgrey" />
-                    <Text style={{ color: "lightgrey" }}>
-                      No image provided.
-                    </Text>
-                  </>
-                )}
-              </View>
+          <View style={[styles.imageContainer, { height: height * 0.5 }]}>
+            {images.length > 0 ? (
+              <Carousel
+                height={height}
+                width={width}
+                selected={selectedVariant.imageID}
+              >
+                {images.map((image) => (
+                  <Image
+                    id={image.id}
+                    key={image.id}
+                    style={[styles.image]}
+                    source={{ uri: image.url }}
+                  />
+                ))}
+              </Carousel>
+            ) : (
+              <>
+                <AntDesign name="picture" size={64} color="lightgrey" />
+                <Text style={{ color: "lightgrey" }}>No image provided.</Text>
+              </>
+            )}
+          </View>
 
-              <Text style={[styles.title, styles.wallSpaced]}>
-                {productInfo.title}
-              </Text>
+          <Text style={[styles.title, styles.wallSpaced]}>
+            {productInfo.title}
+          </Text>
 
-              <View style={[styles.section, styles.wallSpaced]}>
-                <Text>
-                  {variants[selectedVariant] &&
-                  variants[selectedVariant].stock > 0 ? (
-                    <Text>
-                      {variants[selectedVariant]?.stock} items in stock!
-                    </Text>
-                  ) : (
-                    <Text style={{ color: "red" }}>Out of stock</Text>
-                  )}
-                </Text>
-              </View>
-
-              {variants.length > 1 && (
-                <View style={styles.section}>
-                  <Text style={[styles.subheading, styles.wallSpaced]}>
-                    <Text style={{ fontWeight: "bold" }}>Variant: </Text>
-                    <Text>{variants[selectedVariant]?.title}</Text>
-                  </Text>
-                  <ScrollView
-                    contentContainerStyle={styles.variantCardContainer}
-                    horizontal
-                  >
-                    {variants.map((variant, index) => (
-                      <VariantCard
-                        key={variant.id}
-                        variant={variant}
-                        style={
-                          variants[selectedVariant]?.id === variant.id
-                            ? { borderColor: "rgb(3, 9, 156)" }
-                            : undefined
-                        }
-                        onSelect={() => {
-                          setSelectedVariant(index);
-                        }}
-                      />
-                    ))}
-                    {hasNextPage && (
-                      <Pressable
-                        onPress={getVariantPage}
-                        style={[
-                          {
-                            justifyContent: "center",
-                            alignItems: "center",
-                            padding: 8,
-                          },
-                          styles.disabledVariantCard,
-                        ]}
-                      >
-                        {({ pressed }) => (
-                          <>
-                            <AntDesign
-                              name="pluscircleo"
-                              size={24}
-                              color={pressed ? "rgb(3, 9, 156)" : "black"}
-                            />
-                            <Text
-                              style={{
-                                color: pressed ? "rgb(3, 9, 156)" : "black",
-                              }}
-                            >
-                              Load more
-                            </Text>
-                          </>
+          <View style={[styles.section, styles.wallSpaced]}>
+            <Text>
+              {variants[selectedVariantIndex] &&
+              variants[selectedVariantIndex].stock > 0 ? (
+                <View>
+                  <Text>
+                    <Text style={styles.price}>
+                      {selectedVariant.price.currencyCode === "USD" && "$"}
+                      {Number(selectedVariant.price.amount).toFixed(2)}
+                      {selectedVariant.price.currencyCode !== "USD" &&
+                        ` ${selectedVariant.price.currencyCode}`}
+                    </Text>{" "}
+                    {selectedVariant.compareAtPrice?.amount >
+                      selectedVariant.price.amount && (
+                      <Text style={styles.compareAtPrice}>
+                        {selectedVariant.price.currencyCode === "USD" && "$"}
+                        {Number(selectedVariant.compareAtPrice.amount).toFixed(
+                          2,
                         )}
-                      </Pressable>
+                        {selectedVariant.price.currencyCode !== "USD" &&
+                          ` ${selectedVariant.price.currencyCode}`}
+                      </Text>
                     )}
-                  </ScrollView>
+                  </Text>
+                  <Text>{selectedVariant.stock} items in stock!</Text>
                 </View>
-              )}
-
-              <View style={[styles.section, styles.wallSpaced]}>
-                <NumberSelector
-                  max={
-                    selectedVariant
-                      ? variants[selectedVariant].stock
-                      : undefined
-                  }
-                  min={1}
-                  onSelect={(selected) => setQuantity(selected)}
-                  value={quantity}
-                  style={{ marginBottom: 24 }}
-                  textContainerStyle={{ padding: 16 }}
-                  disabled={isOutOfStock}
-                />
-                <ThemedButton
-                  color="transparent"
-                  pressedColor="white"
-                  disabledColor="lightgrey"
-                  style={{
-                    borderColor: isOutOfStock ? "grey" : "black",
-                    borderWidth: 1,
-                    marginBottom: 8,
-                  }}
-                  onPress={handleAddToCart}
-                  disabled={isOutOfStock}
-                >
-                  <Text
-                    style={{
-                      color: isOutOfStock ? "grey" : "black",
-                      textAlign: "center",
-                      padding: 16,
-                    }}
-                  >
-                    Add to Cart
-                  </Text>
-                </ThemedButton>
-                <ThemedButton onPress={handleBuyNow} disabled={isOutOfStock}>
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      padding: 16,
-                      color: isOutOfStock ? "gainsboro" : "white",
-                    }}
-                  >
-                    Buy Now
-                  </Text>
-                </ThemedButton>
-              </View>
-
-              <View style={[styles.section, styles.wallSpaced]}>
-                <Text style={[styles.subheading, { fontWeight: "bold" }]}>
-                  Description:{" "}
+              ) : (
+                <Text style={{ color: Colors.secondaryHighlight }}>
+                  Out of stock
                 </Text>
-                {productInfo.description ? (
-                  <Text>{productInfo.description}</Text>
-                ) : (
-                  <Text>This item has no description.</Text>
+              )}
+            </Text>
+          </View>
+
+          {variants.length > 1 && (
+            <View style={styles.section}>
+              <Text style={[styles.subheading, styles.wallSpaced]}>
+                <Text style={{ fontWeight: "bold" }}>Variant: </Text>
+                <Text>{selectedVariant.title}</Text>
+              </Text>
+              <ScrollView
+                contentContainerStyle={styles.variantCardContainer}
+                horizontal
+              >
+                {variants.map((variant, index) => (
+                  <VariantCard
+                    key={variant.id}
+                    variant={variant}
+                    style={
+                      selectedVariant.id === variant.id
+                        ? { borderColor: "rgb(3, 9, 156)" }
+                        : undefined
+                    }
+                    onSelect={() => {
+                      setSelectedVariantIndex(index);
+                    }}
+                  />
+                ))}
+                {hasNextPage && (
+                  <Pressable
+                    onPress={getVariantPage}
+                    style={[
+                      {
+                        justifyContent: "center",
+                        alignItems: "center",
+                        padding: 8,
+                      },
+                      styles.disabledVariantCard,
+                    ]}
+                  >
+                    {({ pressed }) => (
+                      <>
+                        <AntDesign
+                          name="pluscircleo"
+                          size={24}
+                          color={pressed ? "rgb(3, 9, 156)" : "black"}
+                        />
+                        <Text
+                          style={{
+                            color: pressed ? "rgb(3, 9, 156)" : "black",
+                          }}
+                        >
+                          Load more
+                        </Text>
+                      </>
+                    )}
+                  </Pressable>
                 )}
-              </View>
-            </>
+              </ScrollView>
+            </View>
           )}
+
+          <View style={[styles.section, styles.wallSpaced]}>
+            <NumberSelector
+              max={
+                selectedVariantIndex
+                  ? variants[selectedVariantIndex].stock
+                  : undefined
+              }
+              min={1}
+              onSelect={(selected) => setQuantity(selected)}
+              value={quantity}
+              style={{ marginBottom: 24 }}
+              textContainerStyle={{ padding: 16 }}
+              disabled={isOutOfStock}
+            />
+            <ThemedButton
+              color="transparent"
+              pressedColor="white"
+              disabledColor="lightgrey"
+              style={{
+                borderColor: isOutOfStock ? "grey" : "black",
+                borderWidth: 1,
+                marginBottom: 8,
+              }}
+              onPress={handleAddToCart}
+              disabled={isOutOfStock}
+            >
+              <Text
+                style={{
+                  color: isOutOfStock ? "grey" : "black",
+                  textAlign: "center",
+                  padding: 16,
+                }}
+              >
+                Add to Cart
+              </Text>
+            </ThemedButton>
+            <ThemedButton onPress={handleBuyNow} disabled={isOutOfStock}>
+              <Text
+                style={{
+                  textAlign: "center",
+                  padding: 16,
+                  color: isOutOfStock ? "gainsboro" : "white",
+                }}
+              >
+                Buy Now
+              </Text>
+            </ThemedButton>
+          </View>
+
+          <View style={[styles.section, styles.wallSpaced]}>
+            <Text style={[styles.subheading, { fontWeight: "bold" }]}>
+              Description:{" "}
+            </Text>
+            {productInfo.description ? (
+              <Text>{productInfo.description}</Text>
+            ) : (
+              <Text>This item has no description.</Text>
+            )}
+          </View>
         </ScrollView>
         <View
           style={{
@@ -512,5 +541,15 @@ const styles = StyleSheet.create({
   },
   wallSpaced: {
     marginHorizontal: 16,
+  },
+  price: {
+    fontSize: 32,
+    fontWeight: "bold",
+    marginBottom: 2,
+  },
+  compareAtPrice: {
+    fontSize: 16,
+    color: Colors.secondaryHighlight,
+    textDecorationLine: "line-through",
   },
 });

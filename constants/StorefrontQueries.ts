@@ -220,6 +220,10 @@ query Variants($productId: ID!, $count: Int!, $cursor: String) {
             amount
             currencyCode
           }
+          compareAtPrice {
+            amount
+            currencyCode
+          }
           quantityAvailable
           image {
             id
@@ -245,6 +249,12 @@ export const GET_PRODUCT_PAGE = `
           featuredImage {
             id
             url
+          }
+          compareAtPriceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
           }
           priceRange {
             minVariantPrice {
