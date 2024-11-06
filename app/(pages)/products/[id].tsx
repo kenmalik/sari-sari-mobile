@@ -27,6 +27,7 @@ import { notificationAsync, NotificationFeedbackType } from "expo-haptics";
 import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
 import { StatusBar } from "expo-status-bar";
 import { Colors } from "@/constants/Colors";
+import { Price, formatPrice } from "@/constants/Format";
 
 type ImageObject = {
   id: string;
@@ -42,8 +43,8 @@ type ProductInfo = {
 type Variant = {
   id: string;
   title: string;
-  price: { amount: number; currencyCode: string };
-  compareAtPrice: { amount: number; currencyCode: string };
+  price: Price;
+  compareAtPrice: Price;
   stock: number;
   imageID?: string;
 };
@@ -277,20 +278,12 @@ export default function ProductPage() {
                 <View>
                   <Text>
                     <Text style={styles.price}>
-                      {selectedVariant.price.currencyCode === "USD" && "$"}
-                      {Number(selectedVariant.price.amount).toFixed(2)}
-                      {selectedVariant.price.currencyCode !== "USD" &&
-                        ` ${selectedVariant.price.currencyCode}`}
+                      {formatPrice(selectedVariant.price)}
                     </Text>{" "}
                     {selectedVariant.compareAtPrice?.amount >
                       selectedVariant.price.amount && (
                       <Text style={styles.compareAtPrice}>
-                        {selectedVariant.price.currencyCode === "USD" && "$"}
-                        {Number(selectedVariant.compareAtPrice.amount).toFixed(
-                          2,
-                        )}
-                        {selectedVariant.price.currencyCode !== "USD" &&
-                          ` ${selectedVariant.price.currencyCode}`}
+                        {formatPrice(selectedVariant.compareAtPrice)}
                       </Text>
                     )}
                   </Text>
@@ -470,9 +463,7 @@ function VariantCard({
       </Text>
       <View>
         <Text style={{ fontSize: 16, marginBottom: 4 }}>
-          {variant.price.currencyCode === "USD"
-            ? `$${variant.price.amount}`
-            : `${variant.price.amount} ${variant.price.currencyCode}`}
+          {formatPrice(variant.price)}
         </Text>
         <Text
           style={[
