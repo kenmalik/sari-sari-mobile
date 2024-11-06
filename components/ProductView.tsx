@@ -43,6 +43,7 @@ export function ProductView({
             title={item.title}
             featuredImage={item.featuredImage}
             price={item.price}
+            compareAtPrice={item.compareAtPrice}
             currency={item.currency}
             style={styles.card}
           />

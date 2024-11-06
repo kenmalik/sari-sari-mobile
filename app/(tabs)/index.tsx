@@ -37,6 +37,7 @@ export default function Index() {
         (edge: any) => ({
           ...edge.node,
           price: edge.node.priceRange.minVariantPrice.amount,
+          compareAtPrice: edge.node.compareAtPriceRange.minVariantPrice.amount,
           currency: edge.node.priceRange.minVariantPrice.currencyCode,
         }),
       );

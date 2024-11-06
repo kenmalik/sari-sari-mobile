@@ -9,12 +9,14 @@ import {
   ViewStyle,
 } from "react-native";
 import { Link } from "expo-router";
+import { Colors } from "@/constants/Colors";
 
 export type ProductCardProps = {
   id: string;
   title: string;
   featuredImage: { id: string; url: string } | null;
   price: number;
+  compareAtPrice: number;
   currency: string;
   style?: StyleProp<ViewStyle>;
 };
@@ -24,6 +26,7 @@ export function ProductCard({
   title,
   featuredImage,
   price,
+  compareAtPrice,
   currency,
   style,
 }: ProductCardProps) {
@@ -54,12 +57,27 @@ export function ProductCard({
             >
               {title}
             </Text>
-            <Text
-              style={[styles.cardPrice, pressed ? { color: "grey" } : null]}
-            >
-              {currency === "USD" && "$"}
-              {Number(price).toFixed(2)}
-              {currency !== "USD" && ` ${currency}`}
+            <Text style={styles.cardPrice}>
+              <Text style={pressed ? { color: "grey" } : null}>
+                {currency === "USD" && "$"}
+                {Number(price).toFixed(2)}
+                {currency !== "USD" && ` ${currency}`}
+              </Text>
+              {compareAtPrice > price && (
+                <>
+                  <Text> </Text>
+                  <Text
+                    style={[
+                      styles.compareAtPrice,
+                      pressed ? { color: "grey" } : null,
+                    ]}
+                  >
+                    {currency === "USD" && "$"}
+                    {Number(compareAtPrice).toFixed(2)}
+                    {currency !== "USD" && ` ${currency}`}
+                  </Text>
+                </>
+              )}
             </Text>
           </View>
         )}
@@ -97,5 +115,9 @@ const styles = StyleSheet.create({
   cardPrice: {
     textAlign: "center",
     marginTop: 2,
+  },
+  compareAtPrice: {
+    color: Colors.secondaryHighlight,
+    textDecorationLine: "line-through",
   },
 });
