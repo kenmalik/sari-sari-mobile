@@ -10,14 +10,14 @@ import {
 } from "react-native";
 import { Link } from "expo-router";
 import { Colors } from "@/constants/Colors";
+import { Price, formatPrice } from "@/constants/Format";
 
 export type ProductCardProps = {
   id: string;
   title: string;
   featuredImage: { id: string; url: string } | null;
-  price: number;
-  compareAtPrice: number;
-  currency: string;
+  price: Price;
+  compareAtPrice: Price;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -27,7 +27,6 @@ export function ProductCard({
   featuredImage,
   price,
   compareAtPrice,
-  currency,
   style,
 }: ProductCardProps) {
   return (
@@ -59,11 +58,9 @@ export function ProductCard({
             </Text>
             <Text style={styles.cardPrice}>
               <Text style={pressed ? { color: "grey" } : null}>
-                {currency === "USD" && "$"}
-                {Number(price).toFixed(2)}
-                {currency !== "USD" && ` ${currency}`}
+                {formatPrice(price)}
               </Text>
-              {compareAtPrice > price && (
+              {compareAtPrice.amount > price.amount && (
                 <>
                   <Text> </Text>
                   <Text
@@ -72,9 +69,7 @@ export function ProductCard({
                       pressed ? { color: "grey" } : null,
                     ]}
                   >
-                    {currency === "USD" && "$"}
-                    {Number(compareAtPrice).toFixed(2)}
-                    {currency !== "USD" && ` ${currency}`}
+                    {formatPrice(compareAtPrice)}
                   </Text>
                 </>
               )}

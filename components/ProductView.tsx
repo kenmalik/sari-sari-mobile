@@ -44,7 +44,6 @@ export function ProductView({
             featuredImage={item.featuredImage}
             price={item.price}
             compareAtPrice={item.compareAtPrice}
-            currency={item.currency}
             style={styles.card}
           />
         ) : (

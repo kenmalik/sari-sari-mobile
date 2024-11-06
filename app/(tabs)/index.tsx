@@ -34,12 +34,13 @@ export default function Index() {
       }
 
       const page: ProductCardProps[] = res.data.products.edges.map(
-        (edge: any) => ({
-          ...edge.node,
-          price: edge.node.priceRange.minVariantPrice.amount,
-          compareAtPrice: edge.node.compareAtPriceRange.minVariantPrice.amount,
-          currency: edge.node.priceRange.minVariantPrice.currencyCode,
-        }),
+        (edge: any) => {
+          return {
+            ...edge.node,
+            price: edge.node.priceRange.minVariantPrice,
+            compareAtPrice: edge.node.compareAtPriceRange.minVariantPrice,
+          };
+        },
       );
       setProducts(products.concat(page));
 

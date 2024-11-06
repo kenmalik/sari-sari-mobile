@@ -4,7 +4,8 @@ export type Price = {
 };
 
 export function formatPrice(price: Price): string {
+  const amount = Number(price.amount).toFixed(2);
   return price.currencyCode === "USD"
-    ? `$${price.amount}`
-    : `${price.amount} ${price.currencyCode}`;
+    ? `$${amount}`
+    : `${amount} ${price.currencyCode}`;
 }
