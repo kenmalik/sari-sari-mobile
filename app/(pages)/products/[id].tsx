@@ -26,6 +26,7 @@ import {
 import { notificationAsync, NotificationFeedbackType } from "expo-haptics";
 import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
 import { StatusBar } from "expo-status-bar";
+import { Colors } from "@/constants/Colors";
 
 type ImageObject = {
   id: string;
@@ -42,6 +43,7 @@ type Variant = {
   id: string;
   title: string;
   price: { amount: number; currencyCode: string };
+  compareAtPrice: { amount: number; currencyCode: string };
   stock: number;
   imageID?: string;
 };
@@ -193,6 +195,7 @@ export default function ProductPage() {
               id: variant.node.id,
               title: variant.node.title,
               price: variant.node.price,
+              compareAtPrice: variant.node.compareAtPrice,
               stock: variant.node.quantityAvailable,
               imageID: variant.node.image?.id,
             };
@@ -264,11 +267,40 @@ export default function ProductPage() {
                 <Text>
                   {variants[selectedVariant] &&
                   variants[selectedVariant].stock > 0 ? (
-                    <Text>
-                      {variants[selectedVariant]?.stock} items in stock!
-                    </Text>
+                    <View>
+                      <Text>
+                        <Text style={styles.price}>
+                          {variants[selectedVariant]?.price.currencyCode ===
+                            "USD" && "$"}
+                          {Number(
+                            variants[selectedVariant]?.price.amount,
+                          ).toFixed(2)}
+                          {variants[selectedVariant]?.price.currencyCode !==
+                            "USD" &&
+                            ` ${variants[selectedVariant]?.price.currencyCode}`}
+                        </Text>{" "}
+                        {variants[selectedVariant]?.compareAtPrice?.amount >
+                          variants[selectedVariant]?.price.amount && (
+                          <Text style={styles.compareAtPrice}>
+                            {variants[selectedVariant]?.price.currencyCode ===
+                              "USD" && "$"}
+                            {Number(
+                              variants[selectedVariant]?.compareAtPrice.amount,
+                            ).toFixed(2)}
+                            {variants[selectedVariant]?.price.currencyCode !==
+                              "USD" &&
+                              ` ${variants[selectedVariant]?.price.currencyCode}`}
+                          </Text>
+                        )}
+                      </Text>
+                      <Text>
+                        {variants[selectedVariant]?.stock} items in stock!
+                      </Text>
+                    </View>
                   ) : (
-                    <Text style={{ color: "red" }}>Out of stock</Text>
+                    <Text style={{ color: Colors.secondaryHighlight }}>
+                      Out of stock
+                    </Text>
                   )}
                 </Text>
               </View>
@@ -512,5 +544,15 @@ const styles = StyleSheet.create({
   },
   wallSpaced: {
     marginHorizontal: 16,
+  },
+  price: {
+    fontSize: 32,
+    fontWeight: "bold",
+    marginBottom: 2,
+  },
+  compareAtPrice: {
+    fontSize: 16,
+    color: Colors.secondaryHighlight,
+    textDecorationLine: "line-through",
   },
 });

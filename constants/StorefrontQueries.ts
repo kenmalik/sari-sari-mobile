@@ -220,6 +220,10 @@ query Variants($productId: ID!, $count: Int!, $cursor: String) {
             amount
             currencyCode
           }
+          compareAtPrice {
+            amount
+            currencyCode
+          }
           quantityAvailable
           image {
             id
