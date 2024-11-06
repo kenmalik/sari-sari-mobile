@@ -63,9 +63,13 @@ export default function ProductPage() {
   const [productInfo, setProductInfo] = useState<ProductInfo>();
 
   const [variants, setVariants] = useState<Variant[]>([]);
-  const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState<
+    number | null
+  >(null);
   const isOutOfStock =
-    selectedVariant !== null ? variants[selectedVariant].stock <= 0 : true;
+    selectedVariantIndex !== null
+      ? variants[selectedVariantIndex].stock <= 0
+      : true;
   const cursor = useRef<string | null>(null);
   const [hasNextPage, setHasNextPage] = useState<boolean>(false);
 
@@ -73,7 +77,7 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState<number>(DEFAULT_QUANTITY);
 
   async function handleAddToCart() {
-    if (selectedVariant === null || !shopifyClient || !cart) {
+    if (selectedVariantIndex === null || !shopifyClient || !cart) {
       return;
     }
 
@@ -83,7 +87,10 @@ export default function ProductPage() {
         variables: {
           cartId: cart.id,
           lines: [
-            { quantity: quantity, merchandiseId: variants[selectedVariant].id },
+            {
+              quantity: quantity,
+              merchandiseId: variants[selectedVariantIndex].id,
+            },
           ],
         },
       });
@@ -108,7 +115,7 @@ export default function ProductPage() {
   }
 
   async function handleBuyNow() {
-    if (selectedVariant === null || !shopifyClient || !cart) {
+    if (selectedVariantIndex === null || !shopifyClient || !cart) {
       return;
     }
 
@@ -117,7 +124,10 @@ export default function ProductPage() {
       const res = await shopifyClient.request(BUY_NOW, {
         variables: {
           lines: [
-            { quantity: quantity, merchandiseId: variants[selectedVariant].id },
+            {
+              quantity: quantity,
+              merchandiseId: variants[selectedVariantIndex].id,
+            },
           ],
         },
       });
@@ -202,8 +212,8 @@ export default function ProductPage() {
           }),
         ),
       );
-      if (selectedVariant === null && page.edges.length > 0) {
-        setSelectedVariant(0);
+      if (selectedVariantIndex === null && page.edges.length > 0) {
+        setSelectedVariantIndex(0);
       }
 
       cursor.current = page.pageInfo.hasNextPage
@@ -220,9 +230,10 @@ export default function ProductPage() {
     getVariantPage();
   }, []);
 
-  if (!productInfo || selectedVariant === null) {
+  if (!productInfo || selectedVariantIndex === null) {
     return <View />;
   }
+  const selectedVariant = variants[selectedVariantIndex];
 
   return (
     <>
@@ -236,7 +247,7 @@ export default function ProductPage() {
               <Carousel
                 height={height}
                 width={width}
-                selected={variants[selectedVariant]?.imageID}
+                selected={selectedVariant.imageID}
               >
                 {images.map((image) => (
                   <Image
@@ -261,37 +272,29 @@ export default function ProductPage() {
 
           <View style={[styles.section, styles.wallSpaced]}>
             <Text>
-              {variants[selectedVariant] &&
-              variants[selectedVariant].stock > 0 ? (
+              {variants[selectedVariantIndex] &&
+              variants[selectedVariantIndex].stock > 0 ? (
                 <View>
                   <Text>
                     <Text style={styles.price}>
-                      {variants[selectedVariant]?.price.currencyCode ===
-                        "USD" && "$"}
-                      {Number(variants[selectedVariant]?.price.amount).toFixed(
-                        2,
-                      )}
-                      {variants[selectedVariant]?.price.currencyCode !==
-                        "USD" &&
-                        ` ${variants[selectedVariant]?.price.currencyCode}`}
+                      {selectedVariant.price.currencyCode === "USD" && "$"}
+                      {Number(selectedVariant.price.amount).toFixed(2)}
+                      {selectedVariant.price.currencyCode !== "USD" &&
+                        ` ${selectedVariant.price.currencyCode}`}
                     </Text>{" "}
-                    {variants[selectedVariant]?.compareAtPrice?.amount >
-                      variants[selectedVariant]?.price.amount && (
+                    {selectedVariant.compareAtPrice?.amount >
+                      selectedVariant.price.amount && (
                       <Text style={styles.compareAtPrice}>
-                        {variants[selectedVariant]?.price.currencyCode ===
-                          "USD" && "$"}
-                        {Number(
-                          variants[selectedVariant]?.compareAtPrice.amount,
-                        ).toFixed(2)}
-                        {variants[selectedVariant]?.price.currencyCode !==
-                          "USD" &&
-                          ` ${variants[selectedVariant]?.price.currencyCode}`}
+                        {selectedVariant.price.currencyCode === "USD" && "$"}
+                        {Number(selectedVariant.compareAtPrice.amount).toFixed(
+                          2,
+                        )}
+                        {selectedVariant.price.currencyCode !== "USD" &&
+                          ` ${selectedVariant.price.currencyCode}`}
                       </Text>
                     )}
                   </Text>
-                  <Text>
-                    {variants[selectedVariant]?.stock} items in stock!
-                  </Text>
+                  <Text>{selectedVariant.stock} items in stock!</Text>
                 </View>
               ) : (
                 <Text style={{ color: Colors.secondaryHighlight }}>
@@ -305,7 +308,7 @@ export default function ProductPage() {
             <View style={styles.section}>
               <Text style={[styles.subheading, styles.wallSpaced]}>
                 <Text style={{ fontWeight: "bold" }}>Variant: </Text>
-                <Text>{variants[selectedVariant]?.title}</Text>
+                <Text>{selectedVariant.title}</Text>
               </Text>
               <ScrollView
                 contentContainerStyle={styles.variantCardContainer}
@@ -316,12 +319,12 @@ export default function ProductPage() {
                     key={variant.id}
                     variant={variant}
                     style={
-                      variants[selectedVariant]?.id === variant.id
+                      selectedVariant.id === variant.id
                         ? { borderColor: "rgb(3, 9, 156)" }
                         : undefined
                     }
                     onSelect={() => {
-                      setSelectedVariant(index);
+                      setSelectedVariantIndex(index);
                     }}
                   />
                 ))}
@@ -362,7 +365,9 @@ export default function ProductPage() {
           <View style={[styles.section, styles.wallSpaced]}>
             <NumberSelector
               max={
-                selectedVariant ? variants[selectedVariant].stock : undefined
+                selectedVariantIndex
+                  ? variants[selectedVariantIndex].stock
+                  : undefined
               }
               min={1}
               onSelect={(selected) => setQuantity(selected)}
