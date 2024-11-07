@@ -293,6 +293,12 @@ export const GET_COLLECTION_PRODUCTS = `
               id
               url
             }
+            compareAtPriceRange {
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+            }
             priceRange {
               minVariantPrice {
                 amount
