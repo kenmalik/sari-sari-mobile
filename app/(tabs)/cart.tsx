@@ -24,7 +24,7 @@ import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
 import { Colors } from "@/constants/Colors";
 import { StatusBar } from "expo-status-bar";
 import { useHeaderHeight } from "@react-navigation/elements";
-import { Price } from "@/constants/Format";
+import { Price, formatPrice } from "@/constants/Format";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -34,8 +34,6 @@ type CartData = {
 };
 
 export default function Cart() {
-  console.log("Render");
-
   const shopifyClient = useContext(ShopifyContext);
   const shopifyCheckout = useShopifyCheckoutSheet();
   const { cart, setCart } = useContext(CartContext);
@@ -195,9 +193,7 @@ export default function Cart() {
               <Text style={styles.subtitle}>
                 <Text style={{ fontWeight: "300" }}>Subtotal </Text>
                 <Text style={{ fontWeight: "600" }}>
-                  {subtotal.currencyCode === "USD"
-                    ? `\$${Number(subtotal.amount).toFixed(2)}`
-                    : `${Number(subtotal.amount).toFixed(2)} ${subtotal.currencyCode}`}
+                  {formatPrice(subtotal)}
                 </Text>
               </Text>
 
