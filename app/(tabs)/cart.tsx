@@ -24,10 +24,18 @@ import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
 import { Colors } from "@/constants/Colors";
 import { StatusBar } from "expo-status-bar";
 import { useHeaderHeight } from "@react-navigation/elements";
+import { Price } from "@/constants/Format";
 
 const ITEMS_PER_PAGE = 20;
 
+type CartData = {
+  subtotal: Price;
+  items: ProductListItemProps[];
+};
+
 export default function Cart() {
+  console.log("Render");
+
   const shopifyClient = useContext(ShopifyContext);
   const shopifyCheckout = useShopifyCheckoutSheet();
   const { cart, setCart } = useContext(CartContext);
@@ -36,11 +44,11 @@ export default function Cart() {
   const headerHeight = useHeaderHeight();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [items, setItems] = useState<ProductListItemProps[]>([]);
-  const [subtotal, setSubtotal] = useState<{
-    amount: number;
-    currency: string;
-  }>({ amount: 0, currency: "USD" });
+  const [cartData, setCartData] = useState<CartData>({
+    subtotal: { amount: 0, currencyCode: "" },
+    items: [],
+  });
+  const { subtotal, items } = cartData;
 
   async function getCart() {
     if (!shopifyClient || !cart) {
@@ -58,17 +66,15 @@ export default function Cart() {
         throw meta.errors;
       }
       const cartData = meta.data.cart;
-      setSubtotal({
-        amount: cartData.cost.subtotalAmount.amount,
-        currency: cartData.cost.subtotalAmount.currencyCode,
-      });
+      const subtotal = cartData.cost.subtotalAmount;
+      const items = await getCartItems();
+      setCartData({ subtotal, items });
+
       setCart({
         id: cartData.id,
         checkoutUrl: cartData.checkoutUrl,
         quantity: cartData.totalQuantity,
       });
-
-      setItems(await getCartItems());
     } catch (error) {
       console.error(error);
     } finally {
@@ -189,9 +195,9 @@ export default function Cart() {
               <Text style={styles.subtitle}>
                 <Text style={{ fontWeight: "300" }}>Subtotal </Text>
                 <Text style={{ fontWeight: "600" }}>
-                  {subtotal.currency === "USD"
+                  {subtotal.currencyCode === "USD"
                     ? `\$${Number(subtotal.amount).toFixed(2)}`
-                    : `${Number(subtotal.amount).toFixed(2)} ${subtotal.currency}`}
+                    : `${Number(subtotal.amount).toFixed(2)} ${subtotal.currencyCode}`}
                 </Text>
               </Text>
 
@@ -204,7 +210,6 @@ export default function Cart() {
                     console.error("Checkout Error: No cart");
                     return;
                   }
-                  console.log(cart.checkoutUrl);
                   shopifyCheckout.present(cart.checkoutUrl);
                 }}
               >
