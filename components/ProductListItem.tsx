@@ -4,6 +4,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { NumberSelector } from "./NumberSelector";
 import { ThemedButton } from "./ThemedButton";
 import { Colors } from "@/constants/Colors";
+import { Price, formatPrice } from "@/constants/Format";
 
 export type ProductListItemProps = {
   lineId: string;
@@ -12,8 +13,8 @@ export type ProductListItemProps = {
   variantTitle: string;
   productTitle: string;
   featuredImage: { id: string; url: string } | null;
-  price: number;
-  currency: string;
+  price: Price;
+  compareAtPrice: Price | null;
   quantity: number;
   onDelete?: VoidFunction;
   quantityAvailable: number;
@@ -26,13 +27,15 @@ export default function ProductListItem({
   variantTitle,
   featuredImage,
   price,
-  currency,
+  compareAtPrice,
   quantity,
   quantityAvailable,
   onDelete,
   onQuantityChange,
 }: ProductListItemProps) {
   const variantColor = Colors["tintDimmed"];
+
+  console.log(compareAtPrice);
 
   return (
     <Link
@@ -70,9 +73,12 @@ export default function ProductListItem({
                 <Text style={{ color: variantColor }}>{variantTitle}</Text>
               )}
             </View>
-            <Text style={styles.price}>
-              {currency === "USD" ? `\$${price}` : `${price} ${currency}`}
-            </Text>
+            <Text style={styles.price}>{formatPrice(price)}</Text>
+            {compareAtPrice && compareAtPrice.amount > price.amount ? (
+              <Text style={styles.compareAtPrice}>
+                {formatPrice(compareAtPrice)}
+              </Text>
+            ) : null}
           </View>
         </View>
 
@@ -137,6 +143,10 @@ const styles = StyleSheet.create({
   price: {
     fontWeight: "bold",
     fontSize: 24,
+  },
+  compareAtPrice: {
+    color: Colors.secondaryHighlight,
+    textDecorationLine: "line-through",
   },
   title: {
     marginBottom: 8,

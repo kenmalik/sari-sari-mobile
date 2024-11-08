@@ -73,6 +73,10 @@ query GetCart($cartId: ID!, $count: Int, $cursor: String) {
                 amount
                 currencyCode
               }
+              compareAtPrice {
+                amount
+                currencyCode
+              }
               product {
                 id
                 title
