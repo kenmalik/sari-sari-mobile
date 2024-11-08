@@ -104,8 +104,8 @@ export default function Cart() {
           featuredImage: item.image,
           variantTitle: item.title,
           productTitle: item.product.title,
-          price: item.price.amount,
-          currency: item.price.currencyCode,
+          price: item.price,
+          compareAtPrice: item.compareAtPrice,
           quantity: edge.node.quantity,
           quantityAvailable: item.quantityAvailable,
         };
@@ -226,7 +226,7 @@ export default function Cart() {
               productTitle={item.productTitle}
               featuredImage={item.featuredImage}
               price={item.price}
-              currency={item.currency}
+              compareAtPrice={item.compareAtPrice}
               quantity={item.quantity}
               quantityAvailable={item.quantityAvailable}
               onDelete={() => {

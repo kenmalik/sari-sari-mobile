@@ -73,6 +73,10 @@ query GetCart($cartId: ID!, $count: Int, $cursor: String) {
                 amount
                 currencyCode
               }
+              compareAtPrice {
+                amount
+                currencyCode
+              }
               product {
                 id
                 title
@@ -292,6 +296,12 @@ export const GET_COLLECTION_PRODUCTS = `
             featuredImage {
               id
               url
+            }
+            compareAtPriceRange {
+              minVariantPrice {
+                amount
+                currencyCode
+              }
             }
             priceRange {
               minVariantPrice {

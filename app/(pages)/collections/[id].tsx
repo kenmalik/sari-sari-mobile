@@ -71,8 +71,8 @@ export default function CollectionPage() {
           id: edge.node.id,
           title: edge.node.title,
           featuredImage: edge.node.featuredImage,
-          price: edge.node.priceRange.minVariantPrice.amount,
-          currency: edge.node.priceRange.minVariantPrice.currencyCode,
+          price: edge.node.priceRange.minVariantPrice,
+          compareAtPrice: edge.node.compareAtPriceRange.minVariantPrice,
         };
       });
       setProducts(products.concat(page));
