@@ -20,7 +20,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="cart"
+        name="Cart"
         options={{
           header: () => <FakeSearchBar />,
           tabBarShowLabel: false,
@@ -49,7 +49,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="catalog"
+        name="Catalog"
         options={{
           header: () => <FakeSearchBar />,
           tabBarShowLabel: false,

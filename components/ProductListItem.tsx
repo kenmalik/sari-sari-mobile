@@ -35,8 +35,6 @@ export default function ProductListItem({
 }: ProductListItemProps) {
   const variantColor = Colors["tintDimmed"];
 
-  console.log(compareAtPrice);
-
   return (
     <Link
       href={{
