@@ -34,6 +34,7 @@ export function ProductView({
   }
   return (
     <FlatList
+      removeClippedSubviews
       data={products}
       renderItem={({ item }) =>
         item ? (
