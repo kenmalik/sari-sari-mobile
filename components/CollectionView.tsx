@@ -17,7 +17,6 @@ const PRODUCTS_PER_PAGE = 10;
 
 export default function CollectionView({ collectionId }: CollectionViewProps) {
   const shopifyClient = useContext(ShopifyContext);
-  console.log(collectionId);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasNextPage, setHasNextPage] = useState<boolean>(false);
