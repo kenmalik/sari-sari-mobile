@@ -13,7 +13,7 @@ export type CollectionViewProps = {
   collectionId: string | string[];
 };
 
-const PRODUCTS_PER_PAGE = 10;
+const PRODUCTS_PER_PAGE = 20;
 
 export default function CollectionView({ collectionId }: CollectionViewProps) {
   const shopifyClient = useContext(ShopifyContext);
