@@ -41,9 +41,11 @@ export default function Search() {
 
       const page: ProductCardProps[] = res.data.search.edges.map(
         (edge: any) => ({
-          ...edge.node,
-          price: edge.node.priceRange.minVariantPrice.amount,
-          currency: edge.node.priceRange.minVariantPrice.currencyCode,
+          id: edge.node.id,
+          title: edge.node.title,
+          featuredImage: edge.node.featuredImage,
+          price: edge.node.priceRange.minVariantPrice,
+          compareAtPrice: edge.node.compareAtPriceRange.minVariantPrice,
         }),
       );
       setSearchResults(searchResults.concat(page));
