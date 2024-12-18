@@ -106,7 +106,7 @@ export default function CollectionView({ collectionId }: CollectionViewProps) {
       <StatusBar style="dark" />
       <ProductView
         products={products}
-        onLoad={() => getProducts()}
+        onLoad={getProducts}
         hasNextPage={hasNextPage}
         isLoading={isLoading}
         HeaderComponent={
