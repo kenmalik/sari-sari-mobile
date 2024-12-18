@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { ProductCard, ProductCardProps } from "./ProductCard";
+import { useCallback } from "react";
 
 export type ProductViewProps = {
   products: (ProductCardProps | null)[];
@@ -32,25 +33,30 @@ export function ProductView({
   if (products.length % 2 !== 0) {
     products.push(null);
   }
+
+  const renderItem = useCallback(
+    ({ item }: { item: ProductCardProps | null }) =>
+      item ? (
+        <ProductCard
+          key={item.id}
+          id={item.id}
+          title={item.title}
+          featuredImage={item.featuredImage}
+          price={item.price}
+          compareAtPrice={item.compareAtPrice}
+          style={styles.card}
+        />
+      ) : (
+        <View style={styles.card} />
+      ),
+    [],
+  );
+
   return (
     <FlatList
       removeClippedSubviews
       data={products}
-      renderItem={({ item }) =>
-        item ? (
-          <ProductCard
-            key={item.id}
-            id={item.id}
-            title={item.title}
-            featuredImage={item.featuredImage}
-            price={item.price}
-            compareAtPrice={item.compareAtPrice}
-            style={styles.card}
-          />
-        ) : (
-          <View style={styles.card} />
-        )
-      }
+      renderItem={renderItem}
       ListHeaderComponent={HeaderComponent}
       ListFooterComponent={
         <LoadMoreButton
