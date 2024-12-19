@@ -17,7 +17,6 @@ export function CollectionPreview({ collectionId }: CollectionPreviewProps) {
   const shopifyClient = useContext(ShopifyContext);
   const [title, setTitle] = useState<string>("");
   const [products, setProducts] = useState<ProductCardProps[]>([]);
-  console.log(products);
 
   async function getCollectionInfo() {
     if (!shopifyClient) {
@@ -66,7 +65,6 @@ export function CollectionPreview({ collectionId }: CollectionPreviewProps) {
         };
       });
       setProducts(page);
-      console.log(page[0].featuredImage.url);
     } catch (e) {
       console.error(e);
     }
