@@ -69,10 +69,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     width: "100%",
     aspectRatio: "1 / 1.4",
-    shadowColor: "lightgrey",
-    shadowOpacity: 50,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
   },
   image: {
     width: "100%",
