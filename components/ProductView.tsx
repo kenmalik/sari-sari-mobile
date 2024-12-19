@@ -20,7 +20,7 @@ export type ProductViewProps = {
     | React.ComponentType<any>
     | null;
   style?: StyleProp<ViewStyle>;
-  maxItems: number;
+  maxItems?: number;
 };
 
 export function ProductView({

@@ -5,7 +5,6 @@ import { PREDICTIVE_SEARCH } from "@/constants/StorefrontQueries";
 import { SearchBar } from "@/components/SearchBar";
 import { Stack } from "expo-router";
 import { SearchResult } from "@/components/SearchResult";
-import { StatusBar } from "expo-status-bar";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
 type SearchResultObject = {
@@ -59,7 +58,6 @@ export default function IntermediateSearch() {
 
   return (
     <>
-      <StatusBar style="light" />
       <Stack.Screen
         options={{
           header: () => (

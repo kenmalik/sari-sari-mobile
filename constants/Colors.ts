@@ -1,4 +1,4 @@
-const tintColorLight = "rgb(3, 9, 156)";
+const tintColorLight = "#2d3fc4";
 const tintHighlightColorLight = "rgb(23, 29, 176)";
 const tintDimmedColorLight = "rgb(83, 99, 176)";
 

@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const ANIMATION_SPEED = 100;
+const ANIMATION_SPEED = 200;
 
 export function FakeSearchBar() {
   const offset = 24 + styles.bar.padding - styles.barItems.gap;
@@ -92,7 +92,7 @@ export function SearchBar({ onChangeText }: SearchBarProps) {
     <View style={[styles.bar, { paddingTop: insets.top + 4 }]}>
       <Animated.View style={[styles.barItems, { right: slideAnimation }]}>
         <Pressable onPress={router.back}>
-          <AntDesign name="arrowleft" size={24} color="white" />
+          <AntDesign name="arrowleft" size={24} color={Colors.text} />
         </Pressable>
         <TextInput
           autoFocus
@@ -130,7 +130,7 @@ export function SearchBar({ onChangeText }: SearchBarProps) {
 const styles = StyleSheet.create({
   bar: {
     padding: 12,
-    backgroundColor: "rgb(3, 9, 156)",
+    backgroundColor: Colors.tint,
   },
   barItems: {
     flexDirection: "row",

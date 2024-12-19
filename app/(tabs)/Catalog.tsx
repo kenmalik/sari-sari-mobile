@@ -6,7 +6,6 @@ import {
   CollectionCardProps,
 } from "@/components/CollectionCard";
 import { GET_COLLECTIONS } from "@/constants/StorefrontQueries";
-import { StatusBar } from "expo-status-bar";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -61,36 +60,33 @@ export default function Catalog() {
   }, []);
 
   return (
-    <>
-      <StatusBar style="light" />
-      <FlatList
-        data={collections}
-        renderItem={({ item }) =>
-          item ? (
-            <CollectionCard
-              key={item.id}
-              id={item.id}
-              title={item.title}
-              image={item.image}
-              style={styles.card}
-            />
-          ) : (
-            <View style={styles.card} />
-          )
-        }
-        ListHeaderComponent={<Text style={styles.pageTitle}>Catalog</Text>}
-        ListFooterComponent={
-          <ListFooter
-            isLoading={isLoading}
-            hasNextPage={hasNextPage}
-            onLoadMore={() => getCollections()}
+    <FlatList
+      data={collections}
+      renderItem={({ item }) =>
+        item ? (
+          <CollectionCard
+            key={item.id}
+            id={item.id}
+            title={item.title}
+            image={item.image}
+            style={styles.card}
           />
-        }
-        contentContainerStyle={styles.container}
-        numColumns={2}
-        columnWrapperStyle={{ gap: 12 }}
-      ></FlatList>
-    </>
+        ) : (
+          <View style={styles.card} />
+        )
+      }
+      ListHeaderComponent={<Text style={styles.pageTitle}>Catalog</Text>}
+      ListFooterComponent={
+        <ListFooter
+          isLoading={isLoading}
+          hasNextPage={hasNextPage}
+          onLoadMore={() => getCollections()}
+        />
+      }
+      contentContainerStyle={styles.container}
+      numColumns={2}
+      columnWrapperStyle={{ gap: 12 }}
+    ></FlatList>
   );
 }
 

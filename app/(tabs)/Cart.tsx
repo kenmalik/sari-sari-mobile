@@ -22,7 +22,6 @@ import ProductListItem, {
 import { ThemedButton } from "@/components/ThemedButton";
 import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
 import { Colors } from "@/constants/Colors";
-import { StatusBar } from "expo-status-bar";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { Price, formatPrice } from "@/constants/Format";
 
@@ -101,6 +100,12 @@ export default function Cart() {
       }
       const page = res.data.cart.lines.edges.map((edge: any) => {
         const item = edge.node.merchandise;
+        const apiPrice = item.price;
+        const apiCompareAtPrice = item.compareAtPrice ?? {
+          amount: 0,
+          currencyCode: "USD",
+        };
+
         return {
           lineId: edge.node.id,
           variantId: item.id,
@@ -108,8 +113,14 @@ export default function Cart() {
           featuredImage: item.image,
           variantTitle: item.title,
           productTitle: item.product.title,
-          price: item.price,
-          compareAtPrice: item.compareAtPrice,
+          price: {
+            amount: Number(apiPrice.amount),
+            currencyCode: apiPrice.currencyCode,
+          },
+          compareAtPrice: {
+            amount: Number(apiCompareAtPrice.amount),
+            currencyCode: apiCompareAtPrice.currencyCode,
+          },
           quantity: edge.node.quantity,
           quantityAvailable: item.quantityAvailable,
         };
@@ -180,7 +191,6 @@ export default function Cart() {
 
   return (
     <>
-      <StatusBar style="light" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={headerHeight}
