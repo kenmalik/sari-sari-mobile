@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { ProductCard, ProductCardProps } from "./ProductCard";
+import { useCallback } from "react";
 
 export type ProductViewProps = {
   products: (ProductCardProps | null)[];
@@ -19,6 +20,7 @@ export type ProductViewProps = {
     | React.ComponentType<any>
     | null;
   style?: StyleProp<ViewStyle>;
+  maxItems: number;
 };
 
 export function ProductView({
@@ -28,35 +30,44 @@ export function ProductView({
   isLoading,
   HeaderComponent,
   style,
+  maxItems,
 }: ProductViewProps) {
   if (products.length % 2 !== 0) {
     products.push(null);
   }
+
+  const renderItem = useCallback(
+    ({ item }: { item: ProductCardProps | null }) =>
+      item ? (
+        <ProductCard
+          key={item.id}
+          id={item.id}
+          title={item.title}
+          featuredImage={item.featuredImage}
+          price={item.price}
+          compareAtPrice={item.compareAtPrice}
+          style={styles.card}
+        />
+      ) : (
+        <View style={styles.card} />
+      ),
+    [],
+  );
+
   return (
     <FlatList
+      removeClippedSubviews
       data={products}
-      renderItem={({ item }) =>
-        item ? (
-          <ProductCard
-            key={item.id}
-            id={item.id}
-            title={item.title}
-            featuredImage={item.featuredImage}
-            price={item.price}
-            compareAtPrice={item.compareAtPrice}
-            style={styles.card}
-          />
-        ) : (
-          <View style={styles.card} />
-        )
-      }
+      renderItem={renderItem}
       ListHeaderComponent={HeaderComponent}
       ListFooterComponent={
-        <LoadMoreButton
-          hasNextPage={hasNextPage}
-          onLoad={onLoad}
-          isLoading={isLoading}
-        />
+        maxItems && products.length < maxItems ? (
+          <LoadMoreButton
+            hasNextPage={hasNextPage}
+            onLoad={onLoad}
+            isLoading={isLoading}
+          />
+        ) : null
       }
       contentContainerStyle={[styles.container, style]}
       numColumns={2}
@@ -91,6 +102,7 @@ function LoadMoreButton({ hasNextPage, onLoad, isLoading }: any) {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
+    paddingBottom: 16,
     gap: 8,
   },
   card: {
@@ -101,7 +113,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 64,
     marginTop: 16,
-    marginBottom: 8,
     shadowColor: "grey",
     shadowOpacity: 100,
     shadowRadius: 4,

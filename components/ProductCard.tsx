@@ -38,44 +38,32 @@ export function ProductCard({
       asChild
     >
       <Pressable style={style}>
-        {({ pressed }) => (
-          <View style={styles.card}>
-            {featuredImage ? (
-              <Image
-                style={[styles.cardImage, pressed ? { opacity: 0.5 } : null]}
-                source={{ uri: featuredImage.url }}
-              />
-            ) : (
-              <View style={[styles.cardImage, styles.cardNoImage]}>
-                <AntDesign name="picture" size={64} color="lightgrey" />
-              </View>
+        <View style={styles.card}>
+          {featuredImage ? (
+            <Image
+              style={styles.cardImage}
+              source={{ uri: featuredImage.url }}
+            />
+          ) : (
+            <View style={[styles.cardImage, styles.cardNoImage]}>
+              <AntDesign name="picture" size={64} color="lightgrey" />
+            </View>
+          )}
+          <Text style={styles.cardTitle} numberOfLines={1}>
+            {title}
+          </Text>
+          <Text style={styles.cardPrice}>
+            <Text>{formatPrice(price)}</Text>
+            {compareAtPrice.amount > price.amount && (
+              <>
+                <Text> </Text>
+                <Text style={styles.compareAtPrice}>
+                  {formatPrice(compareAtPrice)}
+                </Text>
+              </>
             )}
-            <Text
-              style={[styles.cardTitle, pressed ? { color: "grey" } : null]}
-              numberOfLines={1}
-            >
-              {title}
-            </Text>
-            <Text style={styles.cardPrice}>
-              <Text style={pressed ? { color: "grey" } : null}>
-                {formatPrice(price)}
-              </Text>
-              {compareAtPrice.amount > price.amount && (
-                <>
-                  <Text> </Text>
-                  <Text
-                    style={[
-                      styles.compareAtPrice,
-                      pressed ? { color: "grey" } : null,
-                    ]}
-                  >
-                    {formatPrice(compareAtPrice)}
-                  </Text>
-                </>
-              )}
-            </Text>
-          </View>
-        )}
+          </Text>
+        </View>
       </Pressable>
     </Link>
   );

@@ -180,6 +180,12 @@ query Search($query: String!, $count: Int, $cursor: String) {
               currencyCode
             }
           }
+          compareAtPriceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
 
         }
       }

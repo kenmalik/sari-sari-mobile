@@ -6,14 +6,22 @@ import { CREATE_CART } from "@/constants/StorefrontQueries";
 import { useEffect, useState } from "react";
 import { ShopifyCheckoutSheetProvider } from "@shopify/checkout-sheet-kit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-const client = createStorefrontApiClient({
-  storeDomain: "http://sari-sari-test.myshopify.com",
-  apiVersion: "2024-07",
-  publicAccessToken: "d1811492b0be351f4ed7bbc223abd2e6",
-});
+import { View } from "react-native";
 
 export default function RootLayout() {
+  if (
+    !process.env.EXPO_PUBLIC_SHOPIFY_API_URL ||
+    !process.env.EXPO_PUBLIC_SHOPIFY_API_KEY
+  ) {
+    return <View>Internal error</View>;
+  }
+
+  const client = createStorefrontApiClient({
+    storeDomain: process.env.EXPO_PUBLIC_SHOPIFY_API_URL,
+    apiVersion: "2024-07",
+    publicAccessToken: process.env.EXPO_PUBLIC_SHOPIFY_API_KEY,
+  });
+
   const [cart, setCart] = useState<Cart>(null);
   const cartContext = { cart, setCart: setAndStoreCart };
 
