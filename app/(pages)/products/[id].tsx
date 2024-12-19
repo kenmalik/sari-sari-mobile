@@ -273,8 +273,7 @@ export default function ProductPage() {
 
           <View style={[styles.section, styles.wallSpaced]}>
             <Text>
-              {variants[selectedVariantIndex] &&
-              variants[selectedVariantIndex].stock > 0 ? (
+              {selectedVariant && selectedVariant.stock > 0 ? (
                 <View>
                   <Text>
                     <Text style={styles.price}>
@@ -357,11 +356,7 @@ export default function ProductPage() {
 
           <View style={[styles.section, styles.wallSpaced]}>
             <NumberSelector
-              max={
-                selectedVariantIndex
-                  ? variants[selectedVariantIndex].stock
-                  : undefined
-              }
+              max={selectedVariant.stock}
               min={1}
               onSelect={(selected) => setQuantity(selected)}
               value={quantity}
