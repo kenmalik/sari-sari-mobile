@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const ANIMATION_SPEED = 100;
+const ANIMATION_SPEED = 200;
 
 export function FakeSearchBar() {
   const offset = 24 + styles.bar.padding - styles.barItems.gap;
