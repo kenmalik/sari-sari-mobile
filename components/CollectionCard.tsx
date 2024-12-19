@@ -36,7 +36,7 @@ export function CollectionCard({
             styles.card,
             image
               ? { justifyContent: "flex-start" }
-              : { justifyContent: "center", alignItems: "center" },
+              : { justifyContent: "center", alignItems: "center", padding: 6 },
           ]}
         >
           {image && <Image source={{ uri: image.url }} style={styles.image} />}
@@ -49,11 +49,15 @@ export function CollectionCard({
           >
             <Text
               style={[
+                styles.title,
                 image
                   ? { marginBottom: 8 }
-                  : { textAlign: "center", fontSize: 24 },
+                  : {
+                      textAlign: "center",
+                      fontSize: 24,
+                    },
               ]}
-              numberOfLines={2}
+              numberOfLines={image ? 2 : 4}
             >
               {title}
             </Text>
@@ -78,5 +82,8 @@ const styles = StyleSheet.create({
   titleBlock: {
     height: "20%",
     margin: 8,
+  },
+  title: {
+    fontWeight: "bold",
   },
 });
