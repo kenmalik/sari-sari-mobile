@@ -20,6 +20,7 @@ export type ProductViewProps = {
     | React.ComponentType<any>
     | null;
   style?: StyleProp<ViewStyle>;
+  maxItems: number;
 };
 
 export function ProductView({
@@ -29,6 +30,7 @@ export function ProductView({
   isLoading,
   HeaderComponent,
   style,
+  maxItems,
 }: ProductViewProps) {
   if (products.length % 2 !== 0) {
     products.push(null);
@@ -59,11 +61,13 @@ export function ProductView({
       renderItem={renderItem}
       ListHeaderComponent={HeaderComponent}
       ListFooterComponent={
-        <LoadMoreButton
-          hasNextPage={hasNextPage}
-          onLoad={onLoad}
-          isLoading={isLoading}
-        />
+        maxItems && products.length < maxItems ? (
+          <LoadMoreButton
+            hasNextPage={hasNextPage}
+            onLoad={onLoad}
+            isLoading={isLoading}
+          />
+        ) : null
       }
       contentContainerStyle={[styles.container, style]}
       numColumns={2}
@@ -98,6 +102,7 @@ function LoadMoreButton({ hasNextPage, onLoad, isLoading }: any) {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
+    paddingBottom: 16,
     gap: 8,
   },
   card: {
@@ -108,7 +113,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 64,
     marginTop: 16,
-    marginBottom: 8,
     shadowColor: "grey",
     shadowOpacity: 100,
     shadowRadius: 4,

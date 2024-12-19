@@ -11,11 +11,15 @@ import { View, Text, StyleSheet } from "react-native";
 
 export type CollectionViewProps = {
   collectionId: string | string[];
+  maxItems?: number;
 };
 
-const PRODUCTS_PER_PAGE = 20;
+export default function CollectionView({
+  collectionId,
+  maxItems = Infinity,
+}: CollectionViewProps) {
+  const PRODUCTS_PER_PAGE = Math.min(20, maxItems);
 
-export default function CollectionView({ collectionId }: CollectionViewProps) {
   const shopifyClient = useContext(ShopifyContext);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -123,6 +127,7 @@ export default function CollectionView({ collectionId }: CollectionViewProps) {
           </View>
         }
         style={styles.container}
+        maxItems={maxItems}
       />
     </>
   );
