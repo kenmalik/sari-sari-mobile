@@ -1,6 +1,13 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRef, useState } from "react";
-import { Pressable, StyleProp, TextInput, View, ViewStyle } from "react-native";
+import {
+  Pressable,
+  StyleProp,
+  TextInput,
+  View,
+  ViewStyle,
+  StyleSheet,
+} from "react-native";
 
 type NumberSelectorProps = {
   max?: number;
@@ -61,12 +68,9 @@ export function NumberSelector({
   return (
     <View
       style={[
+        styles.container,
         {
-          flexDirection: "row",
-          justifyContent: "space-between",
           backgroundColor: disabled ? "gainsboro" : "white",
-          borderRadius: 64,
-          overflow: "hidden",
         },
         style,
       ]}
@@ -74,27 +78,19 @@ export function NumberSelector({
       <Pressable
         onPress={onDecrement}
         disabled={value <= min}
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          width: 48,
-        }}
+        style={styles.buttons}
       >
         {({ pressed }) => (
           <AntDesign
             name="minus"
             size={16}
             color={value <= min || disabled || pressed ? "lightgrey" : "black"}
-            style={{
-              marginLeft: 16,
-            }}
           />
         )}
       </Pressable>
       <TextInput
         ref={inputRef}
-        style={[{ flex: 1, textAlign: "center" }, textContainerStyle]}
+        style={[styles.input, textContainerStyle]}
         inputMode="numeric"
         onChangeText={setTextValue}
         onEndEditing={() => onTextInput(textValue)}
@@ -105,24 +101,32 @@ export function NumberSelector({
       <Pressable
         onPress={onIncrement}
         disabled={value >= max}
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-end",
-          width: 48,
-        }}
+        style={styles.buttons}
       >
         {({ pressed }) => (
           <AntDesign
             name="plus"
             size={16}
             color={value >= max || disabled || pressed ? "lightgrey" : "black"}
-            style={{
-              marginRight: 16,
-            }}
           />
         )}
       </Pressable>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderRadius: 64,
+    overflow: "hidden",
+  },
+  buttons: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexGrow: 1,
+  },
+  input: { flexGrow: 6, flexShrink: 0, textAlign: "center" },
+});
