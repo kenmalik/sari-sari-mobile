@@ -7,7 +7,7 @@ import {
 } from "@/components/CollectionCard";
 import { GET_COLLECTIONS } from "@/constants/StorefrontQueries";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 20;
 
 export default function Catalog() {
   const shopifyClient = useContext(ShopifyContext);
