@@ -101,6 +101,12 @@ export default function Cart() {
       }
       const page = res.data.cart.lines.edges.map((edge: any) => {
         const item = edge.node.merchandise;
+        const apiPrice = item.price;
+        const apiCompareAtPrice = item.compareAtPrice ?? {
+          amount: 0,
+          currencyCode: "USD",
+        };
+
         return {
           lineId: edge.node.id,
           variantId: item.id,
@@ -108,8 +114,14 @@ export default function Cart() {
           featuredImage: item.image,
           variantTitle: item.title,
           productTitle: item.product.title,
-          price: item.price,
-          compareAtPrice: item.compareAtPrice,
+          price: {
+            amount: Number(apiPrice.amount),
+            currencyCode: apiPrice.currencyCode,
+          },
+          compareAtPrice: {
+            amount: Number(apiCompareAtPrice.amount),
+            currencyCode: apiCompareAtPrice.currencyCode,
+          },
           quantity: edge.node.quantity,
           quantityAvailable: item.quantityAvailable,
         };

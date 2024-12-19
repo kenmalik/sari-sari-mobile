@@ -74,12 +74,21 @@ export default function CollectionView({
       }
 
       const page = res.data.collection.products.edges.map((edge: any) => {
+        const apiPrice = edge.node.priceRange.minVariantPrice;
+        const apiCompareAtPrice = edge.node.compareAtPriceRange.minVariantPrice;
+
         return {
           id: edge.node.id,
           title: edge.node.title,
           featuredImage: edge.node.featuredImage,
-          price: edge.node.priceRange.minVariantPrice,
-          compareAtPrice: edge.node.compareAtPriceRange.minVariantPrice,
+          price: {
+            amount: Number(apiPrice.amount),
+            currencyCode: apiPrice.currencyCode,
+          },
+          compareAtPrice: {
+            amount: Number(apiCompareAtPrice.amount),
+            currencyCode: apiCompareAtPrice.currencyCode,
+          },
         };
       });
       setProducts(products.concat(page));

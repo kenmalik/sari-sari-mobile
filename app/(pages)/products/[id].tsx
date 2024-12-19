@@ -199,14 +199,27 @@ export default function ProductPage() {
       }
 
       const page = res.data.product.variants;
+
       setVariants(
         variants.concat(
           page.edges.map((variant: any) => {
+            const apiPrice = variant.node.price;
+            const apiCompareAtPrice = variant.node.compareAtPrice ?? {
+              amount: 0,
+              currencyCode: "USD",
+            };
+
             return {
               id: variant.node.id,
               title: variant.node.title,
-              price: variant.node.price,
-              compareAtPrice: variant.node.compareAtPrice,
+              price: {
+                amount: Number(apiPrice.amount),
+                currencyCode: apiPrice.currencyCode,
+              },
+              compareAtPrice: {
+                amount: Number(apiCompareAtPrice.amount),
+                currencyCode: apiCompareAtPrice.currencyCode,
+              },
               stock: variant.node.quantityAvailable,
               imageID: variant.node.image?.id,
             };
@@ -235,6 +248,7 @@ export default function ProductPage() {
     return <View />;
   }
   const selectedVariant = variants[selectedVariantIndex];
+  console.log(selectedVariant.price, selectedVariant.compareAtPrice);
 
   return (
     <>
@@ -279,7 +293,7 @@ export default function ProductPage() {
                     <Text style={styles.price}>
                       {formatPrice(selectedVariant.price)}
                     </Text>{" "}
-                    {selectedVariant.compareAtPrice?.amount >
+                    {selectedVariant.compareAtPrice.amount >
                       selectedVariant.price.amount && (
                       <Text style={styles.compareAtPrice}>
                         {formatPrice(selectedVariant.compareAtPrice)}
