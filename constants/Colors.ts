@@ -10,6 +10,7 @@ const tertiaryHighlightColorLight = "#fcdb53";
 
 export const Colors = {
   text: "#11181C",
+  lightText: "#ffffff",
   background: "#fff",
   tint: tintColorLight,
   tintHighlight: tintHighlightColorLight,
