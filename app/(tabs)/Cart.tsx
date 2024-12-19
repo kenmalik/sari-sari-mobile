@@ -22,7 +22,6 @@ import ProductListItem, {
 import { ThemedButton } from "@/components/ThemedButton";
 import { useShopifyCheckoutSheet } from "@shopify/checkout-sheet-kit";
 import { Colors } from "@/constants/Colors";
-import { StatusBar } from "expo-status-bar";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { Price, formatPrice } from "@/constants/Format";
 
@@ -192,7 +191,6 @@ export default function Cart() {
 
   return (
     <>
-      <StatusBar style="light" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={headerHeight}

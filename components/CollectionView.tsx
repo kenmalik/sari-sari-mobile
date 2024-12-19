@@ -5,7 +5,6 @@ import {
   GET_COLLECTION_INFO,
   GET_COLLECTION_PRODUCTS,
 } from "@/constants/StorefrontQueries";
-import { StatusBar } from "expo-status-bar";
 import { useContext, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
@@ -115,30 +114,27 @@ export default function CollectionView({
   }, []);
 
   return (
-    <>
-      <StatusBar style="dark" />
-      <ProductView
-        products={products}
-        onLoad={getProducts}
-        hasNextPage={hasNextPage}
-        isLoading={isLoading}
-        HeaderComponent={
-          <View>
-            <Text
-              style={[
-                styles.pageTitle,
-                description ? { marginBottom: 16 } : null,
-              ]}
-            >
-              {title}
-            </Text>
-            {description && <Text>{description}</Text>}
-          </View>
-        }
-        style={styles.container}
-        maxItems={maxItems}
-      />
-    </>
+    <ProductView
+      products={products}
+      onLoad={getProducts}
+      hasNextPage={hasNextPage}
+      isLoading={isLoading}
+      HeaderComponent={
+        <View>
+          <Text
+            style={[
+              styles.pageTitle,
+              description ? { marginBottom: 16 } : null,
+            ]}
+          >
+            {title}
+          </Text>
+          {description && <Text>{description}</Text>}
+        </View>
+      }
+      style={styles.container}
+      maxItems={maxItems}
+    />
   );
 }
 

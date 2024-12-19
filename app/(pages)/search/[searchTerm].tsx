@@ -3,7 +3,6 @@ import { ProductCardProps } from "@/components/ProductCard";
 import { ProductView } from "@/components/ProductView";
 import { SEARCH } from "@/constants/StorefrontQueries";
 import { useLocalSearchParams } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { useContext, useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -63,23 +62,20 @@ export default function Search() {
   }
 
   return (
-    <>
-      <StatusBar style="dark" />
-      <ProductView
-        products={searchResults}
-        onLoad={fetchSearchResults}
-        hasNextPage={hasNextPage}
-        isLoading={isLoading}
-        HeaderComponent={
-          <View style={{ marginBottom: 32, marginHorizontal: 32 }}>
-            <Text style={styles.pageTitle}>Search</Text>
-            <Text numberOfLines={1} style={{ textAlign: "center" }}>
-              Showing results for "{searchTerm}"
-            </Text>
-          </View>
-        }
-      />
-    </>
+    <ProductView
+      products={searchResults}
+      onLoad={fetchSearchResults}
+      hasNextPage={hasNextPage}
+      isLoading={isLoading}
+      HeaderComponent={
+        <View style={{ marginBottom: 32, marginHorizontal: 32 }}>
+          <Text style={styles.pageTitle}>Search</Text>
+          <Text numberOfLines={1} style={{ textAlign: "center" }}>
+            Showing results for "{searchTerm}"
+          </Text>
+        </View>
+      }
+    />
   );
 }
 
