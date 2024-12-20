@@ -325,3 +325,34 @@ export const GET_COLLECTION_PRODUCTS = `
     }
   }
 `;
+
+export const GET_COLLECTION_PREVIEW = `
+query($id: ID!, $count: Int, $cursor: String) {
+  collection(id: $id) {
+    title
+    products(first: $count, after: $cursor) {
+      edges {
+        node {
+          id
+          title
+          featuredImage {
+            url
+          }
+          compareAtPriceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;

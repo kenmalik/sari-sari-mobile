@@ -1,9 +1,6 @@
 import { ShopifyContext } from "@/app/ShopifyContext";
 import { Colors } from "@/constants/Colors";
-import {
-  GET_COLLECTION_INFO,
-  GET_COLLECTION_PRODUCTS,
-} from "@/constants/StorefrontQueries";
+import { GET_COLLECTION_PREVIEW } from "@/constants/StorefrontQueries";
 import { Link } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
@@ -13,10 +10,14 @@ export type CollectionPreviewProps = {
   collectionId: string;
 };
 
+type PreviewData = {
+  title: string;
+  products: ProductCardProps[];
+};
+
 export function CollectionPreview({ collectionId }: CollectionPreviewProps) {
   const shopifyClient = useContext(ShopifyContext);
-  const [title, setTitle] = useState<string>("");
-  const [products, setProducts] = useState<ProductCardProps[]>([]);
+  const [data, setData] = useState<PreviewData | null>(null);
 
   async function getCollectionInfo() {
     if (!shopifyClient) {
@@ -24,47 +25,38 @@ export function CollectionPreview({ collectionId }: CollectionPreviewProps) {
     }
 
     try {
-      const titleres = await shopifyClient.request(GET_COLLECTION_INFO, {
-        variables: {
-          id: collectionId,
-        },
-      });
-      if (titleres.errors) {
-        throw titleres.errors;
-      }
-
-      setTitle(titleres.data.collection.title);
-
-      const res = await shopifyClient.request(GET_COLLECTION_PRODUCTS, {
+      const res = await shopifyClient.request(GET_COLLECTION_PREVIEW, {
         variables: {
           id: collectionId,
           count: 4,
         },
       });
-
       if (res.errors) {
         throw res.errors;
       }
 
-      const page = res.data.collection.products.edges.map((edge: any) => {
-        const apiPrice = edge.node.priceRange.minVariantPrice;
-        const apiCompareAtPrice = edge.node.compareAtPriceRange.minVariantPrice;
+      const page: ProductCardProps[] = res.data.collection.products.edges.map(
+        (edge: any) => {
+          const apiPrice = edge.node.priceRange.minVariantPrice;
+          const apiCompareAtPrice =
+            edge.node.compareAtPriceRange.minVariantPrice;
 
-        return {
-          id: edge.node.id,
-          title: edge.node.title,
-          featuredImage: edge.node.featuredImage,
-          price: {
-            amount: Number(apiPrice.amount),
-            currencyCode: apiPrice.currencyCode,
-          },
-          compareAtPrice: {
-            amount: Number(apiCompareAtPrice.amount),
-            currencyCode: apiCompareAtPrice.currencyCode,
-          },
-        };
-      });
-      setProducts(page);
+          return {
+            id: edge.node.id,
+            title: edge.node.title,
+            featuredImage: edge.node.featuredImage,
+            price: {
+              amount: Number(apiPrice.amount),
+              currencyCode: apiPrice.currencyCode,
+            },
+            compareAtPrice: {
+              amount: Number(apiCompareAtPrice.amount),
+              currencyCode: apiCompareAtPrice.currencyCode,
+            },
+          };
+        },
+      );
+      setData({ title: res.data.collection.title, products: page });
     } catch (e) {
       console.error(e);
     }
@@ -74,12 +66,16 @@ export function CollectionPreview({ collectionId }: CollectionPreviewProps) {
     getCollectionInfo();
   }, []);
 
+  if (!data) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.titleText}>{title}</Text>
+      <Text style={styles.titleText}>{data.title}</Text>
 
       <View style={styles.itemContainer}>
-        {products.map((item) => (
+        {data.products.map((item) => (
           <ProductCard
             id={item.id}
             key={item.id}
