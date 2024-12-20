@@ -115,7 +115,6 @@ export function CollectionPreview({ collectionId }: CollectionPreviewProps) {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
     paddingTop: 24,
     paddingBottom: 48,
   },
@@ -123,13 +122,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 32,
     marginBottom: 16,
+    textAlign: "center",
   },
   itemContainer: {
     gap: 8,
     padding: 8,
   },
   item: {
-    maxWidth: "50%",
+    flex: 1,
     aspectRatio: "1 / 1.25",
     justifyContent: "center",
   },
@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 48,
     marginTop: 16,
+    alignSelf: "center",
   },
   buttonText: {
     color: Colors.lightText,
