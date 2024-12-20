@@ -3,7 +3,7 @@ import { Colors } from "@/constants/Colors";
 import { GET_COLLECTION_PREVIEW } from "@/constants/StorefrontQueries";
 import { Link } from "expo-router";
 import { useContext, useEffect, useState } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
 import { ProductCard, ProductCardProps } from "./ProductCard";
 
 export type CollectionPreviewProps = {
@@ -62,6 +62,18 @@ export function CollectionPreview({ collectionId }: CollectionPreviewProps) {
     }
   }
 
+  const renderItem = ({ item }: { item: ProductCardProps }) => (
+    <ProductCard
+      id={item.id}
+      key={item.id}
+      title={item.title}
+      featuredImage={item.featuredImage}
+      price={item.price}
+      compareAtPrice={item.compareAtPrice}
+      style={styles.item}
+    />
+  );
+
   useEffect(() => {
     getCollectionInfo();
   }, []);
@@ -74,19 +86,17 @@ export function CollectionPreview({ collectionId }: CollectionPreviewProps) {
     <View style={styles.container}>
       <Text style={styles.titleText}>{data.title}</Text>
 
-      <View style={styles.itemContainer}>
-        {data.products.map((item) => (
-          <ProductCard
-            id={item.id}
-            key={item.id}
-            title={item.title}
-            featuredImage={item.featuredImage}
-            price={item.price}
-            compareAtPrice={item.compareAtPrice}
-            style={styles.item}
-          />
-        ))}
-      </View>
+      <FlatList
+        scrollEnabled={false}
+        removeClippedSubviews
+        data={data.products}
+        renderItem={renderItem}
+        contentContainerStyle={styles.itemContainer}
+        numColumns={2}
+        columnWrapperStyle={{
+          gap: 8,
+        }}
+      />
 
       <Link
         href={{
@@ -115,17 +125,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   itemContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    aspectRatio: "1 / 1",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    alignContent: "space-between",
+    gap: 8,
     padding: 8,
   },
   item: {
-    width: "49%",
-    aspectRatio: "1 / 1",
+    maxWidth: "50%",
+    aspectRatio: "1 / 1.25",
     justifyContent: "center",
   },
   itemName: {
